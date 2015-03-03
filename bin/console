@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'gql'
+
+require_relative '../test/example'
+
+def ctxt
+  @ctxt ||= { auth_token: 'ma' }
+end
+
+def q(string, context = ctxt)
+  GQL.execute string, context
+end
+
+def p(string)
+  GQL.parse string
+end
+
+def t(string, &block)
+  GQL.tokenize string, &block
+end
+
+require 'irb'
+IRB.start
