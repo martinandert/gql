@@ -57,10 +57,6 @@ module GQL
       end
     end
 
-    call :_identity do
-      target
-    end
-
     attr_reader :__target, :__context
 
     def initialize(ast_node, target, variables, context)
