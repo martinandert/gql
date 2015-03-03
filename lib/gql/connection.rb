@@ -25,7 +25,11 @@ module GQL
 
     EdgesField.class_eval do
       def __value
-        __target
+        if @ast_node.fields
+          __target
+        else
+          nil
+        end
       end
     end
   end

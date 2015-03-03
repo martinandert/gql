@@ -23,7 +23,7 @@ module GQL
     class UndefinedType < SchemaError
       def initialize(name)
         types = Schema.fields.keys.sort.map { |name| "`#{name}`" }
-        types = types.size > 0 ? " Available types are #{types.to_sentence}." : ''
+        types = types.size > 0 ? " Available types: #{types.to_sentence}." : ''
 
         super("The field type `#{name}` is not known to the schema. Define it with `GQL::Schema.fields[my_type] = MyFieldType`.#{types}")
       end
@@ -31,8 +31,8 @@ module GQL
 
     class UndefinedCall < SchemaError
       def initialize(name, node_class)
-        calls = node_class.call_definitions.keys.sort.map { |name| "`#{name}`" }
-        calls = calls.size > 0 ? " Available calls are #{calls.to_sentence}." : ''
+        calls = node_class.call_classes.keys.sort.map { |name| "`#{name}`" }
+        calls = calls.size > 0 ? " Available calls: #{calls.to_sentence}." : ''
 
         super("#{node_class} has no call named `#{name}`.#{calls}")
       end
@@ -41,7 +41,7 @@ module GQL
     class UndefinedField < SchemaError
       def initialize(name, node_class)
         fields = node_class.field_classes.keys.sort.map { |name| "`#{name}`" }
-        fields = fields.size > 0 ? " Available fields are #{fields.to_sentence}." : ''
+        fields = fields.size > 0 ? " Available fields: #{fields.to_sentence}." : ''
 
         super("#{node_class} has no field named `#{name}`.#{fields}")
       end

@@ -3,8 +3,8 @@ require 'active_support/core_ext/string/inflections'
 
 module GQL
   class Node
-    class_attribute :call_definitions
-    self.call_definitions = {}
+    class_attribute :call_classes
+    self.call_classes = {}
 
     class_attribute :field_classes
     self.field_classes = {}
@@ -17,12 +17,30 @@ module GQL
       end
 
       def call(name, options = {}, &block)
-        definition = {
-          returns: options[:returns],
-          body: block || lambda { |*args| __target.public_send(name, *args) }
-        }
+        result_class = options[:returns]
+        function = block || lambda { |*args| target.public_send(name, *args) }
 
-        self.call_definitions = call_definitions.merge(name => definition)
+        if result_class.is_a? Array
+          result_class.unshift Connection if result_class.size == 1
+          result_class.unshift Fields::Connection if result_class.size == 2
+
+          field_class, connection_class, node_class = result_class
+
+          raise Errors::InvalidNodeClass.new(field_class, Fields::Connection) unless field_class <= Fields::Connection
+
+          result_class = Class.new(field_class)
+          result_class.const_set :NODE_CLASS, node_class
+          result_class.const_set :CONNECTION_CLASS, connection_class
+        else
+          raise Errors::InvalidNodeClass.new(result_class, Node) unless result_class.nil? || result_class < Node
+        end
+
+        call_class = Class.new(Call)
+        call_class.const_set :Function, function
+        call_class.const_set :Result, result_class
+
+        self.const_set "#{name.to_s.camelize}Call", call_class
+        self.call_classes = call_classes.merge(name => call_class)
       end
 
       def fields(&block)
@@ -31,8 +49,12 @@ module GQL
 
       def field(*names, base_class: nil, node_class: nil, connection_class: nil)
         classes = names.reduce({}) do |result, name|
-          field_class = Class.new(base_class || Field)
-          field_class.const_set :NAME, name
+          base_class ||= Field
+
+          raise Errors::InvalidNodeClass.new(base_class, Field) unless base_class <= Field
+
+          field_class = Class.new(base_class)
+
           field_class.const_set :NODE_CLASS, node_class
           field_class.const_set :CONNECTION_CLASS, connection_class
 
@@ -66,11 +88,11 @@ module GQL
 
     def __value
       if ast_call = @ast_node.call
-        definition = self.class.call_definitions[ast_call.name]
+        call_class = self.class.call_classes[ast_call.name]
 
-        raise Errors::UndefinedCall.new(ast_call.name, self.class) if definition.nil?
+        raise Errors::UndefinedCall.new(ast_call.name, self.class.superclass) if call_class.nil?
 
-        call = Call.new(self, ast_call, __target, definition, @variables, __context)
+        call = call_class.new(self, ast_call, __target, @variables, __context)
         call.execute
       elsif ast_fields = @ast_node.fields
         ast_fields.reduce({}) do |memo, ast_field|
@@ -87,7 +109,8 @@ module GQL
               target = public_send(ast_field.name)
               field_class = self.class.field_classes[ast_field.name]
 
-              raise Errors::InvalidNodeClass.new(field_class.superclass, Field) unless field_class < Field
+              raise Errors::UndefinedField.new(ast_field.name, self.class) if field_class.nil?
+              raise Errors::InvalidNodeClass.new(field_class.superclass, Field) unless field_class <= Field
 
               field = field_class.new(ast_field, target, @variables, __context)
               field.__value

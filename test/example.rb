@@ -255,6 +255,22 @@ class RootNode < GQL::Node
   call :song, returns: SongNode do |id|
     $songs.find { |song| song.id == id }
   end
+
+  call :users, returns: [HasMany, List, UserNode] do
+    $users
+  end
+
+  call :albums, returns: [HasMany, List, AlbumNode] do
+    $albums
+  end
+
+  call :songs, returns: [List, SongNode] do
+    $songs
+  end
+
+  call :accounts, returns: [AccountNode] do
+    $accounts
+  end
 end
 
 GQL::Schema.root = RootNode
