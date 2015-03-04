@@ -20,6 +20,10 @@ class Account < FakeRecord
   def saldo
     { cents: cents, currency: currency }
   end
+
+  def fibonacci
+    [1, 1, 2, 3, 5, 8, 13, 21]
+  end
 end
 
 class Album < FakeRecord
@@ -74,7 +78,7 @@ class List < GQL::Connection
   integer :count
 
   boolean :any do
-    items.any?
+    target.any?
   end
 end
 
@@ -143,6 +147,7 @@ class AccountNode
   integer :id
   object :user, node_class: UserNode
   object :saldo, node_class: MoneyNode
+  array :fibonacci, node_class: GQL::Fields::Integer
   string :iban
   string :bank_name
 

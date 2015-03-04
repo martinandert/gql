@@ -86,7 +86,7 @@ This should result in the following JSON (after prettyfication):
     "year": 2010,
     "month": 3
   },
-  "created": "March 04, 2010 14:04",
+  "created": "March 05, 2010 20:14",
   "account": {
     "bank_name": "Foo Bank",
     "iban": "987654321",
@@ -100,7 +100,7 @@ This should result in the following JSON (after prettyfication):
     "count": 2,
     "edges": [
       {
-        "cursor": "1",
+        "cursor": 1,
         "node": {
           "artist": "Metallica",
           "title": "Black Album",
@@ -119,7 +119,7 @@ This should result in the following JSON (after prettyfication):
           }
         }
       }, {
-        "cursor": "2",
+        "cursor": 2,
         "node": {
           "artist": "Nirvana",
           "title": "Nevermind",

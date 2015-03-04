@@ -8,28 +8,11 @@ module GQL
       def build_class(node_class)
         node_class ||= self.node_class
 
-        if node_class.nil?
-          raise Errors::UndefinedNodeClass.new(self, 'node')
-        end
-
-        unless node_class <= GQL::Node
-          raise Errors::InvalidNodeClass.new(node_class, GQL::Node)
-        end
-
         Class.new(self).tap do |connection_class|
-          connection_class.node_class = node_class
+          connection_class.array :edges, node_class: node_class do
+            target
+          end
         end
-      end
-    end
-
-    def value_of_field(ast_field)
-      if ast_field.name == :edges
-        target.map do |item|
-          node = self.class.node_class.new(ast_field, item, variables, context)
-          node.value
-        end
-      else
-        super
       end
     end
   end

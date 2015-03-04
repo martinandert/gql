@@ -20,6 +20,7 @@ module GQL
   end
 
   module Fields
+    autoload :Array,        'gql/fields/array'
     autoload :Boolean,      'gql/fields/boolean'
     autoload :Connection,   'gql/fields/connection'
     autoload :Float,        'gql/fields/float'
@@ -75,6 +76,7 @@ module GQL
   })
 
   self.field_types.update(
+    array:      Fields::Array,
     boolean:    Fields::Boolean,
     connection: Fields::Connection,
     float:      Fields::Float,
