@@ -33,7 +33,7 @@ TODO: Write usage instructions here
 
 ## Example
 
-Run `bin/console` for an interactive prompt and enter the following:
+Run `bin/console` for an interactive prompt (loaded with example models/data) and enter the following:
 
 ```ruby
 puts q(<<-QUERY_STRING).to_json
@@ -78,69 +78,69 @@ QUERY_STRING
 This should result in the following JSON (after prettyfication):
 
 ```json
-  {
-    "id": "ma",
-    "is_admin": true,
-    "name": "Martin Andert",
-    "created_year_and_month": {
-      "year": 2010,
-      "month": 3
-    },
-    "created": "March 04, 2010 14:04",
-    "account": {
-      "bank_name": "Foo Bank",
-      "iban": "987654321",
-      "saldo_string": "100000.00 EUR",
-      "saldo": {
-        "currency": "EUR",
-        "cents": 10000000
-      }
-    },
-    "albums": {
-      "count": 2,
-      "edges": [
-        {
-          "cursor": "1",
-          "node": {
-            "artist": "Metallica",
-            "title": "Black Album",
-            "songs": {
-              "edges": [
-                {
-                  "id": 1,
-                  "upcased_title": "ENTER SANDMAN",
-                  "upcased_title_length": 13
-                }, {
-                  "id": 2,
-                  "upcased_title": "SAD BUT TRUE",
-                  "upcased_title_length": 12
-                }
-              ]
-            }
-          }
-        }, {
-          "cursor": "2",
-          "node": {
-            "artist": "Nirvana",
-            "title": "Nevermind",
-            "songs": {
-              "edges": [
-                {
-                  "id": 5,
-                  "upcased_title": "SMELLS LIKE TEEN SPIRIT",
-                  "upcased_title_length": 23
-                }, {
-                  "id": 6,
-                  "upcased_title": "COME AS YOU ARE",
-                  "upcased_title_length": 15
-                }
-              ]
-            }
+{
+  "id": "ma",
+  "is_admin": true,
+  "name": "Martin Andert",
+  "created_year_and_month": {
+    "year": 2010,
+    "month": 3
+  },
+  "created": "March 04, 2010 14:04",
+  "account": {
+    "bank_name": "Foo Bank",
+    "iban": "987654321",
+    "saldo_string": "100000.00 EUR",
+    "saldo": {
+      "currency": "EUR",
+      "cents": 10000000
+    }
+  },
+  "albums": {
+    "count": 2,
+    "edges": [
+      {
+        "cursor": "1",
+        "node": {
+          "artist": "Metallica",
+          "title": "Black Album",
+          "songs": {
+            "edges": [
+              {
+                "id": 1,
+                "upcased_title": "ENTER SANDMAN",
+                "upcased_title_length": 13
+              }, {
+                "id": 2,
+                "upcased_title": "SAD BUT TRUE",
+                "upcased_title_length": 12
+              }
+            ]
           }
         }
-      ]
-    }
+      }, {
+        "cursor": "2",
+        "node": {
+          "artist": "Nirvana",
+          "title": "Nevermind",
+          "songs": {
+            "edges": [
+              {
+                "id": 5,
+                "upcased_title": "SMELLS LIKE TEEN SPIRIT",
+                "upcased_title_length": 23
+              }, {
+                "id": 6,
+                "upcased_title": "COME AS YOU ARE",
+                "upcased_title_length": 15
+              }
+            ]
+          }
+        }
+      }
+    ]
   }
+}
 ```
 
 
