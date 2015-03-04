@@ -1,11 +1,15 @@
 module GQL
   class Config
-    def root
-      @@root ||= nil
+    def root_node_class
+      @@root_node_class ||= nil
     end
 
-    def root=(value)
-      @@root = value
+    def root_node_class=(value)
+      unless value.nil? || value <= Node
+        raise Errors::InvalidNodeClass.new(value, Node)
+      end
+
+      @@root_node_class = value
     end
 
     def field_types

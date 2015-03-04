@@ -32,7 +32,7 @@ module GQL
       Thread.current[:gql_config] ||= Config.new
     end
 
-    %w(root field_types).each do |method|
+    %w(root_node_class field_types).each do |method|
       module_eval <<-DELEGATORS, __FILE__, __LINE__ + 1
         def #{method}
           config.#{method}

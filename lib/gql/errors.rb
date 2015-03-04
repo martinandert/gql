@@ -7,13 +7,13 @@ module GQL
   module Errors
     class UndefinedRoot < Error
       def initialize
-        super('Root node class is undefined. Define it with `GQL.root = MyRootNode`.')
+        super('Root node class is undefined. Define it with `GQL.root_node_class = MyRootNode`.')
       end
     end
 
     class InvalidNodeClass < Error
       def initialize(node_class, super_class)
-        super("#{node_class} must be a subclass of #{super_class}.")
+        super("#{node_class} must be a (subclass of) #{super_class}.")
       end
     end
 

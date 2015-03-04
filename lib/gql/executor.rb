@@ -6,10 +6,9 @@ module GQL
     end
 
     def execute(context = {})
-      node_class = GQL.root
+      node_class = GQL.root_node_class
 
       raise Errors::UndefinedRoot if node_class.nil?
-      raise Errors::InvalidNodeClass.new(node_class, Node) unless node_class < Node
 
       node = node_class.new(@ast_node, nil, @variables, context)
       node.__value

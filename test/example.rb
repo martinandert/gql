@@ -276,4 +276,4 @@ class RootNode < GQL::Node
   end
 end
 
-GQL.root = RootNode
+GQL.root_node_class = RootNode
