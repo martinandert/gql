@@ -67,7 +67,7 @@ module GQL
       end
 
       def method_missing(method, *args, &block)
-        if base_class = Schema.fields[method]
+        if base_class = GQL.field_types[method]
           options = args.extract_options!
 
           field(*args, options.merge(base_class: base_class))
@@ -133,8 +133,6 @@ module GQL
       else
         super
       end
-    rescue NoMethodError => exc
-      raise Errors::UndefinedField.new(method, self.class)
     end
   end
 end

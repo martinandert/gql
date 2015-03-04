@@ -1,18 +1,20 @@
 class GQL::Parser
 token STRING NUMBER TRUE FALSE NULL AS IDENT
 rule
-  query
-    : variables call variables    {  result = QueryNode.new(val[1], convert_variables(val[0], val[2]))  }
+  root
+    : variables node variables    {  result = Root.new(val[1],             val[0].merge(val[2]))  }
+    | variables                   {  result = Root.new(Node.new(nil, nil), val[0]              )  }
+    ;
+
+  node
+    : call          {  result = Node.new(val[0], nil            )  }
+    | fields        {  result = Node.new(nil,    val[0].presence)  }
     ;
 
   call
-    : identifier arguments fields       {   result = CallNode.new(val[0], val[1], nil, val[2].presence)   }
-    | identifier arguments sub_call     {   result = CallNode.new(val[0], val[1], val[2], nil)            }
-    | identifier arguments              {   result = CallNode.new(val[0], val[1], nil, nil)               }
-    ;
-
-  sub_call
-    : '.' call    {   result = val[1]   }
+    : identifier arguments fields       {   result = Call.new(val[0], val[1], nil,    val[2].presence)   }
+    | identifier arguments '.' call     {   result = Call.new(val[0], val[1], val[3], nil            )   }
+    | identifier arguments              {   result = Call.new(val[0], val[1], nil,    nil            )   }
     ;
 
   arguments
@@ -28,7 +30,7 @@ rule
 
   argument
     : variable_identifier
-    | json_text
+    | json_value
     ;
 
   fields
@@ -42,30 +44,30 @@ rule
     ;
 
   field
-    : identifier fields alias_identifier      {   result = FieldNode.new(val[0], val[2], nil,    val[1].presence)   }
-    | identifier sub_call alias_identifier    {   result = FieldNode.new(val[0], val[2], val[1], nil)               }
-    | identifier alias_identifier             {   result = FieldNode.new(val[0], val[1], nil,    nil)               }
-    | identifier fields                       {   result = FieldNode.new(val[0], nil,    nil,    val[1].presence)   }
-    | identifier sub_call                     {   result = FieldNode.new(val[0], nil,    val[1], nil)               }
-    | identifier                              {   result = FieldNode.new(val[0], nil,    nil,    nil)               }
+    : identifier fields alias_identifier      {   result = Field.new(val[0], val[2], nil,    val[1].presence)   }
+    | identifier '.' call alias_identifier    {   result = Field.new(val[0], val[3], val[2], nil            )   }
+    | identifier alias_identifier             {   result = Field.new(val[0], val[1], nil,    nil            )   }
+    | identifier fields                       {   result = Field.new(val[0], nil,    nil,    val[1].presence)   }
+    | identifier '.' call                     {   result = Field.new(val[0], nil,    val[2], nil            )   }
+    | identifier                              {   result = Field.new(val[0], nil,    nil,    nil            )   }
     ;
 
   alias_identifier
-    : AS identifier             {   result = val[1]       }
+    : AS identifier             {   result = val[1]   }
     ;
 
   variables
-    : /* empty */               {   result = []           }
-    | variable_list             {   result = val[0]       }
+    : /* empty */               {   result = {}   }
+    | variable_list
     ;
 
   variable_list
-    : variable                  {   result = val }
-    | variable_list variable    {   result.push val[1]    }
+    : variable
+    | variable_list variable    {   result.update val[1]    }
     ;
 
   variable
-    : variable_identifier '=' variable_value    {   result = [val[0], val[2]]     }
+    : variable_identifier '=' variable_value    {   result = { val[0] => val[2] }     }
     ;
 
   variable_identifier
@@ -73,11 +75,8 @@ rule
     ;
 
   variable_value
-    : json_text
+    : json_value
     ;
-
-  json_text
-    : json_value     {   result = @json.result   }
 
   json_value
     : object
@@ -86,50 +85,39 @@ rule
     ;
 
   object
-    : start_object end_object
-    | start_object pairs end_object
+    : '{' '}'         {   result = {}       }
+    | '{' pairs '}'   {   result = val[1]   }
     ;
 
-  start_object : '{'    {   @json.start_object    } ;
-  end_object   : '}'    {   @json.end_object      } ;
-
   pairs
-    : pairs ',' pair
+    : pairs ',' pair    {   result.update val[2]    }
     | pair
     ;
 
   pair
-    : string ':' json_value
+    : string ':' json_value   {   result = { val[0] => val[2] }    }
     ;
 
   array
-    : start_array end_array
-    | start_array values end_array
+    : '[' ']'          {   result = []       }
+    | '[' values ']'   {   result = val[1]   }
     ;
 
-  start_array  : '['    {   @json.start_array     } ;
-  end_array    : ']'    {   @json.end_array       } ;
-
   values
-    : values ',' json_value
-    | json_value
+    : values ',' json_value   {   result.push val[2]    }
+    | json_value              {   result = val          }
     ;
 
   scalar
     : string
-    | literal     {   @json.scalar val[0]   }
-    ;
-
-  string
-    : STRING      {   @json.scalar unescape_string(val[0])   }
-    ;
-
-  literal
-    : NUMBER      {   result = convert_number(val[0])   }
+    | NUMBER      {   result = convert_number(val[0])   }
     | TRUE        {   result = true                     }
     | FALSE       {   result = false                    }
     | NULL        {   result = nil                      }
     ;
+
+  string
+    : STRING      {   result = unescape_string(val[0])  }
 
   identifier
     : IDENT       {   result = val[0].to_sym    }
@@ -143,69 +131,16 @@ require 'active_support/core_ext/object/blank'
 
 ---- inner
 
-  class QueryNode < Struct.new(:call, :variables)
+  class Root < Struct.new(:node, :variables)
   end
 
-  class FieldNode < Struct.new(:name, :alias_name, :call, :fields)
+  class Node < Struct.new(:call, :fields)
   end
 
-  class CallNode < Struct.new(:name, :arguments, :call, :fields)
+  class Field < Struct.new(:name, :alias_name, :call, :fields)
   end
 
-  class JSONHandler
-    attr_reader :stack
-
-    def initialize
-      clear
-    end
-
-    def start_object
-      push [:hash]
-    end
-
-    def start_array
-      push [:array]
-    end
-
-    def end_array
-      @stack.pop
-    end
-
-    alias :end_object :end_array
-
-    def scalar(s)
-      @stack.last << [:scalar, s]
-    end
-
-    def push(o)
-      @stack.last << o
-      @stack << o
-    end
-
-    def result
-      root = @stack.first.last
-      value = process(root.first, root.drop(1))
-      clear
-      value
-    end
-
-    private
-      def clear
-        @stack = [[:json]]
-      end
-
-      def process(type, rest)
-        case type
-        when :array
-          rest.map { |x| process(x.first, x.drop(1)) }
-        when :hash
-          Hash[rest.map { |x|
-            process(x.first, x.drop(1))
-          }.each_slice(2).to_a]
-        when :scalar
-          rest.first
-        end
-      end
+  class Call < Struct.new(:name, :arguments, :call, :fields)
   end
 
   UNESCAPE_MAP = Hash.new { |h, k| h[k] = k.chr }
@@ -239,7 +174,6 @@ require 'active_support/core_ext/object/blank'
   end
 
   def parse
-    @json = JSONHandler.new
     do_parse
   end
 
@@ -274,8 +208,4 @@ require 'active_support/core_ext/object/blank'
 
     def convert_number(str)
       str.count('.') > 0 ? str.to_f : str.to_i
-    end
-
-    def convert_variables(arr1, arr2)
-      Hash[*arr1.flatten(1)].merge Hash[*arr2.flatten(1)]
     end

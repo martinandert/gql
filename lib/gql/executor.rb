@@ -1,18 +1,18 @@
 module GQL
   class Executor
     def initialize(ast_root)
-      @ast_root = ast_root
-      @variables = ast_root.variables
+      @ast_node   = ast_root.node
+      @variables  = ast_root.variables
     end
 
     def execute(context = {})
-      root_class = Schema.root
+      node_class = GQL.root
 
-      raise Errors::UndefinedRoot if root_class.nil?
-      raise Errors::InvalidNodeClass.new(root_class, Node) unless root_class < Node
+      raise Errors::UndefinedRoot if node_class.nil?
+      raise Errors::InvalidNodeClass.new(node_class, Node) unless node_class < Node
 
-      root = root_class.new(@ast_root, nil, @variables, context)
-      root.__value
+      node = node_class.new(@ast_node, nil, @variables, context)
+      node.__value
     end
   end
 end

@@ -5,31 +5,28 @@ module GQL
   end
 
   module Errors
-    class SchemaError < Error
-    end
-
-    class UndefinedRoot < SchemaError
+    class UndefinedRoot < Error
       def initialize
-        super('No root node class is known to the schema. Assign it with `GQL::Schema.root = MyRootNode`.')
+        super('Root node class is undefined. Define it with `GQL.root = MyRootNode`.')
       end
     end
 
-    class InvalidNodeClass < SchemaError
+    class InvalidNodeClass < Error
       def initialize(node_class, super_class)
         super("#{node_class} must be a subclass of #{super_class}.")
       end
     end
 
-    class UndefinedType < SchemaError
+    class UndefinedType < Error
       def initialize(name)
-        types = Schema.fields.keys.sort.map { |name| "`#{name}`" }
+        types = GQL.field_types.keys.sort.map { |name| "`#{name}`" }
         types = types.size > 0 ? " Available types: #{types.to_sentence}." : ''
 
-        super("The field type `#{name}` is not known to the schema. Define it with `GQL::Schema.fields[my_type] = MyFieldType`.#{types}")
+        super("The field type `#{name}` is undefined. Define it with `GQL.field_types[my_type] = MyFieldType`.#{types}")
       end
     end
 
-    class UndefinedCall < SchemaError
+    class UndefinedCall < Error
       def initialize(name, node_class)
         calls = node_class.call_classes.keys.sort.map { |name| "`#{name}`" }
         calls = calls.size > 0 ? " Available calls: #{calls.to_sentence}." : ''
@@ -38,7 +35,7 @@ module GQL
       end
     end
 
-    class UndefinedField < SchemaError
+    class UndefinedField < Error
       def initialize(name, node_class)
         fields = node_class.field_classes.keys.sort.map { |name| "`#{name}`" }
         fields = fields.size > 0 ? " Available fields: #{fields.to_sentence}." : ''

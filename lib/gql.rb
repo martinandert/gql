@@ -1,11 +1,11 @@
 module GQL
   autoload :Call,       'gql/call'
+  autoload :Config,     'gql/config'
   autoload :Connection, 'gql/connection'
   autoload :Executor,   'gql/executor'
   autoload :Field,      'gql/field'
   autoload :Node,       'gql/node'
   autoload :Parser,     'gql/parser'
-  autoload :Schema,     'gql/schema'
   autoload :Tokenizer,  'gql/tokenizer'
   autoload :VERSION,    'gql/version'
 
@@ -27,16 +27,23 @@ module GQL
     autoload :String,       'gql/fields/string'
   end
 
-  Schema.fields.update(
-    boolean:    Fields::Boolean,
-    connection: Fields::Connection,
-    float:      Fields::Float,
-    integer:    Fields::Integer,
-    object:     Fields::Object,
-    string:     Fields::String
-  )
-
   extend(Module.new {
+    def config
+      Thread.current[:gql_config] ||= Config.new
+    end
+
+    %w(root field_types).each do |method|
+      module_eval <<-DELEGATORS, __FILE__, __LINE__ + 1
+        def #{method}
+          config.#{method}
+        end
+
+        def #{method}=(value)
+          config.#{method} = (value)
+        end
+      DELEGATORS
+    end
+
     def execute(input, context = {})
       ast = parse(input)
 
@@ -65,4 +72,13 @@ module GQL
       end
     end
   })
+
+  self.field_types.update(
+    boolean:    Fields::Boolean,
+    connection: Fields::Connection,
+    float:      Fields::Float,
+    integer:    Fields::Integer,
+    object:     Fields::Object,
+    string:     Fields::String
+  )
 end

@@ -78,7 +78,7 @@ class HasMany < GQL::Fields::Connection
   end
 end
 
-GQL::Schema.fields.update(
+GQL.field_types.update(
   timestamp: Timestamp,
   has_many: HasMany
 )
@@ -264,13 +264,16 @@ class RootNode < GQL::Node
     $albums
   end
 
-  call :songs, returns: [List, SongNode] do
+  has_many :songs, connection_class: List, node_class: SongNode
+  has_many :accounts, connection_class: List, node_class: AccountNode
+
+  def songs
     $songs
   end
 
-  call :accounts, returns: [AccountNode] do
+  def accounts
     $accounts
   end
 end
 
-GQL::Schema.root = RootNode
+GQL.root = RootNode
