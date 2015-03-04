@@ -6,8 +6,8 @@ module GQL
       class_attribute :node_class, instance_accessor: false, instance_predicate: false
 
       class << self
-        def build_class(method, connection_class, node_class)
-          node_class ||= self.node_class
+        def build_class(method, options = {})
+          node_class = options[:node_class] || self.node_class
 
           if node_class.nil?
             raise Errors::UndefinedNodeClass.new(self, 'node')

@@ -26,7 +26,8 @@ module GQL
             raise Errors::InvalidNodeClass.new(field_type_class, Fields::Connection)
           end
 
-          result_class = field_type_class.build_class(nil, connection_class, node_class)
+          options = { connection_class: connection_class, node_class: node_class }
+          result_class = field_type_class.build_class(nil, options)
         elsif result_class && !(result_class <= Node)
           raise Errors::InvalidNodeClass.new(result_class, Node)
         end

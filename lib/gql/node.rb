@@ -1,5 +1,6 @@
 require 'active_support/core_ext/class/attribute'
 require 'active_support/core_ext/string/inflections'
+require 'active_support/core_ext/array/extract_options'
 
 module GQL
   class Node
@@ -25,16 +26,18 @@ module GQL
         end
       end
 
-      def field(*names, field_type_class: nil, connection_class: nil, node_class: nil, &block)
+      def field(*names, &block)
+        options = names.extract_options!
+
         names.each do |name|
           method = block || lambda { target.public_send(name) }
-          field_type_class ||= Field
+          field_type_class = options.delete(:field_type_class) || Field
 
           unless field_type_class <= Field
             raise Errors::InvalidNodeClass.new(field_type_class, Field)
           end
 
-          field_class = field_type_class.build_class(method, connection_class, node_class)
+          field_class = field_type_class.build_class(method, options)
 
           self.const_set "#{name.to_s.camelize}Field", field_class
           self.field_classes = field_classes.merge(name => field_class)
