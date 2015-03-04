@@ -22,11 +22,13 @@ module GQL
 
           field_type_class, connection_class, node_class = result_class
 
-          raise Errors::InvalidNodeClass.new(field_type_class, Fields::Connection) unless field_type_class <= Fields::Connection
+          unless field_type_class <= Fields::Connection
+            raise Errors::InvalidNodeClass.new(field_type_class, Fields::Connection)
+          end
 
           result_class = field_type_class.build_class(nil, connection_class, node_class)
-        elsif result_class
-          raise Errors::InvalidNodeClass.new(result_class, Node) unless result_class <= Node
+        elsif result_class && result_class <= Node
+          raise Errors::InvalidNodeClass.new(result_class, Node)
         end
 
         Class.new(self).tap do |call_class|

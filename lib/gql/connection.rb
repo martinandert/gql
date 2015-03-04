@@ -8,8 +8,13 @@ module GQL
       def build_class(node_class)
         node_class ||= self.node_class
 
-        raise Errors::UndefinedNodeClass.new(self, 'node') if node_class.nil?
-        raise Errors::InvalidNodeClass.new(node_class, GQL::Node) unless node_class <= GQL::Node
+        if node_class.nil?
+          raise Errors::UndefinedNodeClass.new(self, 'node')
+        end
+
+        unless node_class <= GQL::Node
+          raise Errors::InvalidNodeClass.new(node_class, GQL::Node)
+        end
 
         Class.new(self).tap do |connection_class|
           connection_class.node_class = node_class

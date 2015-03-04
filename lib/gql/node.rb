@@ -36,7 +36,9 @@ module GQL
           method = block || lambda { target.public_send(name) }
           field_type_class ||= Field
 
-          raise Errors::InvalidNodeClass.new(field_type_class, Field) unless field_type_class <= Field
+          unless field_type_class <= Field
+            raise Errors::InvalidNodeClass.new(field_type_class, Field)
+          end
 
           field_class = field_type_class.build_class(method, connection_class, node_class)
 
@@ -53,8 +55,8 @@ module GQL
         else
           super
         end
-      #rescue NoMethodError => exc
-      #  raise Errors::UndefinedFieldType, method
+      rescue NoMethodError => exc
+        raise Errors::UndefinedFieldType, method
       end
     end
 
@@ -78,7 +80,9 @@ module GQL
     def value_of_call(ast_call)
       call_class = self.class.call_classes[ast_call.name]
 
-      raise Errors::UndefinedCall.new(ast_call.name, self.class.superclass) if call_class.nil?
+      if call_class.nil?
+        raise Errors::UndefinedCall.new(ast_call.name, self.class.superclass)
+      end
 
       call = call_class.new(self, ast_call, target, variables, context)
       call.execute
@@ -103,9 +107,13 @@ module GQL
         method = Field::Method.new(target, context)
         field_class = self.class.field_classes[ast_field.name]
 
-        raise Errors::UndefinedField.new(ast_field.name, self.class) if field_class.nil?
+        if field_class.nil?
+          raise Errors::UndefinedField.new(ast_field.name, self.class)
+        end
 
-        field = field_class.new(ast_field, method.execute(field_class.method), variables, context)
+        next_target = method.execute(field_class.method)
+
+        field = field_class.new(ast_field, next_target, variables, context)
         field.value
       end
     end

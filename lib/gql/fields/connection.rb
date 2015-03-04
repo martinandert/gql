@@ -9,8 +9,13 @@ module GQL
         def build_class(method, connection_class, node_class)
           connection_class ||= self.connection_class
 
-          raise Errors::UndefinedNodeClass.new(self, 'connection') if connection_class.nil?
-          raise Errors::InvalidNodeClass.new(connection_class, GQL::Connection) unless connection_class <= GQL::Connection
+          if connection_class.nil?
+            raise Errors::UndefinedNodeClass.new(self, 'connection')
+          end
+
+          unless connection_class <= GQL::Connection
+            raise Errors::InvalidNodeClass.new(connection_class, GQL::Connection)
+          end
 
           Class.new(self).tap do |field_class|
             field_class.method = method
