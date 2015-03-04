@@ -138,12 +138,11 @@ class UserNode
 end
 
 class AccountNode
-  call reversed_number: GQL::Fields::String do
-    target.number.reverse
-  end
+  cursor { target.iban }
 
   integer :id
   object :user, node_class: UserNode
+  object :saldo, node_class: MoneyNode
   string :iban
   string :bank_name
 
@@ -151,24 +150,20 @@ class AccountNode
     target.owner
   end
 
-  object :saldo, node_class: MoneyNode
-
-  def cursor
-    target.iban
+  call reversed_number: GQL::Fields::String do
+    target.number.reverse
   end
 end
 
 class MoneyNode
+  cursor { 'money' }
+
   integer :cents do
     target[:cents]
   end
 
   string :currency do
     target[:currency]
-  end
-
-  def cursor
-    'money'
   end
 
   def raw_value

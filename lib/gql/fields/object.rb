@@ -24,7 +24,7 @@ module GQL
         end
       end
 
-      def value_of_fields(*)
+      def value
         node = self.class.node_class.new(ast_node, target, variables, context)
         node.value
       end

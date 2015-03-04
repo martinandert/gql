@@ -9,12 +9,6 @@ module GQL
     self.field_classes = {}
 
     class << self
-      def cursor(method_name)
-        define_method :cursor do
-          target.send(method_name).to_s
-        end
-      end
-
       def call(*names, &block)
         names_with_result_class = names.extract_options!
 
@@ -44,6 +38,14 @@ module GQL
 
           self.const_set "#{name.to_s.camelize}Field", field_class
           self.field_classes = field_classes.merge(name => field_class)
+        end
+      end
+
+      def cursor(name = nil, &block)
+        if name
+          field :cursor, &-> { target.public_send(name) }
+        elsif block_given?
+          field :cursor, &block
         end
       end
 
@@ -101,8 +103,6 @@ module GQL
       when :node
         field = self.class.new(ast_field, target, variables, context)
         field.value
-      when :cursor
-        cursor
       else
         method = Field::Method.new(target, context)
         field_class = self.class.field_classes[ast_field.name]
