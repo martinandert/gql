@@ -111,7 +111,7 @@ module GQL
         field_class = self.class.field_classes[ast_field.name]
 
         if field_class.nil?
-          raise Errors::UndefinedField.new(ast_field.name, self.class)
+          raise Errors::UndefinedField.new(ast_field.name, self.class.superclass)
         end
 
         next_target = method.execute(field_class.method)

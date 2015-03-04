@@ -183,7 +183,7 @@ class AlbumNode
   object :user, node_class: UserNode
   string :artist
   string :title
-  has_many :songs, node_class: SongNode
+  connection :songs, node_class: SongNode
 end
 
 class SongNode
@@ -228,6 +228,7 @@ $users[1].albums = $albums[2..2]
 
 $albums[0].songs = $songs[0..3]
 $albums[1].songs = $songs[4..6]
+$albums[2].songs = []
 
 $viewer = $users[0]
 

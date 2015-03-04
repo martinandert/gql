@@ -4,6 +4,7 @@ module GQL
   module Fields
     class Connection < Field
       class_attribute :connection_class, instance_accessor: false, instance_predicate: false
+      self.connection_class = GQL::Connection
 
       class << self
         def build_class(method, options = {})

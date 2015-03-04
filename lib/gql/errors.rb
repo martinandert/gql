@@ -14,7 +14,7 @@ module GQL
 
     class UndefinedNodeClass < Error
       def initialize(node_class, name)
-        super("#{node_class} must define a #{name} class. Set it with `self.#{name}_class = My#{method.camelize}Class`.")
+        super("#{node_class} must define a #{name} class. Set it with `self.#{name}_class = My#{name.camelize}Class`.")
       end
     end
 
