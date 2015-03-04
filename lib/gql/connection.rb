@@ -1,35 +1,30 @@
+require 'active_support/core_ext/class/attribute'
+
 module GQL
   class Connection < Node
-    field :edges
+    class_attribute :node_class, instance_accessor: false, instance_predicate: false
 
-    def initialize(node_class, *args)
-      super(*args)
+    class << self
+      def build_class(node_class)
+        node_class ||= self.node_class
 
-      @node_class = node_class
-    end
+        raise Errors::UndefinedNodeClass.new(self, 'node') if node_class.nil?
+        raise Errors::InvalidNodeClass.new(node_class, GQL::Node) unless node_class <= GQL::Node
 
-    alias :items :__target
-
-    def edges_ast_node
-      @edges_ast_node ||= @ast_node.fields.find { |f| f.name == :edges }
-    end
-
-    def edges
-      raise Errors::InvalidNodeClass.new(@node_class, Node) unless @node_class < Node
-
-      items.map do |item|
-        node = @node_class.new(edges_ast_node, item, @variables, __context)
-        node.__value
+        Class.new(self).tap do |connection_class|
+          connection_class.node_class = node_class
+        end
       end
     end
 
-    EdgesField.class_eval do
-      def __value
-        if @ast_node.fields
-          __target
-        else
-          nil
+    def value_of_field(ast_field)
+      if ast_field.name == :edges
+        target.map do |item|
+          node = self.class.node_class.new(ast_field, item, variables, context)
+          node.value
         end
+      else
+        super
       end
     end
   end

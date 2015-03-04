@@ -38,37 +38,49 @@ class User < FakeRecord
 end
 
 class Timestamp < GQL::Field
-  call :format, returns: GQL::Fields::String do |format = 'default'|
+  call format: GQL::Fields::String do |format = 'default'|
     I18n.localize target, format: format.to_sym
   end
 
-  call :ago, returns: GQL::Fields::String do
+  call ago: GQL::Fields::String do
     'a long time ago'
   end
 
-  fields do
-    integer :year
-    integer :month
-    integer :day
-    integer :hour
-    integer :minute
-    integer :second
+  call to_s: GQL::Fields::String
+
+  call :add_years do |years|
+    target + years * 365*24*60*60
   end
 
-  def minute
-    __target.min
+  integer :year
+  integer :month
+  integer :day
+  integer :hour
+
+  integer :minute do
+    target.min
   end
 
-  def second
-    __target.sec
+  integer :second do
+    target.sec
   end
 
-  def __raw_value
-    __target.to_i * 1000
+  def raw_value
+    super.to_i * 1000
+  end
+end
+
+class List < GQL::Connection
+  integer :count
+
+  boolean :any do
+    items.any?
   end
 end
 
 class HasMany < GQL::Fields::Connection
+  self.connection_class = List
+
   call :all do
     target
   end
@@ -82,15 +94,6 @@ GQL.field_types.update(
   timestamp: Timestamp,
   has_many: HasMany
 )
-
-class List < GQL::Connection
-  integer :count
-  boolean :any
-
-  def any
-    items.any?
-  end
-end
 
 class UserNode < GQL::Node
 end
@@ -114,32 +117,28 @@ class UserNode
 
   cursor :token
 
-  fields do
-    string :id
-    string :full_name
-    string :first_name
-    string :last_name
-    boolean :is_admin
-    object :account, node_class: AccountNode
-    has_many :albums, connection_class: List, node_class: AlbumNode
-    timestamp :created_at
+  string :id do
+    target.token
   end
 
-  def id
-    __target.token
+  string :full_name do
+    target.first_name + ' ' + target.last_name
   end
 
-  def full_name
-    __target.first_name + ' ' + __target.last_name
+  string :first_name
+  string :last_name
+
+  boolean :is_admin do
+    target.admin?
   end
 
-  def is_admin
-    __target.admin?
-  end
+  object :account, node_class: AccountNode
+  has_many :albums, node_class: AlbumNode
+  timestamp :created_at
 end
 
 class AccountNode
-  call :reversed_number, returns: GQL::Fields::String do
+  call reversed_number: GQL::Fields::String do
     target.number.reverse
   end
 
@@ -147,36 +146,33 @@ class AccountNode
   object :user, node_class: UserNode
   string :iban
   string :bank_name
-  string :holder
+
+  string :holder do
+    target.owner
+  end
+
   object :saldo, node_class: MoneyNode
 
   def cursor
-    __target.iban
-  end
-
-  def holder
-    __target.owner
+    target.iban
   end
 end
 
 class MoneyNode
-  float :cents
-  string :currency
+  integer :cents do
+    target[:cents]
+  end
+
+  string :currency do
+    target[:currency]
+  end
 
   def cursor
     'money'
   end
 
-  def cents
-    __target[:cents]
-  end
-
-  def currency
-    __target[:currency]
-  end
-
-  def __raw_value
-    "#{'%.2f' % (cents / 100.0)} #{currency}"
+  def raw_value
+    "#{'%.2f' % (target[:cents] / 100.0)} #{target[:currency]}"
   end
 end
 
@@ -187,7 +183,7 @@ class AlbumNode
   object :user, node_class: UserNode
   string :artist
   string :title
-  has_many :songs, connection_class: List, node_class: SongNode
+  has_many :songs, node_class: SongNode
 end
 
 class SongNode
@@ -236,42 +232,39 @@ $albums[1].songs = $songs[4..6]
 $viewer = $users[0]
 
 class RootNode < GQL::Node
-  call :viewer, returns: UserNode do
+  call viewer: UserNode do
     $users.find { |user| user.token == context[:auth_token] }
   end
 
-  call :user, returns: UserNode do |token|
+  call user: UserNode do |token|
     $users.find { |user| user.token == token }
   end
 
-  call :account, returns: AccountNode do |id|
+  call account: AccountNode do |id|
     $accounts.find { |account| account.id == id }
   end
 
-  call :album, returns: AlbumNode do |id|
+  call album: AlbumNode do |id|
     $albums.find { |album| album.id == id }
   end
 
-  call :song, returns: SongNode do |id|
+  call song: SongNode do |id|
     $songs.find { |song| song.id == id }
   end
 
-  call :users, returns: [HasMany, List, UserNode] do
+  call users: [HasMany, List, UserNode] do
     $users
   end
 
-  call :albums, returns: [HasMany, List, AlbumNode] do
+  call albums: [HasMany, List, AlbumNode] do
     $albums
   end
 
-  has_many :songs, connection_class: List, node_class: SongNode
-  has_many :accounts, connection_class: List, node_class: AccountNode
-
-  def songs
+  has_many :songs, node_class: SongNode do
     $songs
   end
 
-  def accounts
+  has_many :accounts, node_class: AccountNode do
     $accounts
   end
 end

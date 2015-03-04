@@ -10,12 +10,13 @@ module GQL
   autoload :VERSION,    'gql/version'
 
   module Errors
-    autoload :InvalidNodeClass, 'gql/errors'
-    autoload :ParseError,       'gql/errors'
-    autoload :UndefinedCall,    'gql/errors'
-    autoload :UndefinedField,   'gql/errors'
-    autoload :UndefinedRoot,    'gql/errors'
-    autoload :UndefinedType,    'gql/errors'
+    autoload :InvalidNodeClass,   'gql/errors'
+    autoload :ParseError,         'gql/errors'
+    autoload :UndefinedCall,      'gql/errors'
+    autoload :UndefinedField,     'gql/errors'
+    autoload :UndefinedNodeClass, 'gql/errors'
+    autoload :UndefinedRoot,      'gql/errors'
+    autoload :UndefinedFieldType, 'gql/errors'
   end
 
   module Fields

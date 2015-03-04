@@ -1,4 +1,5 @@
 require 'active_support/core_ext/array/conversions'
+require 'active_support/core_ext/string/inflections'
 
 module GQL
   class Error < StandardError
@@ -11,18 +12,24 @@ module GQL
       end
     end
 
+    class UndefinedNodeClass < Error
+      def initialize(node_class, name)
+        super("#{node_class} must define a #{name} class. Set it with `self.#{name}_class = My#{method.camelize}Class`.")
+      end
+    end
+
     class InvalidNodeClass < Error
       def initialize(node_class, super_class)
         super("#{node_class} must be a (subclass of) #{super_class}.")
       end
     end
 
-    class UndefinedType < Error
+    class UndefinedFieldType < Error
       def initialize(name)
         types = GQL.field_types.keys.sort.map { |name| "`#{name}`" }
         types = types.size > 0 ? " Available types: #{types.to_sentence}." : ''
 
-        super("The field type `#{name}` is undefined. Define it with `GQL.field_types[my_type] = MyFieldType`.#{types}")
+        super("The field type `#{name}` is undefined. Define it with `GQL.field_types[:#{name}] = My#{name.to_s.camelize}`.#{types}")
       end
     end
 

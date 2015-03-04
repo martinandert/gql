@@ -1,17 +1,32 @@
+require 'active_support/core_ext/class/attribute'
+
 module GQL
   module Fields
     class Object < Field
-      def __value
-        raise Errors::InvalidNodeClass.new(__node_class__, Node) unless __node_class__ < Node
+      class_attribute :node_class, instance_accessor: false, instance_predicate: false
 
-        node = __node_class__.new(@ast_node, __target, @variables, __context)
-        node.__value
+      class << self
+        def build_class(method, connection_class, node_class)
+          node_class ||= self.node_class
+
+          raise Errors::UndefinedNodeClass.new(self, 'node') if node_class.nil?
+          raise Errors::InvalidNodeClass.new(node_class, GQL::Node) unless node_class <= GQL::Node
+
+          Class.new(self).tap do |field_class|
+            field_class.method = method
+            field_class.node_class = node_class
+          end
+        end
       end
 
-      private
-        def __node_class__
-          self.class.const_get :NODE_CLASS
-        end
+      def value_of_fields(*)
+        node = self.class.node_class.new(ast_node, target, variables, context)
+        node.value
+      end
+
+      def raw_value
+        nil
+      end
     end
   end
 end

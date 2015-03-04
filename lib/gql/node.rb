@@ -3,136 +3,115 @@ require 'active_support/core_ext/string/inflections'
 
 module GQL
   class Node
-    class_attribute :call_classes
-    self.call_classes = {}
+    class_attribute :call_classes, :field_classes, instance_accessor: false, instance_predicate: false
 
-    class_attribute :field_classes
+    self.call_classes = {}
     self.field_classes = {}
 
     class << self
       def cursor(method_name)
         define_method :cursor do
-          __target.send(method_name).to_s
+          target.send(method_name).to_s
         end
       end
 
-      def call(name, options = {}, &block)
-        result_class = options[:returns]
-        function = block || lambda { |*args| target.public_send(name, *args) }
+      def call(*names, &block)
+        names_with_result_class = names.extract_options!
 
-        if result_class.is_a? Array
-          result_class.unshift Connection if result_class.size == 1
-          result_class.unshift Fields::Connection if result_class.size == 2
-
-          field_class, connection_class, node_class = result_class
-
-          raise Errors::InvalidNodeClass.new(field_class, Fields::Connection) unless field_class <= Fields::Connection
-
-          result_class = Class.new(field_class)
-          result_class.const_set :NODE_CLASS, node_class
-          result_class.const_set :CONNECTION_CLASS, connection_class
-        else
-          raise Errors::InvalidNodeClass.new(result_class, Node) unless result_class.nil? || result_class < Node
+        names.each do |name|
+          names_with_result_class[name] = nil
         end
 
-        call_class = Class.new(Call)
-        call_class.const_set :Function, function
-        call_class.const_set :Result, result_class
+        names_with_result_class.each do |name, result_class|
+          method = block || lambda { |*args| target.public_send(name, *args) }
+          call_class = Call.build_class(result_class, method)
 
-        self.const_set "#{name.to_s.camelize}Call", call_class
-        self.call_classes = call_classes.merge(name => call_class)
+          self.const_set "#{name.to_s.camelize}Call", call_class
+          self.call_classes = call_classes.merge(name => call_class)
+        end
       end
 
-      def fields(&block)
-        instance_eval &block
-      end
+      def field(*names, field_type_class: nil, connection_class: nil, node_class: nil, &block)
+        names.each do |name|
+          method = block || lambda { target.public_send(name) }
+          field_type_class ||= Field
 
-      def field(*names, base_class: nil, node_class: nil, connection_class: nil)
-        classes = names.reduce({}) do |result, name|
-          base_class ||= Field
+          raise Errors::InvalidNodeClass.new(field_type_class, Field) unless field_type_class <= Field
 
-          raise Errors::InvalidNodeClass.new(base_class, Field) unless base_class <= Field
-
-          field_class = Class.new(base_class)
-
-          field_class.const_set :NODE_CLASS, node_class
-          field_class.const_set :CONNECTION_CLASS, connection_class
+          field_class = field_type_class.build_class(method, connection_class, node_class)
 
           self.const_set "#{name.to_s.camelize}Field", field_class
-
-          result.merge name => field_class
+          self.field_classes = field_classes.merge(name => field_class)
         end
-
-        self.field_classes = field_classes.merge(classes)
       end
 
-      def method_missing(method, *args, &block)
-        if base_class = GQL.field_types[method]
-          options = args.extract_options!
+      def method_missing(method, *names, &block)
+        if field_type_class = GQL.field_types[method]
+          options = names.extract_options!
 
-          field(*args, options.merge(base_class: base_class))
+          field(*names, options.merge(field_type_class: field_type_class), &block)
         else
           super
         end
-      rescue NoMethodError => exc
-        raise Errors::UndefinedType, method
+      #rescue NoMethodError => exc
+      #  raise Errors::UndefinedFieldType, method
       end
     end
 
-    attr_reader :__target, :__context
+    attr_reader :ast_node, :target, :variables, :context
 
     def initialize(ast_node, target, variables, context)
-      @ast_node, @__target = ast_node, target
-      @variables, @__context = variables, context
+      @ast_node, @target = ast_node, target
+      @variables, @context = variables, context
     end
 
-    def __value
-      if ast_call = @ast_node.call
-        call_class = self.class.call_classes[ast_call.name]
-
-        raise Errors::UndefinedCall.new(ast_call.name, self.class.superclass) if call_class.nil?
-
-        call = call_class.new(self, ast_call, __target, @variables, __context)
-        call.execute
-      elsif ast_fields = @ast_node.fields
-        ast_fields.reduce({}) do |memo, ast_field|
-          key = ast_field.alias_name || ast_field.name
-
-          val =
-            case key
-            when :node
-              field = self.class.new(ast_field, __target, @variables, __context)
-              field.__value
-            when :cursor
-              cursor
-            else
-              target = public_send(ast_field.name)
-              field_class = self.class.field_classes[ast_field.name]
-
-              raise Errors::UndefinedField.new(ast_field.name, self.class) if field_class.nil?
-              raise Errors::InvalidNodeClass.new(field_class.superclass, Field) unless field_class <= Field
-
-              field = field_class.new(ast_field, target, @variables, __context)
-              field.__value
-            end
-
-          memo.merge key => val
-        end
+    def value
+      if ast_call = ast_node.call
+        value_of_call ast_call
+      elsif ast_fields = ast_node.fields
+        value_of_fields ast_fields
       else
-        __raw_value
+        raw_value
       end
     end
 
-    def __raw_value
+    def value_of_call(ast_call)
+      call_class = self.class.call_classes[ast_call.name]
+
+      raise Errors::UndefinedCall.new(ast_call.name, self.class.superclass) if call_class.nil?
+
+      call = call_class.new(self, ast_call, target, variables, context)
+      call.execute
+    end
+
+    def value_of_fields(ast_fields)
+      ast_fields.reduce({}) do |memo, ast_field|
+        key = ast_field.alias_name || ast_field.name
+
+        memo.merge key => value_of_field(ast_field)
+      end
+    end
+
+    def value_of_field(ast_field)
+      case ast_field.name
+      when :node
+        field = self.class.new(ast_field, target, variables, context)
+        field.value
+      when :cursor
+        cursor
+      else
+        method = Field::Method.new(target, context)
+        field_class = self.class.field_classes[ast_field.name]
+
+        raise Errors::UndefinedField.new(ast_field.name, self.class) if field_class.nil?
+
+        field = field_class.new(ast_field, method.execute(field_class.method), variables, context)
+        field.value
+      end
+    end
+
+    def raw_value
       nil
-    end
-
-    def method_missing(method, *args, &block)
-      if __target.respond_to? method
-        __target.public_send method, *args, &block
-      else
-        super
-      end
     end
   end
 end
