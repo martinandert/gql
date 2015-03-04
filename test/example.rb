@@ -1,4 +1,6 @@
 class FakeRecord
+  attr_accessor :attributes
+
   def initialize(attributes = {})
     @attributes = attributes
   end
@@ -232,7 +234,43 @@ $albums[2].songs = []
 
 $viewer = $users[0]
 
+require 'active_support/concern'
+
+module UpdateUserNameCall
+  extend ActiveSupport::Concern
+
+  included do
+    call update_user_name: Result do |token, new_name|
+      user = $users.find { |user| user.token == token }
+      old_name = user.first_name
+      user.attributes.update first_name: new_name
+
+      {
+        user: user,
+        old_name: old_name,
+        new_name: user.first_name
+      }
+    end
+  end
+
+  class Result < GQL::Node
+    object :user, node_class: UserNode do
+      target[:user]
+    end
+
+    string :old_name do
+      target[:old_name]
+    end
+
+    string :new_name do
+      target[:new_name]
+    end
+  end
+end
+
 class RootNode < GQL::Node
+  include UpdateUserNameCall
+
   call viewer: UserNode do
     $users.find { |user| user.token == context[:auth_token] }
   end
