@@ -24,9 +24,5 @@ module GQL
         end
       end
     end
-
-    def raw_value
-      target
-    end
   end
 end

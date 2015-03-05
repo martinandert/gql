@@ -5,11 +5,11 @@ module GQL
         target.name
       end
 
-      connection :calls, :connection_class => Connection, :node_class => Call do
+      connection :calls, :list_class => List, :item_class => Call do
         target.calls.values
       end
 
-      connection :fields, :connection_class => Connection, :node_class => Field do
+      connection :fields, :list_class => List, :item_class => Field do
         target.fields.values
       end
     end

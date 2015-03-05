@@ -1,34 +1,39 @@
 require 'active_support/core_ext/class/attribute'
 
 module GQL
-  module Fields
-    class Connection < Field
-      class_attribute :connection_class, instance_accessor: false, instance_predicate: false
-      self.connection_class = GQL::Connection
+  class Connection < Field
+    class_attribute :list_class, instance_accessor: false, instance_predicate: false
+    class_attribute :item_class, instance_accessor: false, instance_predicate: false
 
-      class << self
-        def build_class(id, method, options = {})
-          connection_class = options[:connection_class] || self.connection_class
+    class << self
+      def build_class(id, method, options = {})
+        list_class = options[:list_class] || self.list_class || GQL.default_list_class
+        item_class = options[:item_class] || self.item_class
 
-          if connection_class.nil?
-            raise Errors::UndefinedNodeClass.new(self, 'connection')
-          end
+        if list_class.nil?
+          raise Errors::UndefinedNodeClass.new(self, 'list')
+        end
 
-          unless connection_class <= GQL::Connection
-            raise Errors::InvalidNodeClass.new(connection_class, GQL::Connection)
-          end
+        unless list_class <= Connection
+          raise Errors::InvalidNodeClass.new(list_class, Connection)
+        end
 
-          Class.new(self).tap do |field_class|
-            field_class.id = id.to_s
-            field_class.method = method
-            field_class.connection_class = connection_class.build_class(options[:node_class])
+        if item_class.nil?
+          raise Errors::UndefinedNodeClass.new(self, 'item')
+        end
+
+        unless item_class <= Node
+          raise Errors::InvalidNodeClass.new(item_class, Node)
+        end
+
+        Class.new(list_class).tap do |field_class|
+          field_class.id = id.to_s
+          field_class.method = method
+
+          field_class.array :edges, item_class: item_class do
+            target
           end
         end
-      end
-
-      def value
-        connection = self.class.connection_class.new(ast_node, target, variables, context)
-        connection.value
       end
     end
   end

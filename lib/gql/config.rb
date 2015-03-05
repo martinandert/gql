@@ -23,5 +23,13 @@ module GQL
     def field_types=(value)
       @@field_types = value
     end
+
+    def default_list_class
+      @@default_list_class ||= Connection
+    end
+
+    def default_list_class=(value)
+      @@default_list_class = value
+    end
   end
 end

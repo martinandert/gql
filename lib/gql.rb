@@ -1,11 +1,19 @@
 module GQL
+  autoload :Array,      'gql/array'
+  autoload :Boolean,    'gql/boolean'
   autoload :Call,       'gql/call'
   autoload :Config,     'gql/config'
   autoload :Connection, 'gql/connection'
+  autoload :Error,      'gql/errors'
   autoload :Executor,   'gql/executor'
   autoload :Field,      'gql/field'
+  autoload :List,       'gql/list'
   autoload :Node,       'gql/node'
+  autoload :Number,     'gql/number'
+  autoload :Object,     'gql/object'
   autoload :Parser,     'gql/parser'
+  autoload :Simple,     'gql/simple'
+  autoload :String,     'gql/string'
   autoload :Tokenizer,  'gql/tokenizer'
   autoload :VERSION,    'gql/version'
 
@@ -19,20 +27,10 @@ module GQL
     autoload :UndefinedFieldType, 'gql/errors'
   end
 
-  module Fields
-    autoload :Array,        'gql/fields/array'
-    autoload :Boolean,      'gql/fields/boolean'
-    autoload :Connection,   'gql/fields/connection'
-    autoload :Float,        'gql/fields/float'
-    autoload :Integer,      'gql/fields/integer'
-    autoload :Object,       'gql/fields/object'
-    autoload :String,       'gql/fields/string'
-  end
-
   module Schema
     autoload :Call,         'gql/schema/call'
-    autoload :Connection,   'gql/schema/connection'
     autoload :Field,        'gql/schema/field'
+    autoload :List,         'gql/schema/list'
     autoload :Node,         'gql/schema/node'
     autoload :Parameter,    'gql/schema/parameter'
     autoload :Placeholder,  'gql/schema/placeholder'
@@ -43,7 +41,7 @@ module GQL
       Thread.current[:gql_config] ||= Config.new
     end
 
-    %w(root_node_class field_types).each do |method|
+    %w(root_node_class field_types default_list_class).each do |method|
       module_eval <<-DELEGATORS, __FILE__, __LINE__ + 1
         def #{method}
           config.#{method}
@@ -78,24 +76,21 @@ module GQL
       tokenizer = Tokenizer.new
       tokenizer.scan_setup input
 
-      result = []
-
-      while token = tokenizer.next_token
-        result << token
-        yield token if block_given?
+      [].tap do |result|
+        while token = tokenizer.next_token
+          result << token
+          yield token if block_given?
+        end
       end
-
-      result
     end
   })
 
   self.field_types.update(
-    array:      Fields::Array,
-    boolean:    Fields::Boolean,
-    connection: Fields::Connection,
-    float:      Fields::Float,
-    integer:    Fields::Integer,
-    object:     Fields::Object,
-    string:     Fields::String
+    array:      Array,
+    boolean:    Boolean,
+    connection: Connection,
+    number:     Number,
+    object:     Object,
+    string:     String
   )
 end

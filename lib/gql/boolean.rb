@@ -1,6 +1,4 @@
 module GQL
-  module Fields
-    class Boolean < Field
-    end
+  class Boolean < Simple
   end
 end

@@ -29,13 +29,13 @@ module GQL
 
         ids.each do |id|
           method = block || lambda { target.public_send(id) }
-          field_type_class = options.delete(:field_type_class) || Field
+          field_type = options.delete(:type) || Field
 
-          unless field_type_class <= Field
-            raise Errors::InvalidNodeClass.new(field_type_class, Field)
+          unless field_type <= Field
+            raise Errors::InvalidNodeClass.new(field_type, Field)
           end
 
-          field_class = field_type_class.build_class(id, method, options)
+          field_class = field_type.build_class(id, method, options)
 
           self.const_set "#{id.to_s.camelize}Field", field_class
           self.fields = fields.merge(id.to_sym => field_class)
@@ -43,18 +43,15 @@ module GQL
       end
 
       def cursor(id = nil, &block)
-        if id
-          field :cursor, &-> { target.public_send(id) }
-        elsif block_given?
-          field :cursor, &block
-        end
+        body = id ? -> { target.public_send(id) } : block
+        field :cursor, { type: Simple }, &body
       end
 
       def method_missing(method, *ids, &block)
-        if field_type_class = GQL.field_types[method]
+        if field_type = GQL.field_types[method]
           options = ids.extract_options!
 
-          field(*ids, options.merge(field_type_class: field_type_class), &block)
+          field(*ids, options.merge(type: field_type), &block)
         else
           super
         end

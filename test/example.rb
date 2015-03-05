@@ -44,21 +44,21 @@ class User < FakeRecord
 end
 
 class Timestamp < GQL::Field
-  call :format, GQL::Fields::String, -> (format = 'default') { I18n.localize target, format: format.to_sym }
-  call :ago, GQL::Fields::String, -> { 'a long time ago' }
-  call :to_s, GQL::Fields::String
+  call :format, GQL::String, -> (format = 'default') { I18n.localize target, format: format.to_sym }
+  call :ago, GQL::String, -> { 'a long time ago' }
+  call :to_s, GQL::String
   call :add_years, -> (years) { target + years * 365*24*60*60 }
 
-  integer :year
-  integer :month
-  integer :day
-  integer :hour
+  number :year
+  number :month
+  number :day
+  number :hour
 
-  integer :minute do
+  number :minute do
     target.min
   end
 
-  integer :second do
+  number :second do
     target.sec
   end
 
@@ -67,8 +67,12 @@ class Timestamp < GQL::Field
   end
 end
 
+GQL.field_types.update(
+  timestamp: Timestamp
+)
+
 class List < GQL::Connection
-  integer :count
+  number :count
 
   boolean :any do
     target.any?
@@ -78,14 +82,7 @@ class List < GQL::Connection
   call :first, -> (size) { target[0...size] }
 end
 
-class HasMany < GQL::Fields::Connection
-  self.connection_class = List
-end
-
-GQL.field_types.update(
-  timestamp: Timestamp,
-  has_many: HasMany
-)
+GQL.default_list_class = List
 
 class UserNode < GQL::Node
 end
@@ -121,17 +118,17 @@ class UserNode
   end
 
   object :account, node_class: AccountNode
-  has_many :albums, node_class: AlbumNode
+  connection :albums, item_class: AlbumNode
   timestamp :created_at
 end
 
 class AccountNode
   cursor { target.iban }
 
-  integer :id
+  number :id
   object :user, node_class: UserNode
   object :saldo, node_class: MoneyNode
-  array :fibonacci, node_class: GQL::Fields::Integer
+  array :fibonacci, item_class: GQL::Number
   string :iban
   string :bank_name
 
@@ -139,13 +136,13 @@ class AccountNode
     target.owner
   end
 
-  call :reversed_number, GQL::Fields::String, -> { target.number.reverse }
+  call :reversed_number, GQL::String, -> { target.number.reverse }
 end
 
 class MoneyNode
   cursor { 'money' }
 
-  integer :cents do
+  number :cents do
     target[:cents]
   end
 
@@ -161,17 +158,17 @@ end
 class AlbumNode
   cursor :id
 
-  integer :id
+  number :id
   object :user, node_class: UserNode
   string :artist
   string :title
-  has_many :songs, node_class: SongNode
+  connection :songs, item_class: SongNode
 end
 
 class SongNode
   cursor :id
 
-  integer :id
+  number :id
   object :album, node_class: AlbumNode
   string :title
 end
@@ -273,19 +270,19 @@ class RootNode < GQL::Node
     $songs.find { |song| song.id == id }
   }
 
-  call :users, [HasMany, List, UserNode], -> {
+  call :users, [List, UserNode], -> {
     $users
   }
 
-  call :albums, [HasMany, List, AlbumNode], -> {
+  call :albums, [AlbumNode], -> {
     $albums
   }
 
-  has_many :songs, node_class: SongNode do
+  connection :songs, item_class: SongNode do
     $songs
   end
 
-  has_many :accounts, node_class: AccountNode do
+  connection :accounts, item_class: AccountNode do
     $accounts
   end
 end

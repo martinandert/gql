@@ -4,7 +4,7 @@ module GQL
       cursor :id
       string :id
 
-      array :parameters, :node_class => Parameter do
+      array :parameters, :item_class => Parameter do
         target.method.parameters
       end
 

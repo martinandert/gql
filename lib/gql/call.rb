@@ -16,18 +16,23 @@ module GQL
 
     class << self
       def build_class(id, result_class, method)
-        if result_class.is_a? Array
-          result_class.unshift Connection if result_class.size == 1
-          result_class.unshift Fields::Connection if result_class.size == 2
-
-          field_type_class, connection_class, node_class = result_class
-
-          unless field_type_class <= Fields::Connection
-            raise Errors::InvalidNodeClass.new(field_type_class, Fields::Connection)
+        if result_class.is_a? ::Array
+          if result_class.size == 1
+            result_class.unshift GQL.default_list_class || Connection
           end
 
-          options = { connection_class: connection_class, node_class: node_class }
-          result_class = field_type_class.build_class(:result, nil, options)
+          list_class, item_class = result_class
+
+          unless list_class <= Connection
+            raise Errors::InvalidNodeClass.new(list_class, Connection)
+          end
+
+          unless item_class <= Node
+            raise Errors::InvalidNodeClass.new(list_class, Node)
+          end
+
+          options = { list_class: list_class, item_class: item_class }
+          result_class = Connection.build_class(:result, nil, options)
         elsif result_class && !(result_class <= Node)
           raise Errors::InvalidNodeClass.new(result_class, Node)
         end
@@ -60,7 +65,7 @@ module GQL
 
     private
       def substitute_variables(args)
-        args.map { |arg| arg.is_a?(Symbol) ? variables[arg] : arg }
+        args.map { |arg| arg.is_a?(::Symbol) ? variables[arg] : arg }
       end
   end
 end
