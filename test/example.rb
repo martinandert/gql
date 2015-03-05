@@ -73,13 +73,13 @@ class List < GQL::Connection
   boolean :any do
     target.any?
   end
+
+  call :all, -> { target }
+  call :first, -> (size) { target[0...size] }
 end
 
 class HasMany < GQL::Fields::Connection
   self.connection_class = List
-
-  call :all, -> { target }
-  call :first, -> (size) { target[0...size] }
 end
 
 GQL.field_types.update(

@@ -26,13 +26,9 @@ module GQL
         end
       end
 
-      def value_of_fields(*)
+      def value
         connection = self.class.connection_class.new(ast_node, target, variables, context)
         connection.value
-      end
-
-      def raw_value
-        nil
       end
     end
   end
