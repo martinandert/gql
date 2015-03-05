@@ -2,13 +2,12 @@ class GQL::Parser
 token STRING NUMBER TRUE FALSE NULL AS IDENT
 rule
   root
-    : variables node variables    {  result = Root.new(val[1],             val[0].merge(val[2]))  }
-    | variables                   {  result = Root.new(Node.new(nil, nil), val[0]              )  }
+    : variables node variables    {  result = Root.new(val[1], val[0].merge(val[2]))  }
     ;
 
   node
-    : call          {  result = Node.new(val[0], nil            )  }
-    | fields        {  result = Node.new(nil,    val[0].presence)  }
+    : call                  {  result = Node.new(val[0], nil   )  }
+    | '{' field_list '}'    {  result = Node.new(nil,    val[1])  }
     ;
 
   call
