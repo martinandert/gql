@@ -15,7 +15,7 @@ module GQL
     class_attribute :id, :result_class, :method, instance_accessor: false, instance_predicate: false
 
     class << self
-      def build_class(name, result_class, method)
+      def build_class(id, result_class, method)
         if result_class.is_a? Array
           result_class.unshift Connection if result_class.size == 1
           result_class.unshift Fields::Connection if result_class.size == 2
@@ -33,7 +33,7 @@ module GQL
         end
 
         Class.new(self).tap do |call_class|
-          call_class.id = name.to_s
+          call_class.id = id.to_s
           call_class.method = method
           call_class.result_class = result_class
         end

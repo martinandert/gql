@@ -10,53 +10,53 @@ module GQL
     self.fields = {}
 
     class << self
-      def call(*names, &block)
-        names_with_result_class = names.extract_options!
+      def call(*ids, &block)
+        ids_with_result_class = ids.extract_options!
 
-        names.each do |name|
-          names_with_result_class[name] = nil
+        ids.each do |id|
+          ids_with_result_class[id] = nil
         end
 
-        names_with_result_class.each do |name, result_class|
-          method = block || lambda { |*args| target.public_send(name, *args) }
-          call_class = Call.build_class(name, result_class, method)
+        ids_with_result_class.each do |id, result_class|
+          method = block || lambda { |*args| target.public_send(id, *args) }
+          call_class = Call.build_class(id, result_class, method)
 
-          self.const_set "#{name.to_s.camelize}Call", call_class
-          self.calls = calls.merge(name => call_class)
+          self.const_set "#{id.to_s.camelize}Call", call_class
+          self.calls = calls.merge(id => call_class)
         end
       end
 
-      def field(*names, &block)
-        options = names.extract_options!
+      def field(*ids, &block)
+        options = ids.extract_options!
 
-        names.each do |name|
-          method = block || lambda { target.public_send(name) }
+        ids.each do |id|
+          method = block || lambda { target.public_send(id) }
           field_type_class = options.delete(:field_type_class) || Field
 
           unless field_type_class <= Field
             raise Errors::InvalidNodeClass.new(field_type_class, Field)
           end
 
-          field_class = field_type_class.build_class(name, method, options)
+          field_class = field_type_class.build_class(id, method, options)
 
-          self.const_set "#{name.to_s.camelize}Field", field_class
-          self.fields = fields.merge(name => field_class)
+          self.const_set "#{id.to_s.camelize}Field", field_class
+          self.fields = fields.merge(id => field_class)
         end
       end
 
-      def cursor(name = nil, &block)
-        if name
-          field :cursor, &-> { target.public_send(name) }
+      def cursor(id = nil, &block)
+        if id
+          field :cursor, &-> { target.public_send(id) }
         elsif block_given?
           field :cursor, &block
         end
       end
 
-      def method_missing(method, *names, &block)
+      def method_missing(method, *ids, &block)
         if field_type_class = GQL.field_types[method]
-          options = names.extract_options!
+          options = ids.extract_options!
 
-          field(*names, options.merge(field_type_class: field_type_class), &block)
+          field(*ids, options.merge(field_type_class: field_type_class), &block)
         else
           super
         end
@@ -83,10 +83,10 @@ module GQL
     end
 
     def value_of_call(ast_call)
-      call_class = self.class.calls[ast_call.name]
+      call_class = self.class.calls[ast_call.id]
 
       if call_class.nil?
-        raise Errors::UndefinedCall.new(ast_call.name, self.class)
+        raise Errors::UndefinedCall.new(ast_call.id, self.class)
       end
 
       call = call_class.new(self, ast_call, target, variables, context)
@@ -95,22 +95,22 @@ module GQL
 
     def value_of_fields(ast_fields)
       ast_fields.reduce({}) do |memo, ast_field|
-        key = ast_field.alias_name || ast_field.name
+        key = ast_field.alias_id || ast_field.id
 
         memo.merge key => value_of_field(ast_field)
       end
     end
 
     def value_of_field(ast_field)
-      case ast_field.name
+      case ast_field.id
       when :node
         field = self.class.new(ast_field, target, variables, context)
         field.value
       else
-        field_class = self.class.fields[ast_field.name]
+        field_class = self.class.fields[ast_field.id]
 
         if field_class.nil?
-          raise Errors::UndefinedField.new(ast_field.name, self.class)
+          raise Errors::UndefinedField.new(ast_field.id, self.class)
         end
 
         method = Field::Method.new(target, context)

@@ -25,29 +25,29 @@ module GQL
     end
 
     class UndefinedFieldType < Error
-      def initialize(name)
-        types = GQL.field_types.keys.sort.map { |name| "`#{name}`" }
+      def initialize(id)
+        types = GQL.field_types.keys.sort.map { |id| "`#{id}`" }
         types = types.size > 0 ? " Available types: #{types.to_sentence}." : ''
 
-        super("The field type `#{name}` is undefined. Define it with `GQL.field_types[:#{name}] = My#{name.to_s.camelize}`.#{types}")
+        super("The field type `#{id}` is undefined. Define it with `GQL.field_types[:#{id}] = My#{id.to_s.camelize}`.#{types}")
       end
     end
 
     class UndefinedCall < Error
-      def initialize(name, node_class)
-        calls = node_class.calls.keys.sort.map { |name| "`#{name}`" }
+      def initialize(id, node_class)
+        calls = node_class.calls.keys.sort.map { |id| "`#{id}`" }
         calls = calls.size > 0 ? " Available calls: #{calls.to_sentence}." : ''
 
-        super("#{node_class} has no call named `#{name}`.#{calls}")
+        super("#{node_class} has no call named `#{id}`.#{calls}")
       end
     end
 
     class UndefinedField < Error
-      def initialize(name, node_class)
-        fields = node_class.fields.keys.sort.map { |name| "`#{name}`" }
+      def initialize(id, node_class)
+        fields = node_class.fields.keys.sort.map { |id| "`#{id}`" }
         fields = fields.size > 0 ? " Available fields: #{fields.to_sentence}." : ''
 
-        super("#{node_class} has no field named `#{name}`.#{fields}")
+        super("#{node_class} has no field named `#{id}`.#{fields}")
       end
     end
 

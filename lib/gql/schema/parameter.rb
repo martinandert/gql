@@ -3,7 +3,7 @@ module GQL
     class Parameter < GQL::Node
       cursor { target[1].to_s }
 
-      string :name do
+      string :id do
         target[1].to_s
       end
 

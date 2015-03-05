@@ -137,10 +137,10 @@ require 'active_support/core_ext/object/blank'
   class Node < Struct.new(:call, :fields)
   end
 
-  class Field < Struct.new(:name, :alias_name, :call, :fields)
+  class Field < Struct.new(:id, :alias_id, :call, :fields)
   end
 
-  class Call < Struct.new(:name, :arguments, :call, :fields)
+  class Call < Struct.new(:id, :arguments, :call, :fields)
   end
 
   UNESCAPE_MAP = Hash.new { |h, k| h[k] = k.chr }
