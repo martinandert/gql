@@ -21,20 +21,14 @@ module GQL
             result_class.unshift GQL.default_list_class || Connection
           end
 
-          list_class, item_class = result_class
+          options = {
+            list_class: result_class.first,
+            item_class: result_class.last
+          }
 
-          unless list_class <= Connection
-            raise Errors::InvalidNodeClass.new(list_class, Connection)
-          end
-
-          unless item_class <= Node
-            raise Errors::InvalidNodeClass.new(list_class, Node)
-          end
-
-          options = { list_class: list_class, item_class: item_class }
           result_class = Connection.build_class(:result, nil, options)
-        elsif result_class && !(result_class <= Node)
-          raise Errors::InvalidNodeClass.new(result_class, Node)
+        elsif result_class
+          Node.validate_is_subclass_of! result_class, Node, 'result'
         end
 
         Class.new(self).tap do |call_class|

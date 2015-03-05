@@ -1,6 +1,6 @@
 # gql
 
-An attempted implementation of Facebook's yet-to-be-released GraphQL specification, heavily inspired by [graphql-ruby](https://github.com/rmosolgo/graphql-ruby), but with other/more/less features/bugs.
+A Ruby implementation of Facebook's yet-to-be-released GraphQL specification, inspired by [graphql-ruby](https://github.com/rmosolgo/graphql-ruby), but with other/more/less features/bugs.
 
 Caution! This is pre-alpha software. Use at your own risk.
 

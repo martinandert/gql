@@ -8,13 +8,7 @@ module GQL
       def build_class(id, method, options = {})
         node_class = options[:node_class] || self.node_class
 
-        if node_class.nil?
-          raise Errors::UndefinedNodeClass.new(self, 'node')
-        end
-
-        unless node_class <= Node
-          raise Errors::InvalidNodeClass.new(node_class, Node)
-        end
+        validate_is_subclass_of! node_class, Node, 'node'
 
         Class.new(self).tap do |field_class|
           field_class.id = id.to_s

@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Martin Andert']
   spec.email         = ['mandert@gmail.com']
 
-  spec.summary       = 'An attempted Ruby implementation of Facebook\'s yet-to-be-released GraphQL specification.'
+  spec.summary       = 'A Ruby implementation of Facebook\'s yet-to-be-released GraphQL specification.'
   spec.homepage      = 'https://github.com/martinandert/gql'
   spec.license       = 'MIT'
 

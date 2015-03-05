@@ -31,9 +31,7 @@ module GQL
           method = block || lambda { target.public_send(id) }
           field_type = options.delete(:type) || Field
 
-          unless field_type <= Field
-            raise Errors::InvalidNodeClass.new(field_type, Field)
-          end
+          validate_is_subclass_of! field_type, Field, 'type'
 
           field_class = field_type.build_class(id, method, options)
 
@@ -45,6 +43,16 @@ module GQL
       def cursor(id = nil, &block)
         body = id ? -> { target.public_send(id) } : block
         field :cursor, { type: Simple }, &body
+      end
+
+      def validate_is_subclass_of!(left, right, name)
+        if left.nil?
+          raise Errors::UndefinedNodeClass.new(self, name)
+        end
+
+        unless left <= right
+          raise Errors::InvalidNodeClass.new(left, right)
+        end
       end
 
       def method_missing(method, *ids, &block)
