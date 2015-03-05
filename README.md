@@ -1,4 +1,4 @@
-# GQL
+# gql
 
 An attempted implementation of Facebook's yet-to-be-released GraphQL specification, heavily inspired by [graphql-ruby](https://github.com/rmosolgo/graphql-ruby), but with other/more/less features/bugs.
 

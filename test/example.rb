@@ -176,9 +176,11 @@ class SongNode
   string :title
 end
 
+$time = Time.at(1425560620)
+
 $users = [
-  User.new(id: 1, token: 'ma', first_name: 'Martin', last_name: 'Andert', created_at: Time.now - 5*365*24*60*60),
-  User.new(id: 2, token: 'pm', first_name: 'Peter', last_name: 'Miller', created_at: Time.now - 42*24*60*60)
+  User.new(id: 1, token: 'ma', first_name: 'Martin', last_name: 'Andert', created_at: $time - 5*365*24*60*60),
+  User.new(id: 2, token: 'pm', first_name: 'Peter', last_name: 'Miller', created_at: $time - 42*24*60*60)
 ]
 
 $accounts = [

@@ -78,9 +78,14 @@ module GQL
       tokenizer = Tokenizer.new
       tokenizer.scan_setup input
 
+      result = []
+
       while token = tokenizer.next_token
-        yield token
+        result << token
+        yield token if block_given?
       end
+
+      result
     end
   })
 
