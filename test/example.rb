@@ -185,7 +185,7 @@ class AlbumNode
   object :user, node_class: UserNode
   string :artist
   string :title
-  connection :songs, node_class: SongNode
+  has_many :songs, node_class: SongNode
 end
 
 class SongNode

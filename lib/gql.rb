@@ -11,7 +11,7 @@ module GQL
 
   module Errors
     autoload :InvalidNodeClass,   'gql/errors'
-    autoload :ParseError,         'gql/errors'
+    autoload :SyntaxError,        'gql/errors'
     autoload :UndefinedCall,      'gql/errors'
     autoload :UndefinedField,     'gql/errors'
     autoload :UndefinedNodeClass, 'gql/errors'
@@ -27,6 +27,15 @@ module GQL
     autoload :Integer,      'gql/fields/integer'
     autoload :Object,       'gql/fields/object'
     autoload :String,       'gql/fields/string'
+  end
+
+  module Schema
+    autoload :Call,         'gql/schema/call'
+    autoload :Connection,   'gql/schema/connection'
+    autoload :Field,        'gql/schema/field'
+    autoload :Node,         'gql/schema/node'
+    autoload :Parameter,    'gql/schema/parameter'
+    autoload :Placeholder,  'gql/schema/placeholder'
   end
 
   extend(Module.new {

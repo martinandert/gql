@@ -14,11 +14,12 @@ module GQL
       end
     end
 
-    class_attribute :method, instance_accessor: false, instance_predicate: false
+    class_attribute :id, :method, instance_accessor: false, instance_predicate: false
 
     class << self
-      def build_class(method, options = {})
+      def build_class(name, method, options = {})
         Class.new(self).tap do |field_class|
+          field_class.id = name.to_s
           field_class.method = method
         end
       end

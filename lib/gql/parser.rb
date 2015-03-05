@@ -62,7 +62,7 @@ module_eval(<<'...end parser.y/module_eval...', 'parser.y', 133)
   end
 
   def on_error(token, value, vstack)
-    raise Errors::ParseError.new(value, token_to_str(token))
+    raise Errors::SyntaxError.new(value, token_to_str(token))
   end
 
   private

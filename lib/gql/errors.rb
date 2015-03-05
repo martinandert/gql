@@ -35,7 +35,7 @@ module GQL
 
     class UndefinedCall < Error
       def initialize(name, node_class)
-        calls = node_class.call_classes.keys.sort.map { |name| "`#{name}`" }
+        calls = node_class.calls.keys.sort.map { |name| "`#{name}`" }
         calls = calls.size > 0 ? " Available calls: #{calls.to_sentence}." : ''
 
         super("#{node_class} has no call named `#{name}`.#{calls}")
@@ -44,16 +44,16 @@ module GQL
 
     class UndefinedField < Error
       def initialize(name, node_class)
-        fields = node_class.field_classes.keys.sort.map { |name| "`#{name}`" }
+        fields = node_class.fields.keys.sort.map { |name| "`#{name}`" }
         fields = fields.size > 0 ? " Available fields: #{fields.to_sentence}." : ''
 
         super("#{node_class} has no field named `#{name}`.#{fields}")
       end
     end
 
-    class ParseError < Error
+    class SyntaxError < Error
       def initialize(value, token)
-        token = 'value' if token == 'error'
+        token = 'character' if token == 'error' || token == %Q{"#{value}"}
 
         super("Unexpected #{token}: `#{value}`.")
       end

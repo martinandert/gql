@@ -9,6 +9,12 @@ module GQL
         raise Errors::InvalidNodeClass.new(value, Node)
       end
 
+      if ENV['DEBUG']
+        value.call _schema: Schema::Node do
+          context[:_schema_root]
+        end
+      end
+
       @@root_node_class = value
     end
 

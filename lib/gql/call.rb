@@ -12,10 +12,10 @@ module GQL
       end
     end
 
-    class_attribute :method, :result_class, instance_accessor: false, instance_predicate: false
+    class_attribute :id, :result_class, :method, instance_accessor: false, instance_predicate: false
 
     class << self
-      def build_class(result_class, method)
+      def build_class(name, result_class, method)
         if result_class.is_a? Array
           result_class.unshift Connection if result_class.size == 1
           result_class.unshift Fields::Connection if result_class.size == 2
@@ -27,12 +27,13 @@ module GQL
           end
 
           options = { connection_class: connection_class, node_class: node_class }
-          result_class = field_type_class.build_class(nil, options)
+          result_class = field_type_class.build_class(:result, nil, options)
         elsif result_class && !(result_class <= Node)
           raise Errors::InvalidNodeClass.new(result_class, Node)
         end
 
         Class.new(self).tap do |call_class|
+          call_class.id = name.to_s
           call_class.method = method
           call_class.result_class = result_class
         end

@@ -4,10 +4,10 @@ require 'active_support/core_ext/array/extract_options'
 
 module GQL
   class Node
-    class_attribute :call_classes, :field_classes, instance_accessor: false, instance_predicate: false
+    class_attribute :calls, :fields, instance_accessor: false, instance_predicate: false
 
-    self.call_classes = {}
-    self.field_classes = {}
+    self.calls = {}
+    self.fields = {}
 
     class << self
       def call(*names, &block)
@@ -19,10 +19,10 @@ module GQL
 
         names_with_result_class.each do |name, result_class|
           method = block || lambda { |*args| target.public_send(name, *args) }
-          call_class = Call.build_class(result_class, method)
+          call_class = Call.build_class(name, result_class, method)
 
           self.const_set "#{name.to_s.camelize}Call", call_class
-          self.call_classes = call_classes.merge(name => call_class)
+          self.calls = calls.merge(name => call_class)
         end
       end
 
@@ -37,10 +37,10 @@ module GQL
             raise Errors::InvalidNodeClass.new(field_type_class, Field)
           end
 
-          field_class = field_type_class.build_class(method, options)
+          field_class = field_type_class.build_class(name, method, options)
 
           self.const_set "#{name.to_s.camelize}Field", field_class
-          self.field_classes = field_classes.merge(name => field_class)
+          self.fields = fields.merge(name => field_class)
         end
       end
 
@@ -83,10 +83,10 @@ module GQL
     end
 
     def value_of_call(ast_call)
-      call_class = self.class.call_classes[ast_call.name]
+      call_class = self.class.calls[ast_call.name]
 
       if call_class.nil?
-        raise Errors::UndefinedCall.new(ast_call.name, self.class.superclass)
+        raise Errors::UndefinedCall.new(ast_call.name, self.class)
       end
 
       call = call_class.new(self, ast_call, target, variables, context)
@@ -107,16 +107,16 @@ module GQL
         field = self.class.new(ast_field, target, variables, context)
         field.value
       else
-        method = Field::Method.new(target, context)
-        field_class = self.class.field_classes[ast_field.name]
+        field_class = self.class.fields[ast_field.name]
 
         if field_class.nil?
-          raise Errors::UndefinedField.new(ast_field.name, self.class.superclass)
+          raise Errors::UndefinedField.new(ast_field.name, self.class)
         end
 
-        next_target = method.execute(field_class.method)
+        method = Field::Method.new(target, context)
+        target = method.execute(field_class.method)
 
-        field = field_class.new(ast_field, next_target, variables, context)
+        field = field_class.new(ast_field, target, variables, context)
         field.value
       end
     end

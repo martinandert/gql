@@ -9,7 +9,7 @@ module GQL
         target.downcase
       end
 
-      call :length, returns: Integer do
+      call length: Integer do
         target.size
       end
 

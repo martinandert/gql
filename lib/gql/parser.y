@@ -178,7 +178,7 @@ require 'active_support/core_ext/object/blank'
   end
 
   def on_error(token, value, vstack)
-    raise Errors::ParseError.new(value, token_to_str(token))
+    raise Errors::SyntaxError.new(value, token_to_str(token))
   end
 
   private

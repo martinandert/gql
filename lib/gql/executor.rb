@@ -12,6 +12,8 @@ module GQL
 
       raise Errors::UndefinedRoot if node_class.nil?
 
+      context[:_schema_root] = node_class if ENV['DEBUG']
+
       node = node_class.new(ast_node, nil, variables, context)
       node.value
     end
