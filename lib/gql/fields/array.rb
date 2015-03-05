@@ -25,9 +25,7 @@ module GQL
         end
       end
 
-      call size: Integer do
-        target.size
-      end
+      call :size, Integer, -> { target.size }
 
       def value
         target.map do |item|

@@ -44,19 +44,10 @@ class User < FakeRecord
 end
 
 class Timestamp < GQL::Field
-  call format: GQL::Fields::String do |format = 'default'|
-    I18n.localize target, format: format.to_sym
-  end
-
-  call ago: GQL::Fields::String do
-    'a long time ago'
-  end
-
-  call to_s: GQL::Fields::String
-
-  call :add_years do |years|
-    target + years * 365*24*60*60
-  end
+  call :format, GQL::Fields::String, -> (format = 'default') { I18n.localize target, format: format.to_sym }
+  call :ago, GQL::Fields::String, -> { 'a long time ago' }
+  call :to_s, GQL::Fields::String
+  call :add_years, -> (years) { target + years * 365*24*60*60 }
 
   integer :year
   integer :month
@@ -87,13 +78,8 @@ end
 class HasMany < GQL::Fields::Connection
   self.connection_class = List
 
-  call :all do
-    target
-  end
-
-  call :first do |size|
-    target[0...size]
-  end
+  call :all, -> { target }
+  call :first, -> (size) { target[0...size] }
 end
 
 GQL.field_types.update(
@@ -117,10 +103,6 @@ class MoneyNode < GQL::Node
 end
 
 class UserNode
-  call :me do
-    target
-  end
-
   cursor :token
 
   string :id do
@@ -157,9 +139,7 @@ class AccountNode
     target.owner
   end
 
-  call reversed_number: GQL::Fields::String do
-    target.number.reverse
-  end
+  call :reversed_number, GQL::Fields::String, -> { target.number.reverse }
 end
 
 class MoneyNode
@@ -240,7 +220,7 @@ module UpdateUserNameCall
   extend ActiveSupport::Concern
 
   included do
-    call update_user_name: Result do |token, new_name|
+    call :update_user_name, Result, -> (token, new_name) {
       user = $users.find { |user| user.token == token }
       old_name = user.first_name
       user.attributes.update first_name: new_name
@@ -250,7 +230,7 @@ module UpdateUserNameCall
         old_name: old_name,
         new_name: user.first_name
       }
-    end
+    }
   end
 
   class Result < GQL::Node
@@ -271,33 +251,33 @@ end
 class RootNode < GQL::Node
   include UpdateUserNameCall
 
-  call viewer: UserNode do
+  call :viewer, UserNode, -> {
     $users.find { |user| user.token == context[:auth_token] }
-  end
+  }
 
-  call user: UserNode do |token|
+  call :user, UserNode, -> (token) {
     $users.find { |user| user.token == token }
-  end
+  }
 
-  call account: AccountNode do |id|
+  call :account, AccountNode, -> (id) {
     $accounts.find { |account| account.id == id }
-  end
+  }
 
-  call album: AlbumNode do |id|
+  call :album, AlbumNode, -> (id) {
     $albums.find { |album| album.id == id }
-  end
+  }
 
-  call song: SongNode do |id|
+  call :song, SongNode, -> (id) {
     $songs.find { |song| song.id == id }
-  end
+  }
 
-  call users: [HasMany, List, UserNode] do
+  call :users, [HasMany, List, UserNode], -> {
     $users
-  end
+  }
 
-  call albums: [HasMany, List, AlbumNode] do
+  call :albums, [HasMany, List, AlbumNode], -> {
     $albums
-  end
+  }
 
   has_many :songs, node_class: SongNode do
     $songs

@@ -10,20 +10,18 @@ module GQL
     self.fields = {}
 
     class << self
-      def call(*ids, &block)
-        ids_with_result_class = ids.extract_options!
-
-        ids.each do |id|
-          ids_with_result_class[id] = nil
+      def call(id, result_class = nil, body = nil)
+        if body.nil? && result_class.is_a?(Proc)
+          body = result_class
+          result_class = nil
         end
 
-        ids_with_result_class.each do |id, result_class|
-          method = block || lambda { |*args| target.public_send(id, *args) }
-          call_class = Call.build_class(id, result_class, method)
+        body ||= lambda { |*args| target.public_send(id, *args) }
 
-          self.const_set "#{id.to_s.camelize}Call", call_class
-          self.calls = calls.merge(id => call_class)
-        end
+        call_class = Call.build_class(id, result_class, body)
+
+        self.const_set "#{id.to_s.camelize}Call", call_class
+        self.calls = calls.merge(id.to_sym => call_class)
       end
 
       def field(*ids, &block)
@@ -40,7 +38,7 @@ module GQL
           field_class = field_type_class.build_class(id, method, options)
 
           self.const_set "#{id.to_s.camelize}Field", field_class
-          self.fields = fields.merge(id => field_class)
+          self.fields = fields.merge(id.to_sym => field_class)
         end
       end
 
