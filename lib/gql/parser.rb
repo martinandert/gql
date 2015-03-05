@@ -7,18 +7,45 @@
 require 'racc/parser.rb'
 
 
-require 'json'
+require 'active_support/json'
 require 'active_support/core_ext/object/blank'
+require 'active_support/core_ext/object/try'
+require 'active_support/core_ext/object/json'
 
 module GQL
   class Parser < Racc::Parser
 
-module_eval(<<'...end parser.y/module_eval...', 'parser.y', 132)
+module_eval(<<'...end parser.y/module_eval...', 'parser.y', 134)
 
-  Root  = Struct.new(:node, :variables)
-  Node  = Struct.new(:call, :fields)
-  Field = Struct.new(:id, :alias_id, :call, :fields)
-  Call  = Struct.new(:id, :arguments, :call, :fields)
+  class Root < Struct.new(:node, :variables)
+    def as_json(*)
+      { node: node.as_json, variables: variables.try(:as_json) }
+    end
+  end
+
+  class Node < Struct.new(:call, :fields)
+    def as_json(*)
+      { call: call.try(:as_json), fields: fields.try(:as_json) }
+    end
+  end
+
+  class Field < Struct.new(:id, :alias_id, :call, :fields)
+    def as_json(*)
+      {
+        id: id.as_json, alias_id: alias_id.try(:as_json),
+        call: call.try(:as_json), fields: fields.try(:as_json)
+      }
+    end
+  end
+
+  class Call < Struct.new(:id, :arguments, :call, :fields)
+    def as_json(*)
+      {
+        id: id.as_json, arguments: arguments.as_json,
+        call: call.try(:as_json), fields: fields.try(:as_json)
+      }
+    end
+  end
 
   UNESCAPE_MAP = Hash.new { |h, k| h[k] = k.chr }
 
