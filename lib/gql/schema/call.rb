@@ -5,8 +5,16 @@ module GQL
 
       string  :id
       string  :type,         -> { target.name }
-      array   :parameters,   -> { target.method.parameters }, item_class: Parameter
       object  :result_class, -> { target.result_class || Placeholder }, node_class: Node
+
+
+      array :parameters, -> {
+        if target.proc
+          target.proc.parameters
+        else
+          target.instance_method(:execute).parameters
+        end
+      }, item_class: Parameter
     end
   end
 end

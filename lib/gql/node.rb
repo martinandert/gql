@@ -66,6 +66,7 @@ module GQL
               proc_or_class
             end
 
+          call_class.id = id.to_s
           call_class.result_class = result_class
 
           self.calls = calls.merge(id.to_sym => call_class)

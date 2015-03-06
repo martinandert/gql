@@ -2,7 +2,7 @@ require 'active_support/core_ext/class/attribute'
 
 module GQL
   class Call
-    class_attribute :result_class, :proc, instance_accessor: false, instance_predicate: false
+    class_attribute :id, :result_class, :proc, instance_accessor: false, instance_predicate: false
 
     class << self
       def returns(result_class)
