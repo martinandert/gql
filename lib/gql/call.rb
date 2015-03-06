@@ -1,59 +1,50 @@
+require 'active_support/core_ext/class/attribute'
+
 module GQL
-  class Call
-    class Method
-      attr_reader :target, :context
-
-      def initialize(target, context)
-        @target, @context = target, context
-      end
-
-      def execute(method, args)
-        instance_exec(*args, &method)
-      end
-    end
-
-    class_attribute :id, :result_class, :method, instance_accessor: false, instance_predicate: false
+  class Call < Node
+    class_attribute :result_class, :target_method, instance_writer: false, instance_predicate: false
 
     class << self
-      def build_class(id, result_class, method)
+      alias_method :original_build_class, :build_class
+
+      def build_class(id, options = {})
+        result_class = options[:result_class] || self.result_class
+
         if result_class.is_a? ::Array
           if result_class.size == 1
             result_class.unshift GQL.default_list_class || Connection
           end
 
-          options = {
+          connection_options = {
             list_class: result_class.first,
             item_class: result_class.last
           }
 
-          result_class = Connection.build_class(:result, nil, options)
+          result_class = Connection.build_class(:result, connection_options)
         elsif result_class
-          Node.validate_is_subclass_of! result_class, Node, 'result'
+          Field.validate_is_subclass! result_class, 'result'
         end
 
-        Class.new(self).tap do |call_class|
-          call_class.id = id.to_s
-          call_class.method = method
-          call_class.result_class = result_class
-        end
+        options[:result_class] = result_class
+
+        original_build_class id, options
       end
     end
 
-    attr_reader :caller, :ast_node, :target, :variables, :context
+    attr_reader :caller_class
 
-    def initialize(caller, ast_node, target, variables, context)
-      @caller, @ast_node, @target = caller, ast_node, target
-      @variables, @context = variables, context
+    def initialize(caller_class, *args)
+      @caller_class = caller_class
+      super(*args)
     end
 
-    def execute
+    def value
       args = substitute_variables(ast_node.arguments)
 
-      method = Method.new(target, context)
-      target = method.execute(self.class.method, args)
-      result_class = self.class.result_class || caller.class
+      method = Node::Method.new(target, context)
+      target = method.execute(target_method, args)
 
-      result = result_class.new(ast_node, target, variables, context)
+      result = (result_class || caller_class).new(ast_node, target, variables, context)
       result.value
     end
 

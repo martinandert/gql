@@ -1,6 +1,6 @@
 module GQL
   module Schema
-    class Placeholder < GQL::Node
+    class Placeholder < GQL::Object
     end
   end
 end

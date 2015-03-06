@@ -1,27 +1,26 @@
 require 'active_support/core_ext/class/attribute'
+require 'active_support/core_ext/string/inflections'
 
 module GQL
   class Field < Node
-    class Method
-      attr_reader :target, :context
-
-      def initialize(target, context)
-        @target, @context = target, context
-      end
-
-      def execute(method)
-        instance_exec(&method)
-      end
-    end
-
-    class_attribute :id, :method, instance_accessor: false, instance_predicate: false
+    class_attribute :calls, instance_writer: false, instance_predicate: false
+    self.calls = {}
 
     class << self
-      def build_class(id, method, options = {})
-        Class.new(self).tap do |field_class|
-          field_class.id = id.to_s
-          field_class.method = method
+      def call(id, result_class = nil, target_method = nil)
+        if target_method.nil? && result_class.is_a?(Proc)
+          target_method = result_class
+          result_class  = nil
         end
+
+        target_method ||= -> (*args) { target.public_send(id, *args) }
+
+        options = { result_class: result_class, target_method: target_method }
+
+        call_class = Call.build_class(id, options)
+
+        self.const_set "#{id.to_s.camelize}Call", call_class
+        self.calls = calls.merge(id.to_sym => call_class)
       end
     end
   end
