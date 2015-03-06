@@ -1,10 +1,10 @@
 module GQL
   class Executor
-    attr_reader :ast_node, :variables
+    attr_reader :ast_root, :variables
 
-    def initialize(ast_root)
-      @ast_node   = ast_root.node
-      @variables  = ast_root.variables
+    def initialize(ast_query)
+      @ast_root   = ast_query.root
+      @variables  = ast_query.variables
     end
 
     def execute(context = {})
@@ -14,7 +14,7 @@ module GQL
 
       context[:_schema_root] = node_class if ENV['DEBUG']
 
-      node = node_class.new(ast_node, nil, variables, context)
+      node = node_class.new(ast_root, nil, variables, context)
       node.value
     end
   end

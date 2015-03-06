@@ -17,23 +17,22 @@ module GQL
 
 module_eval(<<'...end parser.y/module_eval...', 'parser.y', 134)
 
-  class Root < Struct.new(:node, :variables)
+  class Query < Struct.new(:root, :variables)
     def as_json(*)
-      { node: node.as_json, variables: variables.try(:as_json) }
-    end
-  end
-
-  class Node < Struct.new(:call, :fields)
-    def as_json(*)
-      { call: call.try(:as_json), fields: fields.try(:as_json) }
+      {
+        root:       root.as_json,
+        variables:  variables
+      }
     end
   end
 
   class Field < Struct.new(:id, :alias_id, :call, :fields)
     def as_json(*)
       {
-        id: id.as_json, alias_id: alias_id.try(:as_json),
-        call: call.try(:as_json), fields: fields.try(:as_json)
+        id:         id,
+        alias_id:   alias_id,
+        call:       call.as_json,
+        fields:     fields.as_json
       }
     end
   end
@@ -41,8 +40,10 @@ module_eval(<<'...end parser.y/module_eval...', 'parser.y', 134)
   class Call < Struct.new(:id, :arguments, :call, :fields)
     def as_json(*)
       {
-        id: id.as_json, arguments: arguments.as_json,
-        call: call.try(:as_json), fields: fields.try(:as_json)
+        id:         id,
+        arguments:  arguments,
+        call:       call.as_json,
+        fields:     fields.as_json
       }
     end
   end
@@ -307,9 +308,9 @@ Racc_token_to_s_table = [
   "\"[\"",
   "\"]\"",
   "$start",
-  "root",
+  "query",
   "variables",
-  "node",
+  "root",
   "call",
   "field_list",
   "identifier",
@@ -340,21 +341,21 @@ Racc_debug_parser = false
 
 module_eval(<<'.,.,', 'parser.y', 4)
   def _reduce_1(val, _values, result)
-      result = Root.new(val[1], val[0].merge(val[2]))  
+      result = Query.new(val[1], val[0].merge(val[2]))  
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 8)
   def _reduce_2(val, _values, result)
-      result = Node.new(val[0], nil   )  
+      result = Field.new(nil, nil, val[0], nil   )  
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.y', 9)
   def _reduce_3(val, _values, result)
-      result = Node.new(nil,    val[1])  
+      result = Field.new(nil, nil, nil,    val[1])  
     result
   end
 .,.,

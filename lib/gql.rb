@@ -54,9 +54,9 @@ module GQL
     end
 
     def execute(input, context = {})
-      ast = parse(input)
+      query = parse(input)
 
-      executor = Executor.new(ast)
+      executor = Executor.new(query)
       executor.execute context
     end
 

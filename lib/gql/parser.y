@@ -1,13 +1,13 @@
 class GQL::Parser
 token STRING NUMBER TRUE FALSE NULL AS IDENT
 rule
-  root
-    : variables node variables    {  result = Root.new(val[1], val[0].merge(val[2]))  }
+  query
+    : variables root variables    {  result = Query.new(val[1], val[0].merge(val[2]))  }
     ;
 
-  node
-    : call                  {  result = Node.new(val[0], nil   )  }
-    | '{' field_list '}'    {  result = Node.new(nil,    val[1])  }
+  root
+    : call                  {  result = Field.new(nil, nil, val[0], nil   )  }
+    | '{' field_list '}'    {  result = Field.new(nil, nil, nil,    val[1])  }
     ;
 
   call
@@ -132,23 +132,22 @@ require 'active_support/core_ext/object/json'
 
 ---- inner
 
-  class Root < Struct.new(:node, :variables)
+  class Query < Struct.new(:root, :variables)
     def as_json(*)
-      { node: node.as_json, variables: variables.try(:as_json) }
-    end
-  end
-
-  class Node < Struct.new(:call, :fields)
-    def as_json(*)
-      { call: call.try(:as_json), fields: fields.try(:as_json) }
+      {
+        root:       root.as_json,
+        variables:  variables
+      }
     end
   end
 
   class Field < Struct.new(:id, :alias_id, :call, :fields)
     def as_json(*)
       {
-        id: id.as_json, alias_id: alias_id.try(:as_json),
-        call: call.try(:as_json), fields: fields.try(:as_json)
+        id:         id,
+        alias_id:   alias_id,
+        call:       call.as_json,
+        fields:     fields.as_json
       }
     end
   end
@@ -156,8 +155,10 @@ require 'active_support/core_ext/object/json'
   class Call < Struct.new(:id, :arguments, :call, :fields)
     def as_json(*)
       {
-        id: id.as_json, arguments: arguments.as_json,
-        call: call.try(:as_json), fields: fields.try(:as_json)
+        id:         id,
+        arguments:  arguments,
+        call:       call.as_json,
+        fields:     fields.as_json
       }
     end
   end
