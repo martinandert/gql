@@ -2,7 +2,7 @@ require 'active_support/core_ext/class/attribute'
 
 module GQL
   class Array < Field
-    class_attribute :item_class, instance_accessor: false, instance_predicate: false
+    class_attribute :item_class, instance_writer: false, instance_predicate: false
 
     class << self
       def build_class(id, method, options = {})
@@ -22,7 +22,7 @@ module GQL
 
     def value
       target.map do |item|
-        node = self.class.item_class.new(ast_node, item, variables, context)
+        node = item_class.new(ast_node, item, variables, context)
         node.value
       end
     end

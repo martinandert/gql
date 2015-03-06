@@ -1,17 +1,5 @@
 module GQL
   class Call
-    class Method
-      attr_reader :target, :context
-
-      def initialize(target, context)
-        @target, @context = target, context
-      end
-
-      def execute(method, args)
-        instance_exec(*args, &method)
-      end
-    end
-
     class_attribute :id, :result_class, :method, instance_accessor: false, instance_predicate: false
 
     class << self
@@ -49,7 +37,7 @@ module GQL
     def execute
       args = substitute_variables(ast_node.arguments)
 
-      method = Method.new(target, context)
+      method = Node::ExecutionContext.new(target, context)
       target = method.execute(self.class.method, args)
       result_class = self.class.result_class || caller.class
 

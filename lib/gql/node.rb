@@ -4,6 +4,18 @@ require 'active_support/core_ext/array/extract_options'
 
 module GQL
   class Node
+    class ExecutionContext
+      attr_reader :target, :context
+
+      def initialize(target, context)
+        @target, @context = target, context
+      end
+
+      def execute(method, args = [])
+        instance_exec(*args, &method)
+      end
+    end
+
     class_attribute :calls, :fields, instance_accessor: false, instance_predicate: false
 
     self.calls = {}
@@ -97,10 +109,10 @@ module GQL
     end
 
     def value_of_fields(ast_fields)
-      ast_fields.reduce({}) do |memo, ast_field|
+      ast_fields.reduce({}) do |result, ast_field|
         key = ast_field.alias_id || ast_field.id
 
-        memo.merge key => value_of_field(ast_field)
+        result.merge key => value_of_field(ast_field)
       end
     end
 
@@ -116,7 +128,7 @@ module GQL
           raise Errors::UndefinedField.new(ast_field.id, self.class)
         end
 
-        method = Field::Method.new(target, context)
+        method = ExecutionContext.new(target, context)
         target = method.execute(field_class.method)
 
         field = field_class.new(ast_field, target, variables, context)
