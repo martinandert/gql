@@ -44,10 +44,10 @@ class User < FakeRecord
 end
 
 class Timestamp < GQL::Field
-  call :format, GQL::String, -> (format = 'default') { I18n.localize target, format: format.to_sym }
-  call :ago, GQL::String, -> { 'a long time ago' }
-  call :to_s, GQL::String
-  call :add_years, -> (years) { target + years * 365*24*60*60 }
+  call :format,     -> (format = 'default') { I18n.localize target, format: format.to_sym }, returns: GQL::String
+  call :ago,        -> { 'a long time ago' }, returns: GQL::String
+  call :add_years,  -> years { target + years * 365*24*60*60 }
+  call :to_s, returns: GQL::String
 
   number :year
   number :month
@@ -112,7 +112,7 @@ class AccountNode
   string  :bank_name
   string  :holder, -> { target.owner }
 
-  call :reversed_number, GQL::String, -> { target.number.reverse }
+  call :reversed_number, -> { target.number.reverse }, returns: GQL::String
 end
 
 class MoneyNode
@@ -186,20 +186,16 @@ $viewer = $users[0]
 
 require 'active_support/concern'
 
-module UpdateUserNameCall
-  extend ActiveSupport::Concern
+class UpdateUserNameCall < GQL::Call
+  def execute(token, new_name)
+    user = $users.find { |user| user.token == token }
+    old_name = user.first_name
+    user.attributes.update first_name: new_name
 
-  included do
-    call :update_user_name, Result, -> (token, new_name) {
-      user = $users.find { |user| user.token == token }
-      old_name = user.first_name
-      user.attributes.update first_name: new_name
-
-      {
-        user: user,
-        old_name: old_name,
-        new_name: user.first_name
-      }
+    {
+      user: user,
+      old_name: old_name,
+      new_name: user.first_name
     }
   end
 
@@ -208,21 +204,32 @@ module UpdateUserNameCall
     string :old_name, -> { target[:old_name] }
     string :new_name, -> { target[:new_name] }
   end
+
+  returns Result
+
+  # api idea:
+  # returns do
+  #   object :user,     node_class: UserNode
+  #   string :old_name
+  #   string :new_name
+  # end
 end
 
 class RootNode < GQL::Node
-  include UpdateUserNameCall
+  connection :users,  -> { $users  }, item_class: UserNode, list_class: List
+  connection :songs,  -> { $songs  }, item_class: SongNode
+  connection :albums, -> { $albums }, item_class: AlbumNode
 
-  call :viewer,   UserNode,         -> { $users.find { |user| user.token == context[:auth_token] } }
-  call :user,     UserNode,         -> token { $users.find { |user| user.token == token } }
-  call :account,  AccountNode,      -> id { $accounts.find { |account| account.id == id } }
-  call :album,    AlbumNode,        -> id { $albums.find { |album| album.id == id } }
-  call :song,     SongNode,         -> id { $songs.find { |song| song.id == id } }
-  call :users,    [List, UserNode], -> { $users }
-  call :albums,   [AlbumNode],      -> { $albums }
+  call :user,     -> token { $users.find { |user| user.token == token } }, returns: UserNode
+  call :viewer,   -> { $users.find { |user| user.token == context[:auth_token] } }, returns: UserNode
+  call :account,  -> id { $accounts.find { |account| account.id == id } }, returns: AccountNode
+  call :album,    -> id { $albums.find { |album| album.id == id } }, returns: AlbumNode
+  call :song,     -> id { $songs.find { |song| song.id == id } }, returns: SongNode
 
-  connection :songs,    -> { $songs    }, item_class: SongNode
-  connection :accounts, -> { $accounts }, item_class: AccountNode
+  call :update_user_name => UpdateUserNameCall
+
+  # this should normally be a connection field
+  call :accounts, -> { $accounts }, returns: [AccountNode]
 end
 
 GQL.root_node_class = RootNode

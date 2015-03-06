@@ -1,6 +1,7 @@
 require 'active_support/core_ext/class/attribute'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/core_ext/array/extract_options'
+require 'active_support/core_ext/object/try'
 
 module GQL
   class Node
@@ -22,43 +23,73 @@ module GQL
     self.fields = {}
 
     class << self
-      def call(id, result_class = nil, body = nil)
-        if body.nil? && result_class.is_a?(Proc)
-          body = result_class
-          result_class = nil
+      def call(id, *args)
+        if id.is_a? Hash
+          id.each do |id, call_class|
+            call id, call_class
+          end
+        else
+          options = args.extract_options!
+
+          proc_or_class = args.shift || -> (*args) { target.public_send(id, *args) }
+          result_class = options[:returns] || proc_or_class.try(:result_class)
+
+          if result_class.is_a? ::Array
+            if result_class.size == 1
+              result_class.unshift GQL.default_list_class || Connection
+            end
+
+            options = {
+              list_class: result_class.first,
+              item_class: result_class.last
+            }
+
+            result_class = Connection.build_class(:result, nil, options)
+          elsif result_class
+            Node.validate_is_subclass! result_class, 'result'
+          end
+
+          call_class =
+            if proc_or_class.is_a? Proc
+              Class.new(Call).tap do |call_class|
+                call_class.class_eval do
+                  self.proc = proc_or_class
+
+                  def execute(*args)
+                    instance_exec(*args, &self.class.proc)
+                  end
+                end
+
+                self.const_set "#{id.to_s.camelize}Call", call_class
+              end
+            else
+              proc_or_class
+            end
+
+          call_class.result_class = result_class
+
+          self.calls = calls.merge(id.to_sym => call_class)
         end
-
-        body ||= -> (*args) { target.public_send(id, *args) }
-
-        call_class = Call.build_class(id, result_class, body)
-
-        self.const_set "#{id.to_s.camelize}Call", call_class
-        self.calls = calls.merge(id.to_sym => call_class)
       end
 
       def field(id, *args)
         options = args.extract_options!
-        body    = args.shift || -> { target.public_send(id) }
+        proc    = args.shift || -> { target.public_send(id) }
         type    = options.delete(:type) || Field
 
         Field.validate_is_subclass! type, 'type'
 
-        type.build_class(id, body, options).tap do |field_class|
+        type.build_class(id, proc, options).tap do |field_class|
           self.const_set "#{id.to_s.camelize}Field", field_class
           self.fields = fields.merge(id.to_sym => field_class)
         end
       end
 
-      def cursor(id = nil, &block)
-        body = id ? -> { target.public_send(id) } : block
-        field :cursor, { type: Simple }, &body
-      end
+      def cursor(id_or_proc)
+        id = id_or_proc.is_a?(Proc) ? nil : id_or_proc
+        proc = id ? -> { target.public_send(id) } : id_or_proc
 
-      def cursor(id_or_body)
-        id = id_or_body.is_a?(Proc) ? nil : id_or_body
-        body = id ? -> { target.public_send(id) } : id_or_body
-
-        field :cursor, body, type: Simple
+        field :cursor, proc, type: Simple
       end
 
       def validate_is_subclass!(subclass, name)
@@ -112,8 +143,8 @@ module GQL
         raise Errors::UndefinedCall.new(ast_call.id, self.class)
       end
 
-      call = call_class.new(self, ast_call, target, variables, context)
-      call.execute
+      call = call_class.new(target, context)
+      call.result_for self.class, ast_call, variables
     end
 
     def value_of_fields(ast_fields)
@@ -137,7 +168,7 @@ module GQL
         end
 
         method = ExecutionContext.new(target, context)
-        target = method.execute(field_class.body)
+        target = method.execute(field_class.proc)
 
         field = field_class.new(ast_field, target, variables, context)
         field.value

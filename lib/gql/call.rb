@@ -2,53 +2,36 @@ require 'active_support/core_ext/class/attribute'
 
 module GQL
   class Call
-    class_attribute :id, :result_class, :body, instance_accessor: false, instance_predicate: false
+    class_attribute :result_class, :proc, instance_accessor: false, instance_predicate: false
 
     class << self
-      def build_class(id, result_class, body)
-        if result_class.is_a? ::Array
-          if result_class.size == 1
-            result_class.unshift GQL.default_list_class || Connection
-          end
-
-          options = {
-            list_class: result_class.first,
-            item_class: result_class.last
-          }
-
-          result_class = Connection.build_class(:result, nil, options)
-        elsif result_class
-          Node.validate_is_subclass! result_class, 'result'
-        end
-
-        Class.new(self).tap do |call_class|
-          call_class.id = id.to_s
-          call_class.body = body
-          call_class.result_class = result_class
-        end
+      def returns(result_class)
+        self.result_class = result_class
       end
     end
 
-    attr_reader :caller, :ast_node, :target, :variables, :context
+    attr_reader :target, :context
 
-    def initialize(caller, ast_node, target, variables, context)
-      @caller, @ast_node, @target = caller, ast_node, target
-      @variables, @context = variables, context
+    def initialize(target, context)
+      @target, @context = target, context
     end
 
-    def execute
-      args = substitute_variables(ast_node.arguments)
+    def execute(*)
+      raise NotImplementedError, 'override in subclass'
+    end
 
-      method = Node::ExecutionContext.new(target, context)
-      target = method.execute(self.class.body, args)
-      result_class = self.class.result_class || caller.class
+    def result_for(caller_class, ast_node, variables)
+      args = substitute_variables(ast_node.arguments, variables)
+      target = execute(*args)
+
+      result_class = self.class.result_class || caller_class
 
       result = result_class.new(ast_node, target, variables, context)
       result.value
     end
 
     private
-      def substitute_variables(args)
+      def substitute_variables(args, variables)
         args.map { |arg| arg.is_a?(::Symbol) ? variables[arg] : arg }
       end
   end
