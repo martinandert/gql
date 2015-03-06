@@ -188,7 +188,7 @@ require 'active_support/concern'
 
 class UpdateUserNameCall < GQL::Call
   def execute(token, new_name)
-    user = $users.find { |user| user.token == token }
+    user = $users.find { |u| u.token == token }
     old_name = user.first_name
     user.attributes.update first_name: new_name
 

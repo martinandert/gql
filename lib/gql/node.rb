@@ -25,13 +25,13 @@ module GQL
     class << self
       def call(id, *args)
         if id.is_a? Hash
-          id.each do |id, call_class|
-            call id, call_class
+          id.each do |name, call_class|
+            call name, call_class
           end
         else
           options = args.extract_options!
 
-          proc_or_class = args.shift || -> (*args) { target.public_send(id, *args) }
+          proc_or_class = args.shift || -> (*pargs) { target.public_send(id, *pargs) }
           result_class = options[:returns] || proc_or_class.try(:result_class)
 
           if result_class.is_a? ::Array
@@ -51,8 +51,8 @@ module GQL
 
           call_class =
             if proc_or_class.is_a? Proc
-              Class.new(Call).tap do |call_class|
-                call_class.class_eval do
+              Class.new(Call).tap do |klass|
+                klass.class_eval do
                   self.proc = proc_or_class
 
                   def execute(*args)
@@ -60,7 +60,7 @@ module GQL
                   end
                 end
 
-                self.const_set "#{id.to_s.camelize}Call", call_class
+                self.const_set "#{id.to_s.camelize}Call", klass
               end
             else
               proc_or_class
@@ -115,7 +115,7 @@ module GQL
         else
           super
         end
-      rescue NoMethodError => exc
+      rescue NoMethodError
         raise Errors::UndefinedFieldType, method
       end
     end

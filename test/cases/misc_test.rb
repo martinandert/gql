@@ -1,12 +1,11 @@
-require 'minitest_helper'
-require_relative 'example'
+require 'helper'
 
-class TestGQL < Minitest::Test
-  def test_that_it_has_a_version_number
+class MiscTest < ActiveSupport::TestCase
+  test "has a version number" do
     refute_nil ::GQL::VERSION
   end
 
-  def test_readme_example
+  test "readme example works as advertised" do
     actual = GQL.execute(<<-QUERY_STRING).to_json
       user(<token>) {
         id,
