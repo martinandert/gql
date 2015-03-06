@@ -8,14 +8,14 @@ module GQL
     end
 
     def execute(context = {})
-      root_class = GQL.root_node_class
+      node_class = GQL.root_node_class
 
-      raise Errors::UndefinedRoot if root_class.nil?
+      raise Errors::UndefinedRoot if node_class.nil?
 
-      context[:_schema_root] = root_class if ENV['DEBUG']
+      context[:_schema_root] = node_class if ENV['DEBUG']
 
-      root = root_class.new(ast_node, nil, variables, context)
-      root.value
+      node = node_class.new(ast_node, nil, variables, context)
+      node.value
     end
   end
 end

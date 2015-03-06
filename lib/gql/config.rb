@@ -5,8 +5,8 @@ module GQL
     end
 
     def root_node_class=(value)
-      unless value.nil? || value <= Root
-        raise Errors::InvalidNodeClass.new(value, Root)
+      unless value.nil? || value <= Node
+        raise Errors::InvalidNodeClass.new(value, Node)
       end
 
       if ENV['DEBUG']

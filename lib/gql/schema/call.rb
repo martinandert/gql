@@ -1,14 +1,20 @@
 module GQL
   module Schema
-    class Call < GQL::Object
+    class Call < GQL::Node
       cursor :id
       string :id
 
-      string :type, -> { target.name }
+      array :parameters, :item_class => Parameter do
+        target.method.parameters
+      end
 
-      array :parameters, -> { target.target_method.parameters }, item_class: Parameter
+      string :type do
+        target.name
+      end
 
-      object :result_class, -> { target.result_class || Placeholder }, node_class: Node
+      object :result_class, :node_class => Node do
+        target.result_class || Placeholder
+      end
     end
   end
 end

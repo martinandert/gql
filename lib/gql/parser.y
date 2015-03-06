@@ -1,19 +1,19 @@
 class GQL::Parser
 token STRING NUMBER TRUE FALSE NULL AS IDENT
 rule
-  query
-    : variables root variables    {  result = Query.new(val[1], val[0].merge(val[2]))  }
+  root
+    : variables node variables    {  result = Root.new(val[1], val[0].merge(val[2]))  }
     ;
 
-  root
-    : call
-    | fields
+  node
+    : call                  {  result = Node.new(val[0], nil   )  }
+    | '{' field_list '}'    {  result = Node.new(nil,    val[1])  }
     ;
 
   call
-    : identifier arguments fields       {   result = Call.new(val[0], val[1], nil,    val[2])   }
-    | identifier arguments '.' call     {   result = Call.new(val[0], val[1], val[3], nil   )   }
-    | identifier arguments              {   result = Call.new(val[0], val[1], nil,    nil   )   }
+    : identifier arguments fields       {   result = Call.new(val[0], val[1], nil,    val[2].presence)   }
+    | identifier arguments '.' call     {   result = Call.new(val[0], val[1], val[3], nil            )   }
+    | identifier arguments              {   result = Call.new(val[0], val[1], nil,    nil            )   }
     ;
 
   arguments
@@ -33,8 +33,8 @@ rule
     ;
 
   fields
-    : '{' field_list '}'    {   result = val[1]   }
-    | '{' '}'               {   result = []       }
+    : '{' '}'                 {   result = []       }
+    | '{' field_list '}'      {   result = val[1]   }
     ;
 
   field_list
@@ -43,12 +43,12 @@ rule
     ;
 
   field
-    : identifier fields alias_identifier      {   result = Field.new(val[0], val[2], nil,    val[1])   }
-    | identifier '.' call alias_identifier    {   result = Field.new(val[0], val[3], val[2], nil   )   }
-    | identifier alias_identifier             {   result = Field.new(val[0], val[1], nil,    nil   )   }
-    | identifier fields                       {   result = Field.new(val[0], nil,    nil,    val[1])   }
-    | identifier '.' call                     {   result = Field.new(val[0], nil,    val[2], nil   )   }
-    | identifier                              {   result = Field.new(val[0], nil,    nil,    nil   )   }
+    : identifier fields alias_identifier      {   result = Field.new(val[0], val[2], nil,    val[1].presence)   }
+    | identifier '.' call alias_identifier    {   result = Field.new(val[0], val[3], val[2], nil            )   }
+    | identifier alias_identifier             {   result = Field.new(val[0], val[1], nil,    nil            )   }
+    | identifier fields                       {   result = Field.new(val[0], nil,    nil,    val[1].presence)   }
+    | identifier '.' call                     {   result = Field.new(val[0], nil,    val[2], nil            )   }
+    | identifier                              {   result = Field.new(val[0], nil,    nil,    nil            )   }
     ;
 
   alias_identifier
@@ -132,12 +132,23 @@ require 'active_support/core_ext/object/json'
 
 ---- inner
 
-  class Query < Struct.new(:node, :variables)
+  class Root < Struct.new(:node, :variables)
+    def as_json(*)
+      { node: node.as_json, variables: variables.try(:as_json) }
+    end
+  end
+
+  class Node < Struct.new(:call, :fields)
+    def as_json(*)
+      { call: call.try(:as_json), fields: fields.try(:as_json) }
+    end
+  end
+
+  class Field < Struct.new(:id, :alias_id, :call, :fields)
     def as_json(*)
       {
-        type:       'query',
-        node:       node.as_json,
-        variables:  variables.as_json
+        id: id.as_json, alias_id: alias_id.try(:as_json),
+        call: call.try(:as_json), fields: fields.try(:as_json)
       }
     end
   end
@@ -145,23 +156,8 @@ require 'active_support/core_ext/object/json'
   class Call < Struct.new(:id, :arguments, :call, :fields)
     def as_json(*)
       {
-        type:       'call',
-        id:         id.as_json,
-        arguments:  arguments,
-        call:       call.as_json,
-        fields:     fields.as_json
-      }
-    end
-  end
-
-  class Field < Struct.new(:id, :alias_id, :call, :fields)
-    def as_json(*)
-      {
-        type:     'field',
-        id:       id.as_json,
-        alias_id: alias_id.as_json,
-        call:     call.as_json,
-        fields:   fields.as_json
+        id: id.as_json, arguments: arguments.as_json,
+        call: call.try(:as_json), fields: fields.try(:as_json)
       }
     end
   end

@@ -12,7 +12,6 @@ module GQL
   autoload :Number,     'gql/number'
   autoload :Object,     'gql/object'
   autoload :Parser,     'gql/parser'
-  autoload :Root,       'gql/root'
   autoload :Simple,     'gql/simple'
   autoload :String,     'gql/string'
   autoload :Tokenizer,  'gql/tokenizer'

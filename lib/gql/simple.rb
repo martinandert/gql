@@ -1,6 +1,6 @@
 module GQL
   class Simple < Field
-    def value
+    def raw_value
       target
     end
   end
