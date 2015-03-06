@@ -28,7 +28,7 @@ module GQL
           result_class = nil
         end
 
-        body ||= lambda { |*args| target.public_send(id, *args) }
+        body ||= -> (*args) { target.public_send(id, *args) }
 
         call_class = Call.build_class(id, result_class, body)
 
@@ -36,17 +36,14 @@ module GQL
         self.calls = calls.merge(id.to_sym => call_class)
       end
 
-      def field(*ids, &block)
-        options = ids.extract_options!
+      def field(id, *args)
+        options = args.extract_options!
+        body    = args.shift || -> { target.public_send(id) }
+        type    = options.delete(:type) || Field
 
-        ids.each do |id|
-          method = block || lambda { target.public_send(id) }
-          field_type = options.delete(:type) || Field
+        Field.validate_is_subclass! type, 'type'
 
-          validate_is_subclass_of! field_type, Field, 'type'
-
-          field_class = field_type.build_class(id, method, options)
-
+        type.build_class(id, body, options).tap do |field_class|
           self.const_set "#{id.to_s.camelize}Field", field_class
           self.fields = fields.merge(id.to_sym => field_class)
         end
@@ -57,21 +54,32 @@ module GQL
         field :cursor, { type: Simple }, &body
       end
 
-      def validate_is_subclass_of!(left, right, name)
-        if left.nil?
+      def cursor(id_or_body)
+        id = id_or_body.is_a?(Proc) ? nil : id_or_body
+        body = id ? -> { target.public_send(id) } : id_or_body
+
+        field :cursor, body, type: Simple
+      end
+
+      def validate_is_subclass!(subclass, name)
+        if subclass.nil?
           raise Errors::UndefinedNodeClass.new(self, name)
         end
 
-        unless left <= right
-          raise Errors::InvalidNodeClass.new(left, right)
+        unless subclass <= self
+          raise Errors::InvalidNodeClass.new(subclass, self)
         end
       end
 
-      def method_missing(method, *ids, &block)
-        if field_type = GQL.field_types[method]
-          options = ids.extract_options!
+      def respond_to?(method, *args)
+        GQL.field_types.has_key?(method) || super
+      end
 
-          field(*ids, options.merge(type: field_type), &block)
+      def method_missing(method, *args, &block)
+        if type = GQL.field_types[method]
+          options = args.extract_options!.merge(type: type)
+
+          field(*args.push(options), &block)
         else
           super
         end
@@ -129,7 +137,7 @@ module GQL
         end
 
         method = ExecutionContext.new(target, context)
-        target = method.execute(field_class.method)
+        target = method.execute(field_class.body)
 
         field = field_class.new(ast_field, target, variables, context)
         field.value

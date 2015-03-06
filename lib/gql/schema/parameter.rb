@@ -1,13 +1,11 @@
 module GQL
   module Schema
     class Parameter < GQL::Node
-      cursor { target[1].to_s }
+      cursor -> { target[1].to_s }
 
-      string :id do
-        target[1].to_s
-      end
+      string :id, -> { target[1].to_s }
 
-      string :mode do
+      string :mode, -> {
         case target[0]
         when :req
           'required'
@@ -26,7 +24,7 @@ module GQL
         else
           target[0].to_s
         end
-      end
+      }
     end
   end
 end

@@ -1,9 +1,11 @@
+require 'active_support/core_ext/class/attribute'
+
 module GQL
   class Call
-    class_attribute :id, :result_class, :method, instance_accessor: false, instance_predicate: false
+    class_attribute :id, :result_class, :body, instance_accessor: false, instance_predicate: false
 
     class << self
-      def build_class(id, result_class, method)
+      def build_class(id, result_class, body)
         if result_class.is_a? ::Array
           if result_class.size == 1
             result_class.unshift GQL.default_list_class || Connection
@@ -16,12 +18,12 @@ module GQL
 
           result_class = Connection.build_class(:result, nil, options)
         elsif result_class
-          Node.validate_is_subclass_of! result_class, Node, 'result'
+          Node.validate_is_subclass! result_class, 'result'
         end
 
         Class.new(self).tap do |call_class|
           call_class.id = id.to_s
-          call_class.method = method
+          call_class.body = body
           call_class.result_class = result_class
         end
       end
@@ -38,7 +40,7 @@ module GQL
       args = substitute_variables(ast_node.arguments)
 
       method = Node::ExecutionContext.new(target, context)
-      target = method.execute(self.class.method, args)
+      target = method.execute(self.class.body, args)
       result_class = self.class.result_class || caller.class
 
       result = result_class.new(ast_node, target, variables, context)
