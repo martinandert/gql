@@ -111,14 +111,19 @@ module GQL
       end
 
       def respond_to?(method, *args)
-        GQL.field_types.has_key?(method) || super
+        super || GQL.field_types.has_key?(method)
       end
 
       def method_missing(method, *args, &block)
         if type = GQL.field_types[method]
-          options = args.extract_options!.merge(type: type)
+          Node.define_singleton_method method do |*margs, &mblock|
+            options = margs.extract_options!.merge(type: type)
+            margs = margs.push(options)
 
-          field(*args.push(options), &block)
+            field(*margs, &mblock)
+          end
+
+          send method, *args, &block
         else
           super
         end
