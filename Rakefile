@@ -22,14 +22,15 @@ file 'lib/gql/parser.rb' => 'support/parser.racc' do |t|
   sh "sed --in-place 's/  end\s*# module/end #/g' #{t.name}"
 end
 
-Rake::TestTask.new :test do |t|
+task :compile => ['lib/gql/tokenizer.rb', 'lib/gql/parser.rb']
+
+Rake::TestTask.new :test => :compile do |t|
   t.libs << 'test'
   t.test_files = Dir.glob("#{dir}/test/cases/**/*_test.rb")
 # t.warning = true
 # t.verbose = true
 end
 
-task :compile => ['lib/gql/tokenizer.rb', 'lib/gql/parser.rb']
-task :test    => :compile
-task :release => :test
+Rake::Task[:release].prerequisites.unshift :test
+
 task :default => :test
