@@ -199,20 +199,19 @@ class UpdateUserNameCall < GQL::Call
     }
   end
 
-  class Result < GQL::Node
-    object :user,     -> { target[:user]     }, node_class: UserNode
-    string :old_name, -> { target[:old_name] }
-    string :new_name, -> { target[:new_name] }
-  end
-
-  returns Result
-
-  # api idea:
-  # returns do
-  #   object :user,     node_class: UserNode
-  #   string :old_name
-  #   string :new_name
+  # class Result < GQL::Node
+  #   object :user,     -> { target[:user]     }, node_class: UserNode
+  #   string :old_name, -> { target[:old_name] }
+  #   string :new_name, -> { target[:new_name] }
   # end
+
+  # returns Result
+
+  returns do
+    object :user, node_class: UserNode
+    string :old_name
+    string :new_name
+  end
 end
 
 class RootNode < GQL::Node

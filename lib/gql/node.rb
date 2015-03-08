@@ -17,10 +17,11 @@ module GQL
       end
     end
 
-    class_attribute :id, :proc, :calls, :fields, instance_accessor: false, instance_predicate: false
+    class_attribute :id, :proc, :calls, :fields, :default_proc, instance_accessor: false, instance_predicate: false
 
     self.calls = {}
     self.fields = {}
+    self.default_proc = -> id { -> { target.public_send(id) } }
 
     class << self
       def build_class(id, proc, options = {})
@@ -82,7 +83,7 @@ module GQL
 
       def field(id, *args)
         options = args.extract_options!
-        proc    = args.shift || -> { target.public_send(id) }
+        proc    = args.shift || instance_exec(id, &default_proc)
         type    = options.delete(:type) || Node
 
         Node.validate_is_subclass! type, 'type'
