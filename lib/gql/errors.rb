@@ -52,11 +52,14 @@ module GQL
     end
 
     class SyntaxError < Error
-      def initialize(value, token)
+      def initialize(lineno, value, token)
         token = 'character' if token == 'error' || token == %Q{"#{value}"}
 
-        super("Unexpected #{token}: `#{value}`.")
+        super("Unexpected #{token}: `#{value}` (line #{lineno}).")
       end
+    end
+
+    class ScanError < Error
     end
   end
 end

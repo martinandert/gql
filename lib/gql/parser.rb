@@ -6,16 +6,17 @@
 
 require 'racc/parser.rb'
 
-
 require 'active_support/json'
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/object/try'
 require 'active_support/core_ext/object/json'
 
+require 'gql/tokenizer'
+
 module GQL
   class Parser < Racc::Parser
 
-module_eval(<<'...end parser.y/module_eval...', 'parser.y', 134)
+module_eval(<<'...end parser.racc/module_eval...', 'parser.racc', 135)
 
   class Query < Struct.new(:root, :variables)
     def as_json(*)
@@ -48,34 +49,9 @@ module_eval(<<'...end parser.y/module_eval...', 'parser.y', 134)
     end
   end
 
-  UNESCAPE_MAP = Hash.new { |h, k| h[k] = k.chr }
-
-  UNESCAPE_MAP.update(
-    ?"  => '"',
-    ?\\ => '\\',
-    ?/  => '/',
-    ?b  => "\b",
-    ?f  => "\f",
-    ?n  => "\n",
-    ?r  => "\r",
-    ?t  => "\t",
-    ?u  => nil,
-  )
-
-  EMPTY_8BIT_STRING = ''
-
-  if String.method_defined? :encode
-    EMPTY_8BIT_STRING.force_encoding Encoding::ASCII_8BIT
-  end
-
-  def initialize(tokenizer)
+  def initialize(str)
     super()
-
-    @tokenizer = tokenizer
-  end
-
-  def next_token
-    @tokenizer.next_token
+    scan_setup str
   end
 
   def parse
@@ -83,38 +59,14 @@ module_eval(<<'...end parser.y/module_eval...', 'parser.y', 134)
   end
 
   def on_error(token, value, vstack)
-    raise Errors::SyntaxError.new(value, token_to_str(token))
+    raise Errors::SyntaxError.new(lineno, value, token_to_str(token))
   end
 
   private
-    def unescape_string(str)
-      string = str.gsub(%r((?:\\[\\bfnrt"/]|(?:\\u(?:[A-Fa-f\d]{4}))+|\\[\x20-\xff]))n) do |c|
-        if u = UNESCAPE_MAP[$&[1]]
-          u
-        else # \uXXXX
-          bytes = EMPTY_8BIT_STRING.dup
-          i = 0
-
-          while c[6 * i] == ?\\ && c[6 * i + 1] == ?u
-            bytes << c[6 * i + 2, 2].to_i(16) << c[6 * i + 4, 2].to_i(16)
-            i += 1
-          end
-
-          JSON.iconv('utf-8', 'utf-16be', bytes)
-        end
-      end
-
-      if string.respond_to? :force_encoding
-        string.force_encoding ::Encoding::UTF_8
-      end
-
-      string
-    end
-
     def convert_number(str)
       str.count('.') > 0 ? str.to_f : str.to_i
     end
-...end parser.y/module_eval...
+...end parser.racc/module_eval...
 ##### State transition tables begin ###
 
 racc_action_table = [
@@ -339,77 +291,77 @@ Racc_debug_parser = false
 
 # reduce 0 omitted
 
-module_eval(<<'.,.,', 'parser.y', 4)
+module_eval(<<'.,.,', 'parser.racc', 4)
   def _reduce_1(val, _values, result)
       result = Query.new(val[1], val[0].merge(val[2]))  
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 8)
+module_eval(<<'.,.,', 'parser.racc', 8)
   def _reduce_2(val, _values, result)
       result = Field.new(nil, nil, val[0], nil   )  
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 9)
+module_eval(<<'.,.,', 'parser.racc', 9)
   def _reduce_3(val, _values, result)
       result = Field.new(nil, nil, nil,    val[1])  
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 13)
+module_eval(<<'.,.,', 'parser.racc', 13)
   def _reduce_4(val, _values, result)
        result = Call.new(val[0], val[1], nil,    val[2].presence)   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 14)
+module_eval(<<'.,.,', 'parser.racc', 14)
   def _reduce_5(val, _values, result)
        result = Call.new(val[0], val[1], val[3], nil            )   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 15)
+module_eval(<<'.,.,', 'parser.racc', 15)
   def _reduce_6(val, _values, result)
        result = Call.new(val[0], val[1], nil,    nil            )   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 19)
+module_eval(<<'.,.,', 'parser.racc', 19)
   def _reduce_7(val, _values, result)
        result = []       
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 20)
+module_eval(<<'.,.,', 'parser.racc', 20)
   def _reduce_8(val, _values, result)
        result = []       
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 21)
+module_eval(<<'.,.,', 'parser.racc', 21)
   def _reduce_9(val, _values, result)
        result = val[1]   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 25)
+module_eval(<<'.,.,', 'parser.racc', 25)
   def _reduce_10(val, _values, result)
        result.push val[2]    
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 26)
+module_eval(<<'.,.,', 'parser.racc', 26)
   def _reduce_11(val, _values, result)
        result = val          
     result
@@ -420,84 +372,84 @@ module_eval(<<'.,.,', 'parser.y', 26)
 
 # reduce 13 omitted
 
-module_eval(<<'.,.,', 'parser.y', 35)
+module_eval(<<'.,.,', 'parser.racc', 35)
   def _reduce_14(val, _values, result)
        result = []       
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 36)
+module_eval(<<'.,.,', 'parser.racc', 36)
   def _reduce_15(val, _values, result)
        result = val[1]   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 40)
+module_eval(<<'.,.,', 'parser.racc', 40)
   def _reduce_16(val, _values, result)
        result.push val[2]    
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 41)
+module_eval(<<'.,.,', 'parser.racc', 41)
   def _reduce_17(val, _values, result)
        result = val          
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 45)
+module_eval(<<'.,.,', 'parser.racc', 45)
   def _reduce_18(val, _values, result)
        result = Field.new(val[0], val[2], nil,    val[1].presence)   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 46)
+module_eval(<<'.,.,', 'parser.racc', 46)
   def _reduce_19(val, _values, result)
        result = Field.new(val[0], val[3], val[2], nil            )   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 47)
+module_eval(<<'.,.,', 'parser.racc', 47)
   def _reduce_20(val, _values, result)
        result = Field.new(val[0], val[1], nil,    nil            )   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 48)
+module_eval(<<'.,.,', 'parser.racc', 48)
   def _reduce_21(val, _values, result)
        result = Field.new(val[0], nil,    nil,    val[1].presence)   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 49)
+module_eval(<<'.,.,', 'parser.racc', 49)
   def _reduce_22(val, _values, result)
        result = Field.new(val[0], nil,    val[2], nil            )   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 50)
+module_eval(<<'.,.,', 'parser.racc', 50)
   def _reduce_23(val, _values, result)
        result = Field.new(val[0], nil,    nil,    nil            )   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 54)
+module_eval(<<'.,.,', 'parser.racc', 54)
   def _reduce_24(val, _values, result)
        result = val[1]   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 58)
+module_eval(<<'.,.,', 'parser.racc', 58)
   def _reduce_25(val, _values, result)
        result = {}   
     result
@@ -508,21 +460,21 @@ module_eval(<<'.,.,', 'parser.y', 58)
 
 # reduce 27 omitted
 
-module_eval(<<'.,.,', 'parser.y', 64)
+module_eval(<<'.,.,', 'parser.racc', 64)
   def _reduce_28(val, _values, result)
        result.update val[1]    
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 68)
+module_eval(<<'.,.,', 'parser.racc', 68)
   def _reduce_29(val, _values, result)
        result = { val[0] => val[2] }     
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 72)
+module_eval(<<'.,.,', 'parser.racc', 72)
   def _reduce_30(val, _values, result)
        result = val[1]   
     result
@@ -537,21 +489,21 @@ module_eval(<<'.,.,', 'parser.y', 72)
 
 # reduce 34 omitted
 
-module_eval(<<'.,.,', 'parser.y', 86)
+module_eval(<<'.,.,', 'parser.racc', 86)
   def _reduce_35(val, _values, result)
        result = {}       
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 87)
+module_eval(<<'.,.,', 'parser.racc', 87)
   def _reduce_36(val, _values, result)
        result = val[1]   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 91)
+module_eval(<<'.,.,', 'parser.racc', 91)
   def _reduce_37(val, _values, result)
        result.update val[2]    
     result
@@ -560,35 +512,35 @@ module_eval(<<'.,.,', 'parser.y', 91)
 
 # reduce 38 omitted
 
-module_eval(<<'.,.,', 'parser.y', 96)
+module_eval(<<'.,.,', 'parser.racc', 96)
   def _reduce_39(val, _values, result)
        result = { val[0] => val[2] }    
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 100)
+module_eval(<<'.,.,', 'parser.racc', 100)
   def _reduce_40(val, _values, result)
        result = []       
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 101)
+module_eval(<<'.,.,', 'parser.racc', 101)
   def _reduce_41(val, _values, result)
        result = val[1]   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 105)
+module_eval(<<'.,.,', 'parser.racc', 105)
   def _reduce_42(val, _values, result)
        result.push val[2]    
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 106)
+module_eval(<<'.,.,', 'parser.racc', 106)
   def _reduce_43(val, _values, result)
        result = val          
     result
@@ -597,42 +549,42 @@ module_eval(<<'.,.,', 'parser.y', 106)
 
 # reduce 44 omitted
 
-module_eval(<<'.,.,', 'parser.y', 111)
+module_eval(<<'.,.,', 'parser.racc', 111)
   def _reduce_45(val, _values, result)
        result = convert_number(val[0])   
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 112)
+module_eval(<<'.,.,', 'parser.racc', 112)
   def _reduce_46(val, _values, result)
        result = true                     
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 113)
+module_eval(<<'.,.,', 'parser.racc', 113)
   def _reduce_47(val, _values, result)
        result = false                    
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 114)
+module_eval(<<'.,.,', 'parser.racc', 114)
   def _reduce_48(val, _values, result)
        result = nil                      
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 118)
+module_eval(<<'.,.,', 'parser.racc', 118)
   def _reduce_49(val, _values, result)
        result = unescape_string(val[0])  
     result
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.y', 121)
+module_eval(<<'.,.,', 'parser.racc', 121)
   def _reduce_50(val, _values, result)
        result = val[0].to_sym    
     result
@@ -644,4 +596,4 @@ def _reduce_none(val, _values, result)
 end
 
   end   # class Parser
-end
+end # GQL

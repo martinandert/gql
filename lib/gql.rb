@@ -14,11 +14,12 @@ module GQL
   autoload :Parser,     'gql/parser'
   autoload :Simple,     'gql/simple'
   autoload :String,     'gql/string'
-  autoload :Tokenizer,  'gql/tokenizer'
+  autoload :TestCase,   'gql/test_case'
   autoload :VERSION,    'gql/version'
 
   module Errors
     autoload :InvalidNodeClass,   'gql/errors'
+    autoload :ScanError,          'gql/errors'
     autoload :SyntaxError,        'gql/errors'
     autoload :UndefinedCall,      'gql/errors'
     autoload :UndefinedField,     'gql/errors'
@@ -61,23 +62,14 @@ module GQL
     end
 
     def parse(input)
-      input = input.read if input.respond_to?(:read)
-
-      tokenizer = Tokenizer.new
-      tokenizer.scan_setup input
-
-      parser = Parser.new(tokenizer)
-      parser.parse
+      Parser.new(input).parse
     end
 
     def tokenize(input)
-      input = input.read if input.respond_to?(:read)
-
-      tokenizer = Tokenizer.new
-      tokenizer.scan_setup input
+      parser = Parser.new(input)
 
       [].tap do |result|
-        while token = tokenizer.next_token
+        while token = parser.next_token
           result << token
           yield token if block_given?
         end

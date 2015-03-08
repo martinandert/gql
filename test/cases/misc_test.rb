@@ -1,6 +1,6 @@
-require 'helper'
+require 'cases/helper'
 
-class MiscTest < ActiveSupport::TestCase
+class MiscTest < GQL::TestCase
   test "has a version number" do
     refute_nil ::GQL::VERSION
   end
