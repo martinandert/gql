@@ -156,8 +156,7 @@ module GQL
         raise Errors::UndefinedCall.new(ast_call.id, self.class)
       end
 
-      call = call_class.new(target, context)
-      call.result_for self.class, ast_call, variables
+      call_class.execute(self.class, ast_call, target, variables, context)
     end
 
     def value_of_fields(ast_fields)

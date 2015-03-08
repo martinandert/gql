@@ -8,6 +8,21 @@ module GQL
       def returns(result_class)
         self.result_class = result_class
       end
+
+      def execute(caller_class, ast_node, target, variables, context)
+        args = substitute_variables(ast_node.arguments, variables)
+        target = new(target, context).execute(*args)
+
+        next_class = result_class || caller_class
+
+        result = next_class.new(ast_node, target, variables, context)
+        result.value
+      end
+
+      private
+        def substitute_variables(args, variables)
+          args.map { |arg| arg.is_a?(::Symbol) ? variables[arg] : arg }
+        end
     end
 
     attr_reader :target, :context
@@ -19,20 +34,5 @@ module GQL
     def execute(*)
       raise NotImplementedError, 'override in subclass'
     end
-
-    def result_for(caller_class, ast_node, variables)
-      args = substitute_variables(ast_node.arguments, variables)
-      target = execute(*args)
-
-      result_class = self.class.result_class || caller_class
-
-      result = result_class.new(ast_node, target, variables, context)
-      result.value
-    end
-
-    private
-      def substitute_variables(args, variables)
-        args.map { |arg| arg.is_a?(::Symbol) ? variables[arg] : arg }
-      end
   end
 end
