@@ -17,7 +17,14 @@ module GQL
     end
 
     def field_types
-      @@field_types ||= {}
+      @@field_types ||= {
+        array:      Array,
+        boolean:    Boolean,
+        connection: Connection,
+        number:     Number,
+        object:     Object,
+        string:     String
+      }
     end
 
     def field_types=(value)

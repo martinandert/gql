@@ -1,39 +1,48 @@
+require 'active_support/dependencies/autoload'
+require 'gql/version'
+
 module GQL
-  autoload :Array,      'gql/array'
-  autoload :Boolean,    'gql/boolean'
-  autoload :Call,       'gql/call'
-  autoload :Config,     'gql/config'
-  autoload :Connection, 'gql/connection'
-  autoload :Error,      'gql/errors'
-  autoload :Executor,   'gql/executor'
-  autoload :List,       'gql/list'
-  autoload :Node,       'gql/node'
-  autoload :Number,     'gql/number'
-  autoload :Object,     'gql/object'
-  autoload :Parser,     'gql/parser'
-  autoload :Raw,        'gql/raw'
-  autoload :String,     'gql/string'
-  autoload :TestCase,   'gql/test_case'
-  autoload :VERSION,    'gql/version'
+  extend ActiveSupport::Autoload
+
+  autoload :Array
+  autoload :Boolean
+  autoload :Call
+  autoload :Config
+  autoload :Connection
+  autoload :Error, 'gql/errors'
+  autoload :Executor
+  autoload :Node
+  autoload :Number
+  autoload :Object
+  autoload :Parser
+  autoload :Raw
+  autoload :String
+  autoload :TestCase
 
   module Errors
-    autoload :InvalidNodeClass,   'gql/errors'
-    autoload :ScanError,          'gql/errors'
-    autoload :SyntaxError,        'gql/errors'
-    autoload :UndefinedCall,      'gql/errors'
-    autoload :UndefinedField,     'gql/errors'
-    autoload :UndefinedNodeClass, 'gql/errors'
-    autoload :UndefinedRoot,      'gql/errors'
-    autoload :UndefinedFieldType, 'gql/errors'
+    extend ActiveSupport::Autoload
+
+    autoload_at 'gql/errors' do
+      autoload :InvalidNodeClass
+      autoload :ScanError
+      autoload :SyntaxError
+      autoload :UndefinedCall
+      autoload :UndefinedField
+      autoload :UndefinedNodeClass
+      autoload :UndefinedRoot
+      autoload :UndefinedFieldType
+    end
   end
 
   module Schema
-    autoload :Call,         'gql/schema/call'
-    autoload :Field,        'gql/schema/field'
-    autoload :List,         'gql/schema/list'
-    autoload :Parameter,    'gql/schema/parameter'
-    autoload :Placeholder,  'gql/schema/placeholder'
-    autoload :Root,         'gql/schema/root'
+    extend ActiveSupport::Autoload
+
+    autoload :Call
+    autoload :Field
+    autoload :List
+    autoload :Parameter
+    autoload :Placeholder
+    autoload :Root
   end
 
   extend(Module.new {
@@ -75,13 +84,4 @@ module GQL
       end
     end
   })
-
-  self.field_types.update(
-    array:      Array,
-    boolean:    Boolean,
-    connection: Connection,
-    number:     Number,
-    object:     Object,
-    string:     String
-  )
 end
