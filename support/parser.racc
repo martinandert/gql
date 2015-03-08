@@ -6,8 +6,8 @@ rule
     ;
 
   root
-    : call                  {  result = Field.new(nil, nil, val[0], nil   )  }
-    | '{' field_list '}'    {  result = Field.new(nil, nil, nil,    val[1])  }
+    : call                  {  result = Node.new(nil, nil, val[0], nil   )  }
+    | '{' field_list '}'    {  result = Node.new(nil, nil, nil,    val[1])  }
     ;
 
   call
@@ -43,12 +43,12 @@ rule
     ;
 
   field
-    : identifier fields alias_identifier      {   result = Field.new(val[0], val[2], nil,    val[1].presence)   }
-    | identifier '.' call alias_identifier    {   result = Field.new(val[0], val[3], val[2], nil            )   }
-    | identifier alias_identifier             {   result = Field.new(val[0], val[1], nil,    nil            )   }
-    | identifier fields                       {   result = Field.new(val[0], nil,    nil,    val[1].presence)   }
-    | identifier '.' call                     {   result = Field.new(val[0], nil,    val[2], nil            )   }
-    | identifier                              {   result = Field.new(val[0], nil,    nil,    nil            )   }
+    : identifier fields alias_identifier      {   result = Node.new(val[0], val[2], nil,    val[1].presence)   }
+    | identifier '.' call alias_identifier    {   result = Node.new(val[0], val[3], val[2], nil            )   }
+    | identifier alias_identifier             {   result = Node.new(val[0], val[1], nil,    nil            )   }
+    | identifier fields                       {   result = Node.new(val[0], nil,    nil,    val[1].presence)   }
+    | identifier '.' call                     {   result = Node.new(val[0], nil,    val[2], nil            )   }
+    | identifier                              {   result = Node.new(val[0], nil,    nil,    nil            )   }
     ;
 
   alias_identifier
@@ -142,7 +142,7 @@ require 'gql/tokenizer'
     end
   end
 
-  class Field < Struct.new(:id, :alias_id, :call, :fields)
+  class Node < Struct.new(:id, :alias_id, :call, :fields)
     def as_json(*)
       {
         id:         id,

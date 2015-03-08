@@ -1,7 +1,7 @@
 require 'active_support/core_ext/class/attribute'
 
 module GQL
-  class Array < Field
+  class Array < Node
     class_attribute :item_class, instance_accessor: false, instance_predicate: false
 
     class << self

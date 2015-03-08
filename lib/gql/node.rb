@@ -17,12 +17,19 @@ module GQL
       end
     end
 
-    class_attribute :calls, :fields, instance_accessor: false, instance_predicate: false
+    class_attribute :id, :proc, :calls, :fields, instance_accessor: false, instance_predicate: false
 
     self.calls = {}
     self.fields = {}
 
     class << self
+      def build_class(id, proc, options = {})
+        Class.new(self).tap do |field_class|
+          field_class.id = id.to_s
+          field_class.proc = proc
+        end
+      end
+
       def call(id, *args)
         if id.is_a? Hash
           id.each do |name, call_class|
@@ -76,9 +83,9 @@ module GQL
       def field(id, *args)
         options = args.extract_options!
         proc    = args.shift || -> { target.public_send(id) }
-        type    = options.delete(:type) || Field
+        type    = options.delete(:type) || Node
 
-        Field.validate_is_subclass! type, 'type'
+        Node.validate_is_subclass! type, 'type'
 
         type.build_class(id, proc, options).tap do |field_class|
           self.const_set "#{id.to_s.camelize}Field", field_class

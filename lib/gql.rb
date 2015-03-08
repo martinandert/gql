@@ -6,7 +6,6 @@ module GQL
   autoload :Connection, 'gql/connection'
   autoload :Error,      'gql/errors'
   autoload :Executor,   'gql/executor'
-  autoload :Field,      'gql/field'
   autoload :List,       'gql/list'
   autoload :Node,       'gql/node'
   autoload :Number,     'gql/number'
@@ -32,9 +31,9 @@ module GQL
     autoload :Call,         'gql/schema/call'
     autoload :Field,        'gql/schema/field'
     autoload :List,         'gql/schema/list'
-    autoload :Node,         'gql/schema/node'
     autoload :Parameter,    'gql/schema/parameter'
     autoload :Placeholder,  'gql/schema/placeholder'
+    autoload :Root,         'gql/schema/root'
   end
 
   extend(Module.new {

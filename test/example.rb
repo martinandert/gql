@@ -43,7 +43,7 @@ class User < FakeRecord
   attr_accessor :account, :albums
 end
 
-class Timestamp < GQL::Field
+class Timestamp < GQL::Node
   call :format,     -> (format = 'default') { I18n.localize target, format: format.to_sym }, returns: GQL::String
   call :ago,        -> { 'a long time ago' }, returns: GQL::String
   call :add_years,  -> years { target + years * 365*24*60*60 }

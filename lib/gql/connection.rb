@@ -1,7 +1,7 @@
 require 'active_support/core_ext/class/attribute'
 
 module GQL
-  class Connection < Field
+  class Connection < Node
     class_attribute :list_class, instance_accessor: false, instance_predicate: false
     class_attribute :item_class, instance_accessor: false, instance_predicate: false
 
