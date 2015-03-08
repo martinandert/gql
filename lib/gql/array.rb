@@ -6,7 +6,7 @@ module GQL
 
     class << self
       def build_class(id, proc, options = {})
-        item_class = options[:item_class] || self.item_class
+        item_class = options.delete(:item_class) || self.item_class
 
         Node.validate_is_subclass! item_class, 'item'
 

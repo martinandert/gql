@@ -25,7 +25,7 @@ module GQL
     end
 
     def default_list_class
-      @@default_list_class ||= Connection
+      @@default_list_class ||= Node
     end
 
     def default_list_class=(value)

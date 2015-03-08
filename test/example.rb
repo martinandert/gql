@@ -63,7 +63,7 @@ end
 
 GQL.field_types.update timestamp: Timestamp
 
-class List < GQL::Connection
+class List < GQL::Node
   number  :count
   boolean :any, -> { target.any? }
 
