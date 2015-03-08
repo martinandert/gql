@@ -116,7 +116,7 @@ rule
     ;
 
   string
-    : STRING      {   result = unescape_string(val[0])  }
+    : STRING
 
   identifier
     : IDENT       {   result = val[0].to_sym    }

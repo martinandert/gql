@@ -85,9 +85,8 @@ class TokenizerTest < GQL::TestCase
   end
 
   test "strings with special chars" do
-    # TODO only works with ASCII-8BIT
-    str = "a \" b \\ c \b d \f e \n f \r g \t h"
-    q = str.to_json
+    str = "ä \" \\ \b \f \n \r \t \u01ab ƫ \u34cd 㓍 µ @"
+    q = JSON.generate([str])[1..-2]
 
     assert_equal [[:STRING, str]], GQL.tokenize(q)
   end

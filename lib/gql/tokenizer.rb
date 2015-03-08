@@ -64,7 +64,7 @@ class GQL::Parser < Racc::Parser
          action { @state = :REM;  nil }
 
       when (text = @ss.scan(/"(?:[^"\\]|\\["\\\/bfnrt]|\\u[0-9a-fA-F]{4})*"/))
-         action { [:STRING, unescape_string(text)] }
+         action { [:STRING, convert_json(text)] }
 
       when (text = @ss.scan(/-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/))
          action { [:NUMBER, text] }
@@ -131,39 +131,8 @@ class GQL::Parser < Racc::Parser
   end  # def _next_token
 
   private
-    UNESCAPE_MAP = Hash.new { |h, k| h[k] = k.chr }
-    UNESCAPE_MAP.update(
-      ?"  => '"',
-      ?\\ => '\\',
-      ?/  => '/',
-      ?b  => "\b",
-      ?f  => "\f",
-      ?n  => "\n",
-      ?r  => "\r",
-      ?t  => "\t",
-      ?u  => nil,
-    )
-    EMPTY_8BIT_STRING = ''
-    if String.method_defined? :encode
-      EMPTY_8BIT_STRING.force_encoding Encoding::ASCII_8BIT
-    end
-    def unescape_string(str)
-      string = str.gsub(/^"|"$/, '').gsub(%r((?:\\[\\bfnrt"/]|(?:\\u(?:[A-Fa-f\d]{4}))+|\\[\x20-\xff]))n) do |c|
-        if u = UNESCAPE_MAP[$&[1]]
-          u
-        else # \uXXXX
-          bytes = EMPTY_8BIT_STRING.dup
-          i = 0
-          while c[6 * i] == ?\\ && c[6 * i + 1] == ?u
-            bytes << c[6 * i + 2, 2].to_i(16) << c[6 * i + 4, 2].to_i(16)
-            i += 1
-          end
-          JSON.iconv('utf-8', 'utf-16be', bytes)
-        end
-      end
-      if string.respond_to? :force_encoding
-        string.force_encoding ::Encoding::UTF_8
-      end
-      string
+    require 'multi_json'
+    def convert_json(str)
+      MultiJson.load("[#{str}]").first
     end
 end # class

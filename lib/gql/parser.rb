@@ -187,7 +187,7 @@ racc_reduce_table = [
   1, 41, :_reduce_46,
   1, 41, :_reduce_47,
   1, 41, :_reduce_48,
-  1, 44, :_reduce_49,
+  1, 44, :_reduce_none,
   1, 27, :_reduce_50 ]
 
 racc_reduce_n = 51
@@ -577,12 +577,7 @@ module_eval(<<'.,.,', 'parser.racc', 114)
   end
 .,.,
 
-module_eval(<<'.,.,', 'parser.racc', 118)
-  def _reduce_49(val, _values, result)
-       result = unescape_string(val[0])  
-    result
-  end
-.,.,
+# reduce 49 omitted
 
 module_eval(<<'.,.,', 'parser.racc', 121)
   def _reduce_50(val, _values, result)
