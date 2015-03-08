@@ -230,6 +230,10 @@ class RootNode < GQL::Node
 
   # this should normally be a connection field
   call :accounts, -> { $accounts }, returns: [AccountNode]
+
+  call :everything, -> { ($users + $albums + $songs + $accounts).shuffle }, returns: [
+    User => UserNode, Album => AlbumNode, Song => SongNode, Account => AccountNode
+  ]
 end
 
 GQL.root_node_class = RootNode

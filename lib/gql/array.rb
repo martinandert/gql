@@ -8,7 +8,14 @@ module GQL
       def build_class(id, proc, options = {})
         item_class = options.delete(:item_class) || self.item_class
 
-        Node.validate_is_subclass! item_class, 'item'
+        if item_class.is_a?(Hash)
+          item_class.values.each do |klass|
+            Node.validate_is_subclass! klass, 'item'
+          end
+        else
+          Node.validate_is_subclass! item_class, 'item'
+          item_class = Hash.new(item_class)
+        end
 
         Class.new(self).tap do |field_class|
           field_class.id = id.to_s
@@ -20,7 +27,7 @@ module GQL
 
     def value
       target.map do |item|
-        node = self.class.item_class.new(ast_node, item, variables, context)
+        node = self.class.item_class[item.class].new(ast_node, item, variables, context)
         node.value
       end
     end
