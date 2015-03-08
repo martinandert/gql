@@ -1,4 +1,4 @@
 module GQL
-  class Boolean < Simple
+  class Boolean < Raw
   end
 end

@@ -1,5 +1,5 @@
 module GQL
-  class String < Simple
+  class String < Raw
     # These are just example calls. Monkeypatch class to add your own.
     call :upcase
     call :downcase

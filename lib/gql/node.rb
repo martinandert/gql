@@ -90,7 +90,7 @@ module GQL
         id = id_or_proc.is_a?(Proc) ? nil : id_or_proc
         proc = id ? -> { target.public_send(id) } : id_or_proc
 
-        field :cursor, proc, type: Simple
+        field :cursor, proc, type: Raw
       end
 
       def validate_is_subclass!(subclass, name)

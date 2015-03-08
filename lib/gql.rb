@@ -12,7 +12,7 @@ module GQL
   autoload :Number,     'gql/number'
   autoload :Object,     'gql/object'
   autoload :Parser,     'gql/parser'
-  autoload :Simple,     'gql/simple'
+  autoload :Raw,        'gql/raw'
   autoload :String,     'gql/string'
   autoload :TestCase,   'gql/test_case'
   autoload :VERSION,    'gql/version'
