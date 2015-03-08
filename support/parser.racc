@@ -6,8 +6,8 @@ rule
     ;
 
   root
-    : call                  {  result = Node.new(nil, nil, val[0], nil   )  }
-    | '{' field_list '}'    {  result = Node.new(nil, nil, nil,    val[1])  }
+    : call                  {  result = Root.new(val[0], nil   )  }
+    | '{' field_list '}'    {  result = Root.new(nil,    val[1])  }
     ;
 
   call
@@ -138,6 +138,15 @@ require 'gql/tokenizer'
       {
         root:       root.as_json,
         variables:  variables
+      }
+    end
+  end
+
+  class Root < Struct.new(:call, :fields)
+    def as_json(*)
+      {
+        call:       call.as_json,
+        fields:     fields.as_json
       }
     end
   end

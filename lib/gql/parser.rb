@@ -27,6 +27,15 @@ module_eval(<<'...end parser.racc/module_eval...', 'parser.racc', 135)
     end
   end
 
+  class Root < Struct.new(:call, :fields)
+    def as_json(*)
+      {
+        call:       call.as_json,
+        fields:     fields.as_json
+      }
+    end
+  end
+
   class Node < Struct.new(:id, :alias_id, :call, :fields)
     def as_json(*)
       {
@@ -300,14 +309,14 @@ module_eval(<<'.,.,', 'parser.racc', 4)
 
 module_eval(<<'.,.,', 'parser.racc', 8)
   def _reduce_2(val, _values, result)
-      result = Node.new(nil, nil, val[0], nil   )  
+      result = Root.new(val[0], nil   )  
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.racc', 9)
   def _reduce_3(val, _values, result)
-      result = Node.new(nil, nil, nil,    val[1])  
+      result = Root.new(nil,    val[1])  
     result
   end
 .,.,
