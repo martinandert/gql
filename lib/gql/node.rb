@@ -77,7 +77,7 @@ module GQL
       def field(id, *args)
         options = args.extract_options!
         type = options.delete(:type) || Node
-        proc = proc_for_field(id, args)
+        proc = args.shift || proc_for_field(id)
 
         Node.validate_is_subclass! type, 'type'
 
@@ -120,8 +120,12 @@ module GQL
       end
 
       private
-        def proc_for_field(id, args)
-          args.shift || field_proc && instance_exec(id, &field_proc) || instance_exec(id, &GQL.default_field_proc)
+        def proc_for_field(id)
+          if field_proc
+            instance_exec id, &field_proc
+          else
+            instance_exec id, &GQL.default_field_proc
+          end
         end
 
         def define_field_method(name, type)

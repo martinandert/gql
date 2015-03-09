@@ -39,6 +39,21 @@ class GQLTest < GQL::TestCase
     end
   end
 
+  test "setting root node class with DEBUG env flag adds _schema call" do
+    begin
+      prev_root = GQL.root_node_class
+      prev_debug = ENV['DEBUG']
+
+      ENV['DEBUG'] = '1'
+      GQL.root_node_class = Class.new(GQL::Node)
+
+      assert GQL.root_node_class.calls.has_key?(:_schema)
+    ensure
+      ENV['DEBUG'] = prev_debug
+      GQL.root_node_class = prev_root
+    end
+  end
+
   test "has a root target proc set by default" do
     assert_instance_of Proc, GQL.root_target_proc
   end

@@ -1,6 +1,6 @@
 module GQL
   module Schema
-    class List < GQL::Connection
+    class List < GQL::Node
       number :count
 
       call :reverse
