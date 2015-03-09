@@ -21,7 +21,8 @@ rule
                 {REM_IN}              { @state = :REMS; nil }
   :REMS         {REM_OUT}             { @state = nil;   nil }
   :REMS         .*(?={REM_OUT})       # ignore (single line)
-  :REMS         .*?\n                 # ignore (multiline)
+  :REMS         .+(?=\n)              # ignore (multiline)
+  :REMS         \n                    # ignore
 
                 {REM}                 { @state = :REM;  nil }
   :REM          \n                    { @state = nil;   nil }
