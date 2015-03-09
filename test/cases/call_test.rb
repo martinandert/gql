@@ -75,6 +75,8 @@ class NodeWithCalls < GQL::Node
 
   call :boo,              CallClassWithImplicitResultClass
   call :boo_with_returns, CallClassWithImplicitResultClass, returns: FooBarResultClass
+
+  call :pow, -> a, b { a ** b }, returns: GQL::Number
 end
 
 class Inherited < NodeWithCalls
@@ -202,7 +204,8 @@ class CallTest < GQL::TestCase
       bam:              NodeWithCalls::BamCall,
       bam_with_returns: NodeWithCalls::BamWithReturnsCall,
       boo:              NodeWithCalls::BooCall,
-      boo_with_returns: NodeWithCalls::BooWithReturnsCall
+      boo_with_returns: NodeWithCalls::BooWithReturnsCall,
+      pow:              NodeWithCalls::PowCall
     }
 
     assert_equal expected, NodeWithCalls.calls
@@ -219,6 +222,7 @@ class CallTest < GQL::TestCase
     assert_equal CallClassWithExplicitResultClass,  NodeWithCalls.calls[:bam_with_returns].superclass
     assert_equal CallClassWithImplicitResultClass,  NodeWithCalls.calls[:boo].superclass
     assert_equal CallClassWithImplicitResultClass,  NodeWithCalls.calls[:boo_with_returns].superclass
+    assert_equal GQL::Call,                         NodeWithCalls.calls[:pow].superclass
   end
 
   test "ids" do
@@ -232,11 +236,12 @@ class CallTest < GQL::TestCase
     assert_equal 'bam_with_returns',   NodeWithCalls.calls[:bam_with_returns].id
     assert_equal 'boo',                NodeWithCalls.calls[:boo].id
     assert_equal 'boo_with_returns',   NodeWithCalls.calls[:boo_with_returns].id
+    assert_equal 'pow',                NodeWithCalls.calls[:pow].id
   end
 
   test "inheritance" do
-    assert_equal 10, NodeWithCalls.calls.size
-    assert_equal 11, Inherited.calls.size
+    assert_equal 11, NodeWithCalls.calls.size
+    assert_equal 12, Inherited.calls.size
 
     assert_equal NodeWithCalls.calls.keys + [:bingo], Inherited.calls.keys
   end
@@ -246,5 +251,10 @@ class CallTest < GQL::TestCase
     actual = GQL.execute('foo.bar().baz(2).foo().bar(2).baz.foo(2).bar.baz() { value }')
 
     assert_equal expected, actual
+  end
+
+  test "variables" do
+    assert_equal 8, GQL.execute('pow(<x>, <y>) <x> = 2 <y> = 3')
+    assert_equal 8, GQL.execute('{ me.pow(<x>, <y>) } <x> = 2 <y> = 3')[:me]
   end
 end
