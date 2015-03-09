@@ -77,7 +77,7 @@ module GQL
       def field(id, *args)
         options = args.extract_options!
         type = options.delete(:type) || Node
-        proc = args.shift || field_proc && instance_exec(id, &field_proc) || instance_exec(id, &GQL.default_field_proc)
+        proc = proc_for_field(id, args)
 
         Node.validate_is_subclass! type, 'type'
 
@@ -110,13 +110,7 @@ module GQL
 
       def method_missing(method, *args, &block)
         if type = GQL.field_types[method]
-          Node.define_singleton_method method do |*margs, &mblock|
-            options = margs.extract_options!.merge(type: type)
-            margs = margs.push(options)
-
-            field(*margs, &mblock)
-          end
-
+          define_field_method method, type
           send method, *args, &block
         else
           super
@@ -124,6 +118,20 @@ module GQL
       rescue NoMethodError
         raise Errors::UndefinedFieldType, method
       end
+
+      private
+        def proc_for_field(id, args)
+          args.shift || field_proc && instance_exec(id, &field_proc) || instance_exec(id, &GQL.default_field_proc)
+        end
+
+        def define_field_method(name, type)
+          Node.define_singleton_method name do |*margs, &mblock|
+            options = margs.extract_options!.merge(type: type)
+            margs = margs.push(options)
+
+            field(*margs, &mblock)
+          end
+        end
     end
 
     attr_reader :ast_node, :target, :variables, :context

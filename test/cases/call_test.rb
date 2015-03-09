@@ -52,6 +52,9 @@ class CallClassWithImplicitResultClass < GQL::Call
   end
 end
 
+class CallClassWithoutExecuteMethod < GQL::Call
+end
+
 class FooBarResultClass < GQL::Node
   field :foobar, -> { target }, type: GQL::Raw
   field :foobar_value, -> { target.value }, type: GQL::Raw
@@ -77,6 +80,8 @@ class NodeWithCalls < GQL::Node
   call :boo_with_returns, CallClassWithImplicitResultClass, returns: FooBarResultClass
 
   call :pow, -> a, b { a ** b }, returns: GQL::Number
+
+  call :no_execute_method, CallClassWithoutExecuteMethod
 end
 
 class Inherited < NodeWithCalls
@@ -195,17 +200,18 @@ class CallTest < GQL::TestCase
 
   test "constants" do
     expected = {
-      foo:              NodeWithCalls::FooCall,
-      foo_with_returns: NodeWithCalls::FooWithReturnsCall,
-      bar:              NodeWithCalls::BarCall,
-      bar_with_returns: NodeWithCalls::BarWithReturnsCall,
-      baz:              NodeWithCalls::BazCall,
-      baz_with_returns: NodeWithCalls::BazWithReturnsCall,
-      bam:              NodeWithCalls::BamCall,
-      bam_with_returns: NodeWithCalls::BamWithReturnsCall,
-      boo:              NodeWithCalls::BooCall,
-      boo_with_returns: NodeWithCalls::BooWithReturnsCall,
-      pow:              NodeWithCalls::PowCall
+      foo:                NodeWithCalls::FooCall,
+      foo_with_returns:   NodeWithCalls::FooWithReturnsCall,
+      bar:                NodeWithCalls::BarCall,
+      bar_with_returns:   NodeWithCalls::BarWithReturnsCall,
+      baz:                NodeWithCalls::BazCall,
+      baz_with_returns:   NodeWithCalls::BazWithReturnsCall,
+      bam:                NodeWithCalls::BamCall,
+      bam_with_returns:   NodeWithCalls::BamWithReturnsCall,
+      boo:                NodeWithCalls::BooCall,
+      boo_with_returns:   NodeWithCalls::BooWithReturnsCall,
+      pow:                NodeWithCalls::PowCall,
+      no_execute_method:  NodeWithCalls::NoExecuteMethodCall
     }
 
     assert_equal expected, NodeWithCalls.calls
@@ -223,6 +229,7 @@ class CallTest < GQL::TestCase
     assert_equal CallClassWithImplicitResultClass,  NodeWithCalls.calls[:boo].superclass
     assert_equal CallClassWithImplicitResultClass,  NodeWithCalls.calls[:boo_with_returns].superclass
     assert_equal GQL::Call,                         NodeWithCalls.calls[:pow].superclass
+    assert_equal CallClassWithoutExecuteMethod,     NodeWithCalls.calls[:no_execute_method].superclass
   end
 
   test "ids" do
@@ -237,11 +244,12 @@ class CallTest < GQL::TestCase
     assert_equal 'boo',                NodeWithCalls.calls[:boo].id
     assert_equal 'boo_with_returns',   NodeWithCalls.calls[:boo_with_returns].id
     assert_equal 'pow',                NodeWithCalls.calls[:pow].id
+    assert_equal 'no_execute_method',  NodeWithCalls.calls[:no_execute_method].id
   end
 
   test "inheritance" do
-    assert_equal 11, NodeWithCalls.calls.size
-    assert_equal 12, Inherited.calls.size
+    assert_equal 12, NodeWithCalls.calls.size
+    assert_equal 13, Inherited.calls.size
 
     assert_equal NodeWithCalls.calls.keys + [:bingo], Inherited.calls.keys
   end
@@ -256,5 +264,11 @@ class CallTest < GQL::TestCase
   test "variables" do
     assert_equal 8, GQL.execute('pow(<x>, <y>) <x> = 2 <y> = 3')
     assert_equal 8, GQL.execute('{ me.pow(<x>, <y>) } <x> = 2 <y> = 3')[:me]
+  end
+
+  test "no execute method" do
+    assert_raises NotImplementedError do
+      GQL.execute '{ me.no_execute_method(42) }'
+    end
   end
 end
