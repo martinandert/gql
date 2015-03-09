@@ -39,7 +39,7 @@ class TokenizerTest < GQL::TestCase
     assert_equal GQL.tokenize(''), []
   end
 
-  test "ignores comments" do
+  test "strips comments" do
     q = <<-QUERY
       foo // end-of-line comment
       bar /* block comment */ baz
@@ -47,12 +47,16 @@ class TokenizerTest < GQL::TestCase
            * comment *
         spanning // multiple
         lines */ bam
-      bim
+      bim /* block comment */
+      "string with // comment inside"
+      "another /* string */ with a /* comment"
     QUERY
 
     expected = [
       [:IDENT, "foo"], [:IDENT, "bar"], [:IDENT, "baz"],
-      [:IDENT, "bum"], [:IDENT, "bam"], [:IDENT, "bim"]
+      [:IDENT, "bum"], [:IDENT, "bam"], [:IDENT, "bim"],
+      [:STRING, 'string with // comment inside'],
+      [:STRING, 'another /* string */ with a /* comment']
     ]
 
     assert_equal expected, GQL.tokenize(q)
