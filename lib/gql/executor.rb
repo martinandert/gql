@@ -14,7 +14,9 @@ module GQL
 
       context[:_schema_root] = node_class if ENV['DEBUG']
 
-      node = node_class.new(ast_root, nil, variables, context)
+      target = GQL.root_target_proc.call(context)
+
+      node = node_class.new(ast_root, target, variables, context)
       node.value
     end
   end

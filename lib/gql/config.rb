@@ -16,6 +16,14 @@ module GQL
       @@root_node_class = value
     end
 
+    def root_target_proc
+      @@root_target_proc ||= -> context { nil }
+    end
+
+    def root_target_proc=(value)
+      @@root_target_proc = value
+    end
+
     def field_types
       @@field_types ||= {
         array:      Array,
@@ -37,6 +45,22 @@ module GQL
 
     def default_list_class=(value)
       @@default_list_class = value
+    end
+
+    def default_field_proc
+      @@default_field_proc ||= -> id { -> { target.public_send(id) } }
+    end
+
+    def default_field_proc=(value)
+      @@default_field_proc = value
+    end
+
+    def default_call_proc
+      @@default_call_proc ||= -> id { -> (*args) { target.public_send(id, *args) } }
+    end
+
+    def default_call_proc=(value)
+      @@default_call_proc = value
     end
   end
 end

@@ -225,7 +225,7 @@ class RootNode < GQL::Node
   call :album,    -> id { $albums.find { |album| album.id == id } }, returns: AlbumNode
   call :song,     -> id { $songs.find { |song| song.id == id } }, returns: SongNode
 
-  call :update_user_name => UpdateUserNameCall
+  call :update_user_name, UpdateUserNameCall
 
   # this should normally be a connection field
   call :accounts, -> { $accounts }, returns: [AccountNode]

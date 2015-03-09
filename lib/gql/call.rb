@@ -10,7 +10,7 @@ module GQL
           self.result_class = result_class
         elsif block_given?
           Class.new(Node).tap do |result_class|
-            result_class.default_proc = -> id { -> { target[id] } }
+            result_class.field_proc = -> id { -> { target[id] } }
             result_class.class_eval(&block)
 
             returns result_class
@@ -19,7 +19,7 @@ module GQL
       end
 
       def execute(caller_class, ast_node, target, variables, context)
-        args = substitute_variables(ast_node.arguments, variables)
+        args = substitute_variables(ast_node.arguments, variables.dup)
         target = new(target, context).execute(*args)
 
         next_class = result_class || caller_class
@@ -30,6 +30,7 @@ module GQL
 
       private
         def substitute_variables(args, variables)
+          return args unless variables.any?
           args.map { |arg| arg.is_a?(::Symbol) ? variables[arg] : arg }
         end
     end
