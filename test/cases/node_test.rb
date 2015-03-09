@@ -9,18 +9,21 @@ class NodeWithProcCursor < GQL::Number
 end
 
 class NodeRootNode < GQL::Node
-  object :id_cursor,   -> { 42 }, node_class: NodeWithIdCursor
-  object :proc_cursor, -> { 42 }, node_class: NodeWithProcCursor
+  object :id_cursor,   -> { target }, node_class: NodeWithIdCursor
+  object :proc_cursor, -> { target }, node_class: NodeWithProcCursor
 
   string :no_calls, -> { 'foo' }
+  string :some_field, -> { (target * 3).to_s }
 end
 
 class NodeTest < GQL::TestCase
   setup do
     @old_root, GQL.root_node_class = GQL.root_node_class, NodeRootNode
+    @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { 42 }
   end
 
   teardown do
+    GQL.root_target_proc = @old_proc
     GQL.root_node_class = @old_root
   end
 
@@ -41,6 +44,41 @@ class NodeTest < GQL::TestCase
   test "accessing undefined call" do
     assert_raises GQL::Errors::UndefinedCall do
       GQL.execute '{ no_calls.missing("foo") }'
+    end
+  end
+
+  test "node field just delegates to self (for now)" do
+    assert_equal '126', GQL.execute('{ node { some_field } }')[:node][:some_field]
+  end
+
+  test "respond_to? with field type" do
+    assert_nil GQL.field_types[:foo]
+    assert_equal false, GQL::Node.respond_to?(:foo)
+    GQL.field_types[:foo] = Object
+    assert_equal true, GQL::Node.respond_to?(:foo)
+    GQL.field_types.delete :foo
+  end
+
+  test "validate_is_subclass!" do
+    assert_nothing_raised do
+      GQL::Node.validate_is_subclass! GQL::Node, 'foo'
+      GQL::Node.validate_is_subclass! GQL::String, 'bar'
+    end
+
+    assert_raises GQL::Errors::UndefinedNodeClass do
+      GQL::Node.validate_is_subclass! nil, 'baz'
+    end
+
+    assert_raises GQL::Errors::InvalidNodeClass do
+      GQL::Node.validate_is_subclass! Fixnum, 'bam'
+    end
+  end
+
+  test "undefined field type" do
+    assert_raises GQL::Errors::UndefinedFieldType do
+      Class.new(GQL::Node).class_eval do
+        undefined_field_type :foo
+      end
     end
   end
 end

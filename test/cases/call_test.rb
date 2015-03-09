@@ -82,6 +82,8 @@ class NodeWithCalls < GQL::Node
   call :pow, -> a, b { a ** b }, returns: GQL::Number
 
   call :no_execute_method, CallClassWithoutExecuteMethod
+
+  call :with_connection_result, returns: [GQL::String]
 end
 
 class Inherited < NodeWithCalls
@@ -198,20 +200,25 @@ class CallTest < GQL::TestCase
     assert_equal({ me: { foobar: { result: ['booboo'] } } }, GQL.execute('{ me.boo_with_returns(2) { foobar } }'))
   end
 
+  test "with connection result class" do
+    assert NodeWithCalls.calls[:with_connection_result].result_class.fields.has_key?(:edges)
+  end
+
   test "constants" do
     expected = {
-      foo:                NodeWithCalls::FooCall,
-      foo_with_returns:   NodeWithCalls::FooWithReturnsCall,
-      bar:                NodeWithCalls::BarCall,
-      bar_with_returns:   NodeWithCalls::BarWithReturnsCall,
-      baz:                NodeWithCalls::BazCall,
-      baz_with_returns:   NodeWithCalls::BazWithReturnsCall,
-      bam:                NodeWithCalls::BamCall,
-      bam_with_returns:   NodeWithCalls::BamWithReturnsCall,
-      boo:                NodeWithCalls::BooCall,
-      boo_with_returns:   NodeWithCalls::BooWithReturnsCall,
-      pow:                NodeWithCalls::PowCall,
-      no_execute_method:  NodeWithCalls::NoExecuteMethodCall
+      foo:                    NodeWithCalls::FooCall,
+      foo_with_returns:       NodeWithCalls::FooWithReturnsCall,
+      bar:                    NodeWithCalls::BarCall,
+      bar_with_returns:       NodeWithCalls::BarWithReturnsCall,
+      baz:                    NodeWithCalls::BazCall,
+      baz_with_returns:       NodeWithCalls::BazWithReturnsCall,
+      bam:                    NodeWithCalls::BamCall,
+      bam_with_returns:       NodeWithCalls::BamWithReturnsCall,
+      boo:                    NodeWithCalls::BooCall,
+      boo_with_returns:       NodeWithCalls::BooWithReturnsCall,
+      pow:                    NodeWithCalls::PowCall,
+      no_execute_method:      NodeWithCalls::NoExecuteMethodCall,
+      with_connection_result: NodeWithCalls::WithConnectionResultCall
     }
 
     assert_equal expected, NodeWithCalls.calls
@@ -248,8 +255,8 @@ class CallTest < GQL::TestCase
   end
 
   test "inheritance" do
-    assert_equal 12, NodeWithCalls.calls.size
-    assert_equal 13, Inherited.calls.size
+    assert_equal 13, NodeWithCalls.calls.size
+    assert_equal 14, Inherited.calls.size
 
     assert_equal NodeWithCalls.calls.keys + [:bingo], Inherited.calls.keys
   end
