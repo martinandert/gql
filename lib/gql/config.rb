@@ -44,6 +44,10 @@ module GQL
     end
 
     def default_list_class=(value)
+      unless value.nil? || value <= Node
+        raise Errors::InvalidNodeClass.new(value, Node)
+      end
+
       @@default_list_class = value
     end
 

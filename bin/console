@@ -5,6 +5,9 @@ require 'gql'
 
 require_relative '../test/example'
 
+GQL.default_list_class = List
+GQL.root_node_class = RootNode
+
 def ctxt
   @ctxt ||= { auth_token: 'ma' }
 end

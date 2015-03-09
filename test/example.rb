@@ -71,8 +71,6 @@ class List < GQL::Node
   call :first, -> size { target[0...size] }
 end
 
-GQL.default_list_class = List
-
 class UserNode < GQL::Node
 end
 
@@ -234,5 +232,3 @@ class RootNode < GQL::Node
     User => UserNode, Album => AlbumNode, Song => SongNode, Account => AccountNode
   ]
 end
-
-GQL.root_node_class = RootNode
