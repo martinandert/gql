@@ -7,7 +7,6 @@ module GQL
       string  :type,         -> { target.name }
       object  :result_class, -> { target.result_class || Placeholder }, node_class: Node
 
-
       array :parameters, -> {
         if target.proc
           target.proc.parameters

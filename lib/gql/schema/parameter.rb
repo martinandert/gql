@@ -1,30 +1,20 @@
 module GQL
   module Schema
     class Parameter < GQL::Node
+      MODES = {
+        req:      'required',
+        opt:      'optional',
+        rest:     'rest',
+        keyreq:   'required keyword',
+        key:      'optional keyword',
+        keyrest:  'keyword rest',
+        block:    'block'
+      }.freeze
+
       cursor -> { target[1].to_s }
 
-      string :id, -> { target[1].to_s }
-
-      string :mode, -> {
-        case target[0]
-        when :req
-          'required'
-        when :opt
-          'optional'
-        when :rest
-          'rest'
-        when :keyreq
-          'required keyword'
-        when :key
-          'optional keyword'
-        when :keyrest
-          'keyword rest'
-        when :block
-          'block'
-        else
-          target[0].to_s
-        end
-      }
+      string :id,   -> { target[1].to_s }
+      string :mode, -> { MODES[target[0]] || target[0].to_s }
     end
   end
 end
