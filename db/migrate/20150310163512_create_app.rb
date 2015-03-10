@@ -28,18 +28,18 @@ class CreateApp < ActiveRecord::Migration
     add_index :albums, [:band_id, :released_on]
 
     create_table :songs do |t|
-      t.string      :slug,      :null => false
-      t.references  :album,     :null => false
-      t.string      :title,     :null => false
-      t.integer     :duration,  :null => false
-      t.integer     :position,  :null => false
+      t.string      :slug,          :null => false
+      t.references  :album,         :null => false
+      t.string      :title,         :null => false
+      t.integer     :duration,      :null => false
+      t.integer     :track_number,  :null => false
       t.text        :note
     end
 
     add_index :songs, :slug, :unique => true
     add_index :songs, :album_id
-    add_index :songs, :position
-    add_index :songs, [:album_id, :position], :unique => true
+    add_index :songs, :track_number
+    add_index :songs, [:album_id, :track_number], :unique => true
 
     create_table :memberships do |t|
       t.references  :band,          :null => false
@@ -51,9 +51,11 @@ class CreateApp < ActiveRecord::Migration
     add_index :memberships, [:band_id, :member_id], :unique => true
 
     create_table :roles do |t|
+      t.string  :slug,  :null => false
       t.string  :name,  :null => false
     end
 
+    add_index :roles, :slug, :unique => true
     add_index :roles, :name, :unique => true
 
     create_table :membership_roles do |t|
