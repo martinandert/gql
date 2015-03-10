@@ -6,16 +6,15 @@ module GQL
 
     class << self
       def returns(result_class = nil, &block)
-        if result_class
-          self.result_class = result_class
-        elsif block_given?
-          Class.new(Node).tap do |result_class|
-            result_class.field_proc = -> id { -> { target[id] } }
-            result_class.class_eval(&block)
-
-            returns result_class
+        self.result_class =
+          if block_given?
+            Class.new(Node).tap do |result_class|
+              result_class.field_proc = -> id { -> { target[id] } }
+              result_class.class_eval(&block)
+            end
+          else
+            self.result_class = result_class
           end
-        end
       end
 
       def execute(caller_class, ast_node, target, variables, context)
