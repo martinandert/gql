@@ -44,8 +44,8 @@ module GQL
         else
           super
         end
-      rescue NoMethodError
-        raise Errors::UndefinedFieldType, method
+      rescue NoMethodError => exc
+        raise Errors::NoMethodError.new(self, method, exc)
       end
 
       private
@@ -62,5 +62,42 @@ module GQL
           end
         end
     end
+
+    private
+      def value_of_fields(ast_fields)
+        ast_fields.reduce({}) do |result, ast_field|
+          key = ast_field.alias_id || ast_field.id
+
+          result.merge key => value_of_field(ast_field)
+        end
+      end
+
+      def value_of_field(ast_field)
+        if ast_field.id == :node
+          field = self.class.new(ast_field, target, variables, context)
+          field.value
+        else
+          field_class = field_class_for_id(ast_field.id)
+          next_target = target_for_field(target, field_class.proc)
+
+          field = field_class.new(ast_field, next_target, variables, context)
+          field.value
+        end
+      end
+
+      def field_class_for_id(id)
+        self.class.fields[id] or raise Errors::FieldNotFound.new(id, self.class)
+      end
+
+      def target_for_field(current_target, proc)
+        method = ExecutionContext.new(current_target, context)
+        method.execute proc
+      end
+
+      class ExecutionContext < Struct.new(:target, :context)
+        def execute(method, args = [])
+          instance_exec(*args, &method)
+        end
+      end
   end
 end

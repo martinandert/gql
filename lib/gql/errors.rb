@@ -6,60 +6,85 @@ module GQL
   end
 
   module Errors
-    class UndefinedRoot < Error
-      def initialize
-        super('Root node class is undefined. Define it with `GQL.root_node_class = MyRootNode`.')
+    class NotFoundError < Error
+      private
+        def available_items_message(node_class, method)
+          items = node_class.send(method).keys.sort.map { |id| "`#{id}'" }
+          items.size > 0 ? " Available #{method}: #{items.to_sentence}." : ''
+        end
+    end
+
+    class CallNotFound < NotFoundError
+      def initialize(id, node_class)
+        msg =  "#{node_class} has no call named `#{id}'."
+        msg << available_items_message(node_class, :calls)
+
+        super(msg)
       end
     end
 
-    class UndefinedNodeClass < Error
-      def initialize(node_class, name)
-        super("#{node_class} must define a #{name} class. Set it with `self.#{name}_class = My#{name.camelize}Class`.")
+    class FieldNotFound < NotFoundError
+      def initialize(id, node_class)
+        msg =  "#{node_class} has no field named `#{id}'."
+        msg << available_items_message(node_class, :fields)
+
+        super(msg)
       end
     end
 
     class InvalidNodeClass < Error
       def initialize(node_class, super_class)
-        super("#{node_class} must be a (subclass of) #{super_class}.")
+        msg = "#{node_class} must be a (subclass of) #{super_class}."
+
+        super(msg)
       end
     end
 
-    class UndefinedFieldType < Error
-      def initialize(id)
-        types = GQL.field_types.keys.sort.map { |id| "`#{id}`" }
-        types = types.size > 0 ? " Available types: #{types.to_sentence}." : ''
+    class NoMethodError < Error
+      attr_reader :cause
 
-        super("The field type `#{id}` is undefined. Define it with `GQL.field_types[:#{id}] = My#{id.to_s.camelize}`.#{types}")
+      def initialize(node_class, id, cause)
+        @cause = cause
+
+        msg =  "Undefined method `#{id}' for #{node_class}. "
+        msg << "Did you try to add a field of type `#{id}'? "
+        msg << "If so, you have to register your field type first "
+        msg << "like this: `GQL.field_types[:#{id}] = My#{id.to_s.camelize}'. "
+        msg << "The following field types are currently registered: "
+        msg << GQL.field_types.keys.sort.map { |id| "`#{id}'" }.to_sentence
+
+        super(msg)
       end
     end
 
-    class UndefinedCall < Error
-      def initialize(id, node_class)
-        calls = node_class.calls.keys.sort.map { |id| "`#{id}`" }
-        calls = calls.size > 0 ? " Available calls: #{calls.to_sentence}." : ''
+    class RootClassNotSet < Error
+      def initialize
+        msg =  "GQL root node class is not set. "
+        msg << "Set it with `GQL.root_node_class = MyRootNode'."
 
-        super("#{node_class} has no call named `#{id}`.#{calls}")
+        super(msg)
       end
     end
 
-    class UndefinedField < Error
-      def initialize(id, node_class)
-        fields = node_class.fields.keys.sort.map { |id| "`#{id}`" }
-        fields = fields.size > 0 ? " Available fields: #{fields.to_sentence}." : ''
-
-        super("#{node_class} has no field named `#{id}`.#{fields}")
-      end
+    class ScanError < Error
     end
 
     class SyntaxError < Error
       def initialize(lineno, value, token)
         token = 'character' if token == 'error' || token == %Q{"#{value}"}
+        msg = "Unexpected #{token}: `#{value}' (line #{lineno})."
 
-        super("Unexpected #{token}: `#{value}` (line #{lineno}).")
+        super(msg)
       end
     end
 
-    class ScanError < Error
+    class UndefinedNodeClass < Error
+      def initialize(node_class, name)
+        msg =  "#{node_class} must have a #{name} class set. "
+        msg << "Set it with `self.#{name}_class = My#{name.camelize}Class'."
+
+        super(msg)
+      end
     end
   end
 end

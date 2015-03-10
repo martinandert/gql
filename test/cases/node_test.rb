@@ -36,13 +36,13 @@ class NodeTest < GQL::TestCase
   end
 
   test "accessing undefined field" do
-    assert_raises GQL::Errors::UndefinedField do
+    assert_raises GQL::Errors::FieldNotFound do
       GQL.execute '{ missing }'
     end
   end
 
   test "accessing undefined call" do
-    assert_raises GQL::Errors::UndefinedCall do
+    assert_raises GQL::Errors::CallNotFound do
       GQL.execute '{ no_calls.missing("foo") }'
     end
   end
@@ -74,11 +74,21 @@ class NodeTest < GQL::TestCase
     end
   end
 
-  test "undefined field type" do
-    assert_raises GQL::Errors::UndefinedFieldType do
+  test "undefined field type raises error" do
+    assert_raises GQL::Errors::NoMethodError do
       Class.new(GQL::Node).class_eval do
         undefined_field_type :foo
       end
+    end
+  end
+
+  test "undefined field type has correct cause set" do
+    begin
+      Class.new(GQL::Node).class_eval do
+        undefined_field_type :foo
+      end
+    rescue GQL::Errors::NoMethodError => exc
+      assert_instance_of NoMethodError, exc.cause
     end
   end
 end

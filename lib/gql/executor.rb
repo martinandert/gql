@@ -10,7 +10,7 @@ module GQL
     def execute(context = {})
       node_class = GQL.root_node_class
 
-      raise Errors::UndefinedRoot if node_class.nil?
+      raise Errors::RootClassNotSet if node_class.nil?
 
       context[:_schema_root] = node_class if ENV['DEBUG']
 

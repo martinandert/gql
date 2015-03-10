@@ -3,11 +3,7 @@ require 'cases/helper'
 class MyGQLNode < GQL::Node
 end
 
-class GQLTest < GQL::TestCase
-  test "exposes its VERSION constant" do
-    refute_nil GQL::VERSION
-  end
-
+class ConfigTest < GQL::TestCase
   test "can set the configuration object" do
     begin
       GQL.config = self

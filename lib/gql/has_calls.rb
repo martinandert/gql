@@ -69,5 +69,15 @@ module GQL
           end
         end
     end
+
+    private
+      def value_of_call(ast_call)
+        call_class = call_class_for_id(ast_call.id)
+        call_class.execute(self.class, ast_call, target, variables, context)
+      end
+
+      def call_class_for_id(id)
+        self.class.calls[id] or raise Errors::CallNotFound.new(id, self.class)
+      end
   end
 end

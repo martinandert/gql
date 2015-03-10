@@ -6,15 +6,7 @@ module GQL
 
     class << self
       def returns(result_class = nil, &block)
-        self.result_class =
-          if block_given?
-            Class.new(Node).tap do |result_class|
-              result_class.field_proc = -> id { -> { target[id] } }
-              result_class.class_eval(&block)
-            end
-          else
-            self.result_class = result_class
-          end
+        self.result_class = result_class || result_class_from_block(block)
       end
 
       def execute(caller_class, ast_node, target, variables, context)
@@ -31,6 +23,13 @@ module GQL
         def substitute_variables(args, variables)
           return args unless variables.any?
           args.map { |arg| arg.is_a?(::Symbol) ? variables[arg] : arg }
+        end
+
+        def result_class_from_block(block)
+          Class.new(Node).tap do |result_class|
+            result_class.field_proc = -> id { -> { target[id] } }
+            result_class.class_eval(&block)
+          end
         end
     end
 

@@ -23,14 +23,14 @@ module GQL
     extend ActiveSupport::Autoload
 
     autoload_at 'gql/errors' do
+      autoload :CallNotFound
+      autoload :FieldNotFound
       autoload :InvalidNodeClass
+      autoload :NoMethodError
+      autoload :RootClassNotSet
       autoload :ScanError
       autoload :SyntaxError
-      autoload :UndefinedCall
-      autoload :UndefinedField
       autoload :UndefinedNodeClass
-      autoload :UndefinedRoot
-      autoload :UndefinedFieldType
     end
   end
 

@@ -12,7 +12,7 @@ class ExecutorTest < GQL::TestCase
   test "raises when root node class is not set" do
     ast_query = Struct.new(:root, :variables).new(nil, nil)
 
-    assert_raises GQL::Errors::UndefinedRoot do
+    assert_raises GQL::Errors::RootClassNotSet do
       GQL.execute 'foo'
     end
   end
