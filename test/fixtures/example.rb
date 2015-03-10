@@ -144,7 +144,7 @@ class SongNode
   string :title
 end
 
-$time = Time.at(1425560620)
+$time = Time.at(1425560620).utc
 
 $users = [
   User.new(id: 1, token: 'ma', first_name: 'Martin', last_name: 'Andert', created_at: $time - 5*365*24*60*60),
