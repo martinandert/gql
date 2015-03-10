@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.files         = Dir['README.md', 'LICENSE.txt', 'lib/**/*.rb']
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'bundler', '~> 1.8'
+  spec.add_development_dependency 'bundler', '~> 1.7'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rexical', '~> 1.0'
   spec.add_development_dependency 'racc', '~> 1.4'
