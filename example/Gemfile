@@ -1,0 +1,10 @@
+source 'https://rubygems.org'
+
+gem 'rake'
+gem 'thin'
+gem 'sinatra'
+gem 'sinatra-contrib'
+gem 'sinatra-activerecord'
+gem 'activesupport'
+gem 'sqlite3'
+gem 'gql', :path => './..'
