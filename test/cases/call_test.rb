@@ -79,7 +79,9 @@ class NodeWithCalls < GQL::Node
   call :boo,              CallClassWithImplicitResultClass
   call :boo_with_returns, CallClassWithImplicitResultClass, returns: FooBarResultClass
 
-  call :pow, -> a, b { a ** b }, returns: GQL::Number
+  call :pow, returns: GQL::Number do |a, b|
+    a ** b
+  end
 
   call :no_execute_method, CallClassWithoutExecuteMethod
 

@@ -14,10 +14,10 @@ module GQL
     end
 
     module ClassMethods
-      def call(id, *args)
+      def call(id, *args, &block)
         options = args.extract_options!
 
-        call_spec = args.shift || proc_for_call(id)
+        call_spec = args.shift || block || proc_for_call(id)
         result_spec = options[:returns] || call_spec.try(:result_class)
         result_class = result_class_from_spec(result_spec)
 

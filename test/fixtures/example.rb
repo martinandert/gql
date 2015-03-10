@@ -67,8 +67,11 @@ class List < GQL::Node
   number  :count
   boolean :any, -> { target.any? }
 
-  call :all,   -> { target }
-  call :first, -> size { target[0...size] }
+  call :all, -> { target }
+
+  call :first do |size|
+    target[0...size]
+  end
 end
 
 GQL.default_list_class = List
@@ -91,8 +94,12 @@ end
 class UserNode
   cursor :token
 
-  string      :id,        -> { target.token }
-  string      :full_name, -> { target.first_name + ' ' + target.last_name }
+  string :id, -> { target.token }
+
+  string :full_name do
+    target.first_name + ' ' + target.last_name
+  end
+
   string      :first_name
   string      :last_name
   boolean     :is_admin,  -> { target.admin? }
@@ -110,6 +117,7 @@ class AccountNode
   array   :fibonacci, item_class: GQL::Number
   string  :iban
   string  :bank_name
+
   string  :holder, -> { target.owner }
 
   call :reversed_number, -> { target.number.reverse }, returns: GQL::String

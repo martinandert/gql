@@ -13,7 +13,10 @@ class NodeRootNode < GQL::Node
   object :proc_cursor, -> { target }, node_class: NodeWithProcCursor
 
   string :no_calls, -> { 'foo' }
-  string :some_field, -> { (target * 3).to_s }
+
+  string :some_field do
+    (target * 3).to_s
+  end
 end
 
 class NodeTest < GQL::TestCase

@@ -13,10 +13,10 @@ module GQL
     end
 
     module ClassMethods
-      def field(id, *args)
+      def field(id, *args, &block)
         options = args.extract_options!
         type = options.delete(:type) || Node
-        proc = args.shift || proc_for_field(id)
+        proc = args.shift || block || proc_for_field(id)
 
         Node.validate_is_subclass! type, 'type'
 
