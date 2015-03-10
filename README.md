@@ -1,8 +1,11 @@
 # gql
 
-A Ruby implementation of Facebook's yet-to-be-released GraphQL specification, inspired by [graphql-ruby](https://github.com/rmosolgo/graphql-ruby), but with other/more/less features/bugs.
+[![Build Status](https://travis-ci.org/martinandert/gql.svg?branch=master)](https://travis-ci.org/martinandert/gql)
+[![Code Climate](https://codeclimate.com/github/martinandert/gql/badges/gpa.svg)](https://codeclimate.com/github/martinandert/gql)
+[![Test Coverage](https://codeclimate.com/github/martinandert/gql/badges/coverage.svg)](https://codeclimate.com/github/martinandert/gql)
+[![Dependency Status](https://gemnasium.com/martinandert/gql.svg)](https://gemnasium.com/martinandert/gql)
 
-Caution! This is pre-alpha software. Use at your own risk.
+A Ruby implementation of Facebook's yet-to-be-released GraphQL specification, inspired by [graphql-ruby](https://github.com/rmosolgo/graphql-ruby), but with other/more/less features/bugs.
 
 
 ## Installation
