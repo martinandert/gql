@@ -4,3 +4,4 @@ env: CODECLIMATE_REPO_TOKEN=f5fce90368403eb78b9e1540086c45bc9e4bf9f1976326934266
 rvm:
   - "2.2"
   - "2.1"
+  - "2.0"
