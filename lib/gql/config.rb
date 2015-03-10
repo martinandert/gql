@@ -9,7 +9,7 @@ module GQL
         raise Errors::InvalidNodeClass.new(value, Node)
       end
 
-      if ENV['DEBUG']
+      if value && ENV['DEBUG']
         value.call :_schema, -> { context[:_schema_root] }, returns: Schema::Root
       end
 
