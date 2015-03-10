@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'https://github.com/martinandert/gql'
   spec.license       = 'MIT'
 
-  spec.required_ruby_version = '>= 2.2.0'
+  spec.required_ruby_version = '>= 2.1'
 
   spec.files         = Dir['README.md', 'LICENSE.txt', 'lib/**/*.rb']
   spec.require_paths = ['lib']
