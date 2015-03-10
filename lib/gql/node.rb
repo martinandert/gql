@@ -121,19 +121,15 @@ module GQL
 
       private
         def proc_for_field(id)
-          if field_proc
-            instance_exec id, &field_proc
-          else
-            instance_exec id, &GQL.default_field_proc
-          end
+          instance_exec id, &(field_proc || GQL.default_field_proc)
         end
 
         def define_field_method(name, type)
-          Node.define_singleton_method name do |*margs, &mblock|
-            options = margs.extract_options!.merge(type: type)
-            margs = margs.push(options)
+          Node.define_singleton_method name do |*args, &block|
+            options = args.extract_options!.merge(type: type)
+            args = args.push(options)
 
-            field(*margs, &mblock)
+            field(*args, &block)
           end
         end
     end
@@ -155,46 +151,49 @@ module GQL
       end
     end
 
-    def value_of_call(ast_call)
-      call_class = self.class.calls[ast_call.id]
-
-      if call_class.nil?
-        raise Errors::UndefinedCall.new(ast_call.id, self.class)
-      end
-
-      call_class.execute(self.class, ast_call, target, variables, context)
-    end
-
-    def value_of_fields(ast_fields)
-      ast_fields.reduce({}) do |result, ast_field|
-        key = ast_field.alias_id || ast_field.id
-
-        result.merge key => value_of_field(ast_field)
-      end
-    end
-
-    def value_of_field(ast_field)
-      case ast_field.id
-      when :node
-        field = self.class.new(ast_field, target, variables, context)
-        field.value
-      else
-        field_class = self.class.fields[ast_field.id]
-
-        if field_class.nil?
-          raise Errors::UndefinedField.new(ast_field.id, self.class)
-        end
-
-        method = ExecutionContext.new(target, context)
-        target = method.execute(field_class.proc)
-
-        field = field_class.new(ast_field, target, variables, context)
-        field.value
-      end
-    end
-
     def raw_value
       nil
     end
+
+    private
+      def value_of_call(ast_call)
+        call_class = self.class.calls[ast_call.id]
+
+        if call_class.nil?
+          raise Errors::UndefinedCall.new(ast_call.id, self.class)
+        end
+
+        call_class.execute(self.class, ast_call, target, variables, context)
+      end
+
+      def value_of_fields(ast_fields)
+        ast_fields.reduce({}) do |result, ast_field|
+          key = ast_field.alias_id || ast_field.id
+
+          result.merge key => value_of_field(ast_field)
+        end
+      end
+
+      def value_of_field(ast_field)
+        if ast_field.id == :node
+          field = self.class.new(ast_field, target, variables, context)
+          field.value
+        else
+          field_class = field_class_for_id(ast_field.id)
+          next_target = target_for_field(target, field_class.proc)
+
+          field = field_class.new(ast_field, next_target, variables, context)
+          field.value
+        end
+      end
+
+      def field_class_for_id(id)
+        self.class.fields[id] or raise Errors::UndefinedField.new(id, self.class)
+      end
+
+      def target_for_field(current_target, proc)
+        method = ExecutionContext.new(current_target, context)
+        method.execute proc
+      end
   end
 end
