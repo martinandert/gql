@@ -36,7 +36,7 @@ TODO: Write usage instructions here
 Run `bin/console` for an interactive prompt (loaded with example models/data) and enter the following:
 
 ```ruby
-puts q(<<-QUERY_STRING).to_json
+puts query(<<-QUERY_STRING).to_json
   user(<token>) {
     id,
     is_admin,

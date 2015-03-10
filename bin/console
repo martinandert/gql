@@ -3,24 +3,21 @@
 require 'bundler/setup'
 require 'gql'
 
-require_relative '../test/example'
-
-GQL.default_list_class = List
-GQL.root_node_class = RootNode
+require_relative '../test/fixtures/example'
 
 def ctxt
   @ctxt ||= { auth_token: 'ma' }
 end
 
-def q(string, context = ctxt)
+def query(string, context = ctxt)
   GQL.execute string, context
 end
 
-def p(string)
+def parse(string)
   GQL.parse string
 end
 
-def t(string, &block)
+def tokenize(string, &block)
   GQL.tokenize string, &block
 end
 
