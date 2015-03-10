@@ -1,12 +1,17 @@
 module App
   module Models
     class Album < ActiveRecord::Base
+      include Concerns::HasSlug
+
       belongs_to :band
 
       has_many :songs
 
-      validates :slug, :band, :title, :released_on, :presence => true
-      validates :slug, :format => /\A[a-z][a-z0-9\-]*[a-z0-9]\z/, :uniqueness => { :case_sensitive => false }, :allow_blank => true
+      validates :band, :title, :released_on, :presence => true
+
+      default_scope { order(:released_on) }
+
+      alias_attribute :name, :title
     end
   end
 end

@@ -1,29 +1,39 @@
 vocals:
+  slug: vocals
   name: Vocals
 
 lead_vocals:
+  slug: lead-vocals
   name: Lead Vocals
 
 backing_vocals:
+  slug: backing-vocals
   name: Backing Vocals
 
 guitar:
+  slug: guitar
   name: Guitar
 
 lead_guitar:
+  slug: lead-guitar
   name: Lead Guitar
 
 rhythm_guitar:
+  slug: rhythm-guitar
   name: Rhythm Guitar
 
 bass_guitar:
+  slug: bass-guitar
   name: Bass Guitar
 
 keyboards:
+  slug: keyboards
   name: Keyboards
 
 drums:
+  slug: drums
   name: Drums
 
 percussions:
+  slug: percussions
   name: Percussions

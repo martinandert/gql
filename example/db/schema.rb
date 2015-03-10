@@ -64,23 +64,25 @@ ActiveRecord::Schema.define(version: 20150310163512) do
   add_index "people", ["slug"], name: "index_people_on_slug", unique: true
 
   create_table "roles", force: :cascade do |t|
+    t.string "slug", null: false
     t.string "name", null: false
   end
 
   add_index "roles", ["name"], name: "index_roles_on_name", unique: true
+  add_index "roles", ["slug"], name: "index_roles_on_slug", unique: true
 
   create_table "songs", force: :cascade do |t|
-    t.string  "slug",     null: false
-    t.integer "album_id", null: false
-    t.string  "title",    null: false
-    t.integer "duration", null: false
-    t.integer "position", null: false
+    t.string  "slug",         null: false
+    t.integer "album_id",     null: false
+    t.string  "title",        null: false
+    t.integer "duration",     null: false
+    t.integer "track_number", null: false
     t.text    "note"
   end
 
-  add_index "songs", ["album_id", "position"], name: "index_songs_on_album_id_and_position", unique: true
+  add_index "songs", ["album_id", "track_number"], name: "index_songs_on_album_id_and_track_number", unique: true
   add_index "songs", ["album_id"], name: "index_songs_on_album_id"
-  add_index "songs", ["position"], name: "index_songs_on_position"
   add_index "songs", ["slug"], name: "index_songs_on_slug", unique: true
+  add_index "songs", ["track_number"], name: "index_songs_on_track_number"
 
 end
