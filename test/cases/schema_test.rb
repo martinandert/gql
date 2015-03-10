@@ -1,13 +1,5 @@
 require 'cases/helper'
 
-class ArrayItemClass < GQL::String
-  string :upcased, -> { target.upcase }
-end
-
-class MyFixnum < GQL::Number
-  string :whoami, -> { 'I am a number.' }
-end
-
 class NodeForSchemaCall < GQL::Call
   def execute(a, *b, &c)
   end
