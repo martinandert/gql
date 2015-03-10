@@ -8,16 +8,18 @@ module GQL
   module Errors
     class NotFoundError < Error
       private
-        def available_items_message(node_class, method)
-          items = node_class.send(method).keys.sort.map { |id| "`#{id}'" }
-          items.size > 0 ? " Available #{method}: #{items.to_sentence}." : ''
+        def construct_message(node_class, id, name, method)
+          items = node_class.send(method).keys.sort.map { |key| "`#{key}'" }
+
+          msg =  "#{node_class} has no #{name} named `#{id}'."
+          msg << " Available #{name.pluralize}: #{items.to_sentence}." if items.any?
+          msg
         end
     end
 
     class CallNotFound < NotFoundError
       def initialize(id, node_class)
-        msg =  "#{node_class} has no call named `#{id}'."
-        msg << available_items_message(node_class, :calls)
+        msg = construct_message(node_class, id, 'call', :calls)
 
         super(msg)
       end
@@ -25,8 +27,7 @@ module GQL
 
     class FieldNotFound < NotFoundError
       def initialize(id, node_class)
-        msg =  "#{node_class} has no field named `#{id}'."
-        msg << available_items_message(node_class, :fields)
+        msg = construct_message(node_class, id, 'field', :fields)
 
         super(msg)
       end
