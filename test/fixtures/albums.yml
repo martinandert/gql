@@ -1,0 +1,17 @@
+bleach:
+  slug: nirvana-bleach
+  band: nirvana
+  title: Bleach
+  released_on: 1989-06-15
+
+nevermind:
+  slug: nirvana-nevermind
+  band: nirvana
+  title: Nevermind
+  released_on: 1991-09-24
+
+inutero:
+  slug: nirvana-inutero
+  band: nirvana
+  title: In Utero
+  released_on: 1993-09-13

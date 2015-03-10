@@ -1,0 +1,277 @@
+bleach_1:
+  slug: nirvana-blew
+  album: bleach
+  title: Blew
+  duration: 175
+  position: 1
+
+bleach_2:
+  slug: nirvana-floyd-the-barber
+  album: bleach
+  title: Floyd the Barber
+  duration: 138
+  position: 2
+
+bleach_3:
+  slug: nirvana-about-a-girl
+  album: bleach
+  title: About a Girl
+  duration: 168
+  position: 3
+
+bleach_4:
+  slug: nirvana-school
+  album: bleach
+  title: School
+  duration: 162
+  position: 4
+
+bleach_5:
+  slug: nirvana-love-buzz
+  album: bleach
+  title: Love Buzz
+  duration: 215
+  position: 5
+  note: "Shocking Blue cover, not on the UK release"
+
+bleach_6:
+  slug: nirvana-paper-cuts
+  album: bleach
+  title: Paper Cuts
+  duration: 246
+  position: 6
+
+bleach_7:
+  slug: nirvana-negative-creep
+  album: bleach
+  title: Negative Creep
+  duration: 176
+  position: 7
+
+bleach_8:
+  slug: nirvana-scoff
+  album: bleach
+  title: Scoff
+  duration: 250
+  position: 8
+
+bleach_9:
+  slug: nirvana-swap-meet
+  album: bleach
+  title: Swap Meet
+  duration: 183
+  position: 9
+
+bleach_10:
+  slug: nirvana-mr-moustache
+  album: bleach
+  title: Mr. Moustache
+  duration: 204
+  position: 10
+
+bleach_11:
+  slug: nirvana-sifting
+  album: bleach
+  title: Sifting
+  duration: 322
+  position: 11
+
+bleach_12:
+  slug: nirvana-big-cheese
+  album: bleach
+  title: Big Cheese
+  duration: 222
+  position: 12
+  note: "cassette and CD bonus track; originally on the B-side of the 'Love Buzz' single"
+
+bleach_13:
+  slug: nirvana-downer
+  album: bleach
+  title: Downer
+  duration: 103
+  position: 13
+  note: "CD only bonus track; added for the 1992 reissue"
+
+nevermind_1:
+  slug: nirvana-smells-like-teen-spirit
+  album: nevermind
+  title: Smells Like Teen Spirit
+  duration: 301
+  position: 1
+
+nevermind_2:
+  slug: nirvana-in-bloom
+  album: nevermind
+  title: In Bloom
+  duration: 254
+  position: 2
+
+nevermind_3:
+  slug: nirvana-come-as-you-are
+  album: nevermind
+  title: Come as You Are
+  duration: 219
+  position: 3
+
+nevermind_4:
+  slug: nirvana-breed
+  album: nevermind
+  title: Breed
+  duration: 183
+  position: 4
+
+nevermind_5:
+  slug: nirvana-lithium
+  album: nevermind
+  title: Lithium
+  duration: 257
+  position: 5
+
+nevermind_6:
+  slug: nirvana-polly
+  album: nevermind
+  title: Polly
+  duration: 177
+  position: 6
+
+nevermind_7:
+  slug: nirvana-territorial-pissings
+  album: nevermind
+  title: Territorial Pissings
+  duration: 142
+  position: 7
+
+nevermind_8:
+  slug: nirvana-drain-you
+  album: nevermind
+  title: Drain You
+  duration: 223
+  position: 8
+
+nevermind_9:
+  slug: nirvana-lounge-act
+  album: nevermind
+  title: Lounge Act
+  duration: 156
+  position: 9
+
+nevermind_10:
+  slug: nirvana-stay-away
+  album: nevermind
+  title: Stay Away
+  duration: 212
+  position: 10
+
+nevermind_11:
+  slug: nirvana-on-a-plain
+  album: nevermind
+  title: On a Plain
+  duration: 196
+  position: 11
+
+nevermind_12:
+  slug: nirvana-something-in-the-way
+  album: nevermind
+  title: Something in the Way
+  duration: 226
+  position: 12
+
+nevermind_13:
+  slug: nirvana-endless-nameless
+  album: nevermind
+  title: "Endless, Nameless"
+  duration: 403
+  position: 13
+  note: "hidden bonus track on later pressings"
+
+inutero_1:
+  slug: nirvana-serve-the-servants
+  album: inutero
+  title: Serve the Servants
+  duration: 216
+  position: 1
+
+inutero_2:
+  slug: nirvana-scentless-apprentice
+  album: inutero
+  title: Scentless Apprentice
+  duration: 228
+  position: 2
+
+inutero_3:
+  slug: nirvana-heart-shaped-box
+  album: inutero
+  title: Heart-Shaped Box
+  duration: 281
+  position: 3
+
+inutero_4:
+  slug: nirvana-rape-me
+  album: inutero
+  title: Rape Me
+  duration: 170
+  position: 4
+
+inutero_5:
+  slug: nirvana-frances-farmer
+  album: inutero
+  title: Frances Farmer Will Have Her Revenge on Seattle
+  duration: 149
+  position: 5
+
+inutero_6:
+  slug: nirvana-dumb
+  album: inutero
+  title: Dumb
+  duration: 152
+  position: 6
+
+inutero_7:
+  slug: nirvana-very-ape
+  album: inutero
+  title: Very Ape
+  duration: 116
+  position: 7
+
+inutero_8:
+  slug: nirvana-milk-it
+  album: inutero
+  title: Milk It
+  duration: 235
+  position: 8
+
+inutero_9:
+  slug: nirvana-pennyroyal-tea
+  album: inutero
+  title: Pennyroyal Tea
+  duration: 217
+  position: 9
+
+inutero_10:
+  slug: nirvana-radio-friendly-unit-shifter
+  album: inutero
+  title: Radio Friendly Unit Shifter
+  duration: 291
+  position: 10
+
+inutero_11:
+  slug: nirvana-tourettes
+  album: inutero
+  title: "Tourette's"
+  duration: 95
+  position: 11
+
+inutero_12:
+  slug: nirvana-all-apologies
+  album: inutero
+  title: All Apologies
+  duration: 231
+  position: 12
+
+inutero_13:
+  slug: nirvana-gallons
+  album: inutero
+  title: Gallons of Rubbing Alcohol Flow Through the Strip
+  duration: 448
+  position: 13
+  note: "bonus track on non-American pressings"

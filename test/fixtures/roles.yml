@@ -1,0 +1,29 @@
+vocals:
+  name: Vocals
+
+lead_vocals:
+  name: Lead Vocals
+
+backing_vocals:
+  name: Backing Vocals
+
+guitar:
+  name: Guitar
+
+lead_guitar:
+  name: Lead Guitar
+
+rhythm_guitar:
+  name: Rhythm Guitar
+
+bass_guitar:
+  name: Bass Guitar
+
+keyboards:
+  name: Keyboards
+
+drums:
+  name: Drums
+
+percussions:
+  name: Percussions

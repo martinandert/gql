@@ -1,0 +1,23 @@
+nirvana_cobain_lead_vocals:
+  membership: nirvana_cobain
+  role: lead_vocals
+
+nirvana_cobain_guitar:
+  membership: nirvana_cobain
+  role: guitar
+
+nirvana_grohl_drums:
+  membership: nirvana_grohl
+  role: drums
+
+nirvana_grohl_backing_vocals:
+  membership: nirvana_grohl
+  role: backing_vocals
+
+nirvana_novoselic_bass_guitar:
+  membership: nirvana_novoselic
+  role: bass_guitar
+
+nirvana_channing_drums:
+  membership: nirvana_channing
+  role: drums

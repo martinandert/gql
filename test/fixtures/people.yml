@@ -1,0 +1,29 @@
+cobain:
+  slug: kurtcobain
+  first_name: Kurt
+  last_name: Cobain
+
+grohl:
+  slug: davegrohl
+  first_name: Dave
+  last_name: Grohl
+
+novoselic:
+  slug: kristnovoselic
+  first_name: Krist
+  last_name: Novoselic
+
+channing:
+  slug: chadchanning
+  first_name: Chad
+  last_name: Channing
+
+van_leeuwen:
+  slug: robbievanleewen
+  first_name: Robbie
+  last_name: van Leeuwen
+
+powers:
+  slug: chetpowers
+  first_name: Chet
+  last_name: Powers

@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+
+require 'bundler/setup'
+require 'app'
+
+ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDOUT)
+
+include App::Models
+
+App.connect
+
+require 'irb'
+IRB.start

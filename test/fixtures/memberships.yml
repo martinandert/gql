@@ -1,0 +1,23 @@
+nirvana_cobain:
+  band: nirvana
+  member: cobain
+  started_year: 1987
+  ended_year: 1994
+
+nirvana_grohl:
+  band: nirvana
+  member: dave_grohl
+  started_year: 1990
+  ended_year: 1994
+
+nirvana_novoselic:
+  band: nirvana
+  member: novoselic
+  started_year: 1987
+  ended_year: 1994
+
+nirvana_channing:
+  band: nirvana
+  member: channing
+  started_year: 1988
+  ended_year: 1990
