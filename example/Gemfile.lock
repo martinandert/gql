@@ -26,6 +26,7 @@ GEM
     json (1.8.2)
     minitest (5.5.1)
     multi_json (1.11.0)
+    pg (0.18.1)
     rack (1.6.0)
     rack-protection (1.5.3)
       rack
@@ -62,6 +63,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport
   gql
+  pg
   rake
   sinatra
   sinatra-activerecord

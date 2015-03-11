@@ -5,6 +5,7 @@
 /_yardoc/
 /coverage/
 /doc/
+/example/.env
 /pkg/
 /spec/reports/
 /tmp/
