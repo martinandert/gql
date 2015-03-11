@@ -1,7 +1,7 @@
 module GQL
   module Schema
     class Parameter < GQL::Node
-      MODES = {
+      TYPES = {
         req:      'required',
         opt:      'optional',
         rest:     'rest',
@@ -14,7 +14,11 @@ module GQL
       cursor -> { target[1].to_s }
 
       string :id,   -> { target[1].to_s }
-      string :mode, -> { MODES[target[0]] || target[0].to_s }
+      string :type, -> { TYPES[target[0]] || target[0].to_s }
+
+      def raw_value
+        "#{target[1]} (#{TYPES[target[0]] || target[0]})"
+      end
     end
   end
 end
