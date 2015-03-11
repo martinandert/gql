@@ -44,6 +44,7 @@ rule
 
   field
     : identifier fields alias_identifier      {   result = Node.new(val[0], val[2], nil,    val[1].presence)   }
+    | identifier alias_identifier fields      {   result = Node.new(val[0], val[1], nil,    val[2].presence)   }
     | identifier '.' call alias_identifier    {   result = Node.new(val[0], val[3], val[2], nil            )   }
     | identifier alias_identifier             {   result = Node.new(val[0], val[1], nil,    nil            )   }
     | identifier fields                       {   result = Node.new(val[0], nil,    nil,    val[1].presence)   }
