@@ -12,7 +12,7 @@ App.connect
 include App::Models
 
 def q(*args)
-  App.query(*args)
+  App::Graph.query(*args)
 end
 
 require 'irb'

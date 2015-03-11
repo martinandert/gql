@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>GQL Demo</title>
+
+    <style type="text/css">
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+        font-family: sans-serif;
+        font-size: 16px;
+      }
+
+      h1 {
+        background-color: #666;
+        color: #eee;
+        margin: 0 0 25px;
+        padding: 10px 25px;
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      .panels {
+        padding: 0 25px;
+      }
+
+      .panels > div {
+        float: left;
+        text-align: center;
+      }
+
+      .left-panel, .right-panel {
+        width: 48%;
+      }
+
+      .left-panel {
+        padding-right: 5px;
+      }
+
+      .right-panel {
+        padding-left: 5px;
+      }
+
+      .center-panel {
+        width: 4%;
+      }
+
+      h2 {
+        margin: 0 0 2px;
+        font-size: 16px;
+        color: #666;
+      }
+
+      textarea {
+        width: 100%;
+        height: 500px;
+        background-color: white;
+        border: solid 1px #999;
+        font-size: 16px;
+        font-family: monospace;
+        padding: 10px;
+        margin: 0 0 5px;
+        resize: vertical;
+      }
+
+      button {
+        width: 95%;
+        font-weight: bold;
+        height: 500px;
+        font-size: 50px;
+        border: solid 1px #2e6da4;
+        background-color: #337ab7;
+        color: #fff;
+        cursor: pointer;
+      }
+
+      select {
+        font-size: 16px;
+      }
+
+      button:hover {
+        background-color: #286090;
+        border-color: #204d74;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <script src="https://fb.me/react-0.13.0.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.0.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+
+    <script type="text/jsx">
+
+      var QueryInput = React.createClass({
+        getInitialState() {
+          return { value: this.props.initialValue };
+        },
+
+        componentWillReceiveProps(nextProps) {
+          this.setState({ value: nextProps.initialValue });
+        },
+
+        render() {
+          return (
+            <textarea ref="input" value={this.state.value} onChange={this.handleChange} onKeyDown={this.handleKeyDown} />
+          );
+        },
+
+        handleChange(e) {
+          this.setState({ value: e.target.value });
+        },
+
+        handleKeyDown(e) {
+          switch (e.keyCode) {
+            case 9:
+              this.handleTabKey(e);
+              break;
+
+            case 13:
+              this.handleEnterKey(e);
+              break;
+          }
+        },
+
+        handleTabKey(e) {
+          var input   = e.target;
+          var start   = input.selectionStart;
+          var end     = input.selectionEnd;
+          var before  = input.value.substring(0, start);
+          var after   = input.value.substring(end);
+
+          if (e.shiftKey) {
+            var lines = before.split(/\r?\n/);
+            var currentLine = lines[lines.length - 1];
+            var onlySpaces = /^( *)$/.test(currentLine);
+
+            if (onlySpaces) {
+              var count = Math.min(RegExp.$1.length, 2);
+
+              input.value = before.substring(0, start - count) + after;
+              input.selectionStart = input.selectionEnd = start - count;
+            } else {
+              input.value = before + '  ' + after;
+              input.selectionStart = input.selectionEnd = start + 2;
+            }
+          } else {
+            input.value = before + '  ' + after;
+            input.selectionStart = input.selectionEnd = start + 2;
+          }
+
+          e.preventDefault();
+        },
+
+        handleEnterKey(e) {
+          var input   = e.target;
+          var start   = input.selectionStart;
+          var end     = input.selectionEnd;
+          var before  = input.value.substring(0, start);
+          var after   = input.value.substring(end);
+          var lines   = before.split(/\r?\n/);
+
+          var currentLine = lines[lines.length - 1];
+          var hasSpaces = /^( +)/.test(currentLine);
+
+          if (hasSpaces) {
+            input.value = before + '\n' + RegExp.$1 + after;
+            input.selectionStart = input.selectionEnd = start + 1 + RegExp.$1.length;
+
+            e.preventDefault();
+          }
+        }
+      });
+
+      var QuerySelector = React.createClass({
+        render() {
+          var options = this.props.queries.map(function(query, i) {
+            return <option key={i} value={query.value}>{query.name}</option>;
+          });
+
+          return (
+            <div>
+              <label htmlFor="query-selector">Select a query: </label>
+
+              <select id="query-selector" ref="selector" onChange={this.handleSelected}>
+                <option value="">---</option>
+                {options}
+              </select>
+            </div>
+          );
+        },
+
+        handleSelected(e) {
+          this.props.querySelected(e.target.value);
+        }
+      });
+
+      var App = React.createClass({
+        statics: {
+          queries: <%= queries %>,
+          initialQuery: <%= initial_query %>[0]
+        },
+
+        getInitialState() {
+          return { query: App.initialQuery };
+        },
+
+        render() {
+          return (
+            <form onSubmit={this.handleSubmit}>
+              <h1>GQL Demo Application</h1>
+
+              <div className="panels">
+                <div className="left-panel">
+                  <h2>Query</h2>
+                  <QueryInput ref="query" initialValue={this.state.query} />
+                  <QuerySelector queries={App.queries} querySelected={this.handleQuerySelected} />
+                </div>
+
+                <div className="center-panel">
+                  <h2>&nbsp;</h2>
+                  <button type="submit">»</button>
+                </div>
+
+                <div className="right-panel">
+                  <h2>Result</h2>
+                  <textarea ref="result" readOnly />
+                </div>
+              </div>
+            </form>
+          );
+        },
+
+        handleSubmit(e) {
+          var self = this;
+          var queryString = React.findDOMNode(this.refs.query).value;
+          var resultHolder = React.findDOMNode(this.refs.result);
+
+          $.post('/query', { q: queryString }, function(data) {
+            resultHolder.value = data;
+          }, 'text');
+
+          e.preventDefault();
+        },
+
+        handleQuerySelected(queryString) {
+          if (queryString.length) {
+            this.setState({ query: queryString });
+          }
+        }
+      });
+
+      React.render(<App />, document.getElementById('root'));
+
+    </script>
+  </body>
+</html>
