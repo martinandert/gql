@@ -22,6 +22,10 @@ file 'lib/gql/parser.rb' => 'support/parser.racc' do |t|
   sh "sed --in-place 's/  end\s*# module/end #/g' #{t.name}"
 end
 
+task :push_example_to_heroku do
+  # https://github.com/apenwarr/git-subtree/
+  sh "git subtree push --prefix example heroku master"
+end
 
 Rake::TestTask.new :test do |t|
   t.libs << 'test'
