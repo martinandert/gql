@@ -14,7 +14,6 @@ module App
     end
 
     register Sinatra::ActiveRecordExtension
-    set :database, App::CONNECTION_SPEC
 
     get '/' do
       erb :index, locals: {

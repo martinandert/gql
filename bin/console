@@ -6,8 +6,8 @@ require 'bundler/setup'
 require 'app'
 
 ActiveRecord::Base.logger = ActiveSupport::Logger.new(STDOUT)
-
-App.connect
+ActiveRecord::Base.establish_connection ENV['DATABASE_URL']
+ActiveRecord::Base.configurations = { 'development' => ActiveRecord::Base.connection.pool.spec.config }
 
 include App::Models
 
