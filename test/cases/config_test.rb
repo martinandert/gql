@@ -35,7 +35,7 @@ class ConfigTest < GQL::TestCase
     end
   end
 
-  test "setting root node class with DEBUG env flag adds _schema call" do
+  test "setting root node class with DEBUG env flag adds schema call" do
     begin
       prev_root = GQL.root_node_class
       prev_debug = ENV['DEBUG']
@@ -43,7 +43,7 @@ class ConfigTest < GQL::TestCase
       ENV['DEBUG'] = '1'
       GQL.root_node_class = Class.new(GQL::Node)
 
-      assert GQL.root_node_class.calls.has_key?(:_schema)
+      assert GQL.root_node_class.calls.has_key?(:schema)
     ensure
       ENV['DEBUG'] = prev_debug
       GQL.root_node_class = prev_root

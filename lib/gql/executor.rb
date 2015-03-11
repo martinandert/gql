@@ -12,7 +12,7 @@ module GQL
 
       raise Errors::RootClassNotSet if node_class.nil?
 
-      context[:_schema_root] = node_class if ENV['DEBUG']
+      context[:__schema_root] = node_class if ENV['DEBUG']
 
       target = GQL.root_target_proc.call(context)
 

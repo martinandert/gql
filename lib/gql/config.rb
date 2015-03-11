@@ -10,7 +10,7 @@ module GQL
       end
 
       if value && ENV['DEBUG']
-        value.call :_schema, -> { context[:_schema_root] }, returns: Schema::Root
+        value.call :schema, -> { context[:__schema_root] }, returns: Schema::Root
       end
 
       @@root_node_class = value
