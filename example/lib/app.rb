@@ -17,6 +17,7 @@ module App
     autoload :DateNode
     autoload :DurationNode
     autoload :ListNode
+    autoload :MembershipNode
     autoload :ModelNode
     autoload :PersonNode
     autoload :RoleNode
@@ -26,6 +27,14 @@ module App
     GQL.field_types.update date: DateNode, duration: DurationNode
     GQL.default_list_class = ListNode
     GQL.root_node_class = RootNode
+
+    extend(Module.new {
+      def query(*args)
+        GQL.execute(*args)
+      rescue GQL::Error => exc
+        exc.as_json
+      end
+    })
   end
 
   module Models

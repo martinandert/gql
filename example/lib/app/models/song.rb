@@ -15,6 +15,10 @@ module App
       default_scope { order(:track_number) }
 
       alias_attribute :name, :title
+
+      def band
+        album.band
+      end
     end
   end
 end
