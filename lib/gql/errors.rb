@@ -3,6 +3,26 @@ require 'active_support/core_ext/string/inflections'
 
 module GQL
   class Error < StandardError
+    attr_reader :code, :handle
+
+    def initialize(msg, code = 100, handle = nil)
+      @code, @handle = code, handle
+      super(msg)
+    end
+
+    def as_json
+      result = {
+        error: {
+          code: code,
+          type: self.class.name.split('::').last.underscore
+        }
+      }
+
+      result[:error][:handle] = handle.to_s if handle
+      result[:error][:message] = message if ENV['DEBUG']
+
+      result
+    end
   end
 
   module Errors
@@ -21,7 +41,7 @@ module GQL
       def initialize(id, node_class)
         msg = construct_message(node_class, id, 'call', :calls)
 
-        super(msg)
+        super(msg, 111, id)
       end
     end
 
@@ -29,7 +49,7 @@ module GQL
       def initialize(id, node_class)
         msg = construct_message(node_class, id, 'field', :fields)
 
-        super(msg)
+        super(msg, 112, id)
       end
     end
 
@@ -37,7 +57,7 @@ module GQL
       def initialize(node_class, super_class)
         msg = "#{node_class} must be a (subclass of) #{super_class}."
 
-        super(msg)
+        super(msg, 121)
       end
     end
 
@@ -54,7 +74,7 @@ module GQL
         msg << "The following field types are currently registered: "
         msg << GQL.field_types.keys.sort.map { |id| "`#{id}'" }.to_sentence
 
-        super(msg)
+        super(msg, 122)
       end
     end
 
@@ -63,11 +83,14 @@ module GQL
         msg =  "GQL root node class is not set. "
         msg << "Set it with `GQL.root_node_class = MyRootNode'."
 
-        super(msg)
+        super(msg, 123)
       end
     end
 
     class ScanError < Error
+      def initialize(msg)
+        super(msg, 131)
+      end
     end
 
     class SyntaxError < Error
@@ -75,7 +98,7 @@ module GQL
         token = 'character' if token == 'error' || token == %Q{"#{value}"}
         msg = "Unexpected #{token}: `#{value}' (line #{lineno})."
 
-        super(msg)
+        super(msg, 132, value)
       end
     end
 
@@ -84,7 +107,7 @@ module GQL
         msg =  "#{node_class} must have a #{name} class set. "
         msg << "Set it with `self.#{name}_class = My#{name.camelize}Class'."
 
-        super(msg)
+        super(msg, 124)
       end
     end
   end
