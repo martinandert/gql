@@ -13,7 +13,11 @@ module App
 
         module ClassMethods
           def [](id_or_slug)
-            where('id = ? OR slug = ?', id_or_slug, id_or_slug).take
+            if id_or_slug.to_s !~ /\A\d+\z/
+              where(slug: id_or_slug).take
+            else
+              where('id = ? OR slug = ?', id_or_slug, id_or_slug).take
+            end
           end
         end
       end
