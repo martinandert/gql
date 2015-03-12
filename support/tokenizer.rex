@@ -1,6 +1,7 @@
 class GQL::Tokenizer
 macro
-  BLANK         \s+
+  BLANK         (?:[[:blank:]]|\f)+
+  NEWLINE       \r?\n
   REM_IN        \/\*
   REM_OUT       \*\/
   REM           \/\/
@@ -43,6 +44,7 @@ rule
 
 # whitespace
                 {BLANK}               # ignore
+                {NEWLINE}             # ignore
 
 # rest
                 .                     { [text, text] }

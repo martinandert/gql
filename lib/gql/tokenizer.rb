@@ -84,7 +84,10 @@ class GQL::Tokenizer < Racc::Parser
       when (text = @ss.scan(/[a-zA-Z_][a-zA-Z0-9_]*/))
          action { [:IDENT, text] }
 
-      when (text = @ss.scan(/\s+/))
+      when (text = @ss.scan(/(?:[[:blank:]]|\f)+/))
+        ;
+
+      when (text = @ss.scan(/\r?\n/))
         ;
 
       when (text = @ss.scan(/./))
