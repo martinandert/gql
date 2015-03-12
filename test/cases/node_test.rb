@@ -19,6 +19,14 @@ class NodeRootNode < GQL::Node
   end
 end
 
+class HasRemoveFieldTest < GQL::Node
+  string :present
+end
+
+class HasRemoveCallTest < GQL::Node
+  call :present
+end
+
 class NodeTest < GQL::TestCase
   setup do
     @old_root, GQL.root_node_class = GQL.root_node_class, NodeRootNode
@@ -116,5 +124,29 @@ class NodeTest < GQL::TestCase
     ensure
       GQL.debug = prev
     end
+  end
+
+  test "has field and remove field" do
+    assert HasRemoveFieldTest.has_field?(:present)
+    assert HasRemoveFieldTest.const_defined?(:PresentField)
+
+    assert_not HasRemoveFieldTest.has_field?(:not_present)
+
+    HasRemoveFieldTest.remove_field :present
+
+    assert_not HasRemoveFieldTest.has_field?(:present)
+    assert_not HasRemoveFieldTest.const_defined?(:PresentField)
+  end
+
+  test "has call and remove call" do
+    assert HasRemoveCallTest.has_call?(:present)
+    assert HasRemoveCallTest.const_defined?(:PresentCall)
+
+    assert_not HasRemoveCallTest.has_call?(:not_present)
+
+    HasRemoveCallTest.remove_call :present
+
+    assert_not HasRemoveCallTest.has_call?(:present)
+    assert_not HasRemoveCallTest.const_defined?(:PresentCall)
   end
 end

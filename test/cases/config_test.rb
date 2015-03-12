@@ -120,4 +120,19 @@ class ConfigTest < GQL::TestCase
       GQL.default_call_proc = prev
     end
   end
+
+  test "has a debug mode set by default" do
+    assert_not_nil GQL.debug
+  end
+
+  test "can set debug mode" do
+    begin
+      prev = GQL.debug
+
+      assert_nothing_raised { GQL.debug = !prev }
+      assert_equal !prev, GQL.debug
+    ensure
+      GQL.debug = prev
+    end
+  end
 end
