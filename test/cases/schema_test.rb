@@ -41,6 +41,25 @@ class SchemaTest < GQL::TestCase
 
     assert_equal expected, schema_call.value[:parameters]
   end
+
+  test "parameter node has a raw value" do
+    ast_node = AstField.new(nil, nil, nil, [
+      AstField.new(:parameters, nil, nil, nil)
+    ])
+
+    schema_call = GQL::Schema::Call.new(ast_node, ClassWithProc.new(-> (a, *b, &c) { }), {}, {})
+
+    assert_instance_of Array, schema_call.value[:parameters]
+    assert_not_empty schema_call.value[:parameters].compact
+  end
+
+  test "root node has a raw value" do
+    ast_node = AstField.new(nil, nil, nil, nil)
+
+    root = GQL::Schema::Root.new(ast_node, GQL::Node, {}, {})
+
+    assert_equal 'GQL::Node', root.value
+  end
 end
 
 
