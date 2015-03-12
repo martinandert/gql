@@ -3,22 +3,22 @@ require 'cases/helper'
 class MyObject < Struct.new(:foo)
 end
 
-class ObjectNodeClass < GQL::Node
+class ObjectFieldClass < GQL::Field
   call :upcase_foo, -> { target.foo.upcase!; target }
   string :foo
 end
 
-class NodeWithObject < GQL::Node
-  object :object, -> { MyObject.new('bar') }, node_class: ObjectNodeClass
+class FieldWithObject < GQL::Field
+  object :object, -> { MyObject.new('bar') }, field_class: ObjectFieldClass
 end
 
 class ObjectTest < GQL::TestCase
   setup do
-    @old_root, GQL.root_node_class = GQL.root_node_class, NodeWithObject
+    @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithObject
   end
 
   teardown do
-    GQL.root_node_class = @old_root
+    GQL.root_field_class = @old_root
   end
 
   test "returns nil without fields" do

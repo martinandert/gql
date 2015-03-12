@@ -33,7 +33,7 @@ class CallClassWithExplicitResultClass < GQL::Call
     { result: target.value }
   end
 
-  class Result < GQL::Node
+  class Result < GQL::Field
     field :result, -> { target[:result] }, type: GQL::Scalar
   end
 
@@ -55,13 +55,13 @@ end
 class CallClassWithoutExecuteMethod < GQL::Call
 end
 
-class FooBarResultClass < GQL::Node
+class FooBarResultClass < GQL::Field
   field :foobar, -> { target }, type: GQL::Scalar
   field :foobar_value, -> { target.value }, type: GQL::Scalar
 end
 
-class NodeWithCalls < GQL::Node
-  object :me, -> { target }, node_class: NodeWithCalls
+class FieldWithCalls < GQL::Field
+  object :me, -> { target }, field_class: FieldWithCalls
   field :value, type: GQL::Scalar
 
   call :foo
@@ -88,19 +88,19 @@ class NodeWithCalls < GQL::Node
   call :with_connection_result, returns: [GQL::String]
 end
 
-class Inherited < NodeWithCalls
+class Inherited < FieldWithCalls
   call :bingo, -> { 'BINGO!' }, returns: GQL::Scalar
 end
 
 class CallTest < GQL::TestCase
   setup do
-    @old_root, GQL.root_node_class = GQL.root_node_class, NodeWithCalls
+    @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithCalls
     @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { CallerTarget.new }
   end
 
   teardown do
     GQL.root_target_proc = @old_proc
-    GQL.root_node_class = @old_root
+    GQL.root_field_class = @old_root
   end
 
   test "without proc and result class and returns" do
@@ -203,64 +203,64 @@ class CallTest < GQL::TestCase
   end
 
   test "with connection result class" do
-    assert NodeWithCalls.calls[:with_connection_result].result_class.fields.has_key?(:edges)
+    assert FieldWithCalls.calls[:with_connection_result].result_class.fields.has_key?(:edges)
   end
 
   test "constants" do
     expected = {
-      foo:                    NodeWithCalls::FooCall,
-      foo_with_returns:       NodeWithCalls::FooWithReturnsCall,
-      bar:                    NodeWithCalls::BarCall,
-      bar_with_returns:       NodeWithCalls::BarWithReturnsCall,
-      baz:                    NodeWithCalls::BazCall,
-      baz_with_returns:       NodeWithCalls::BazWithReturnsCall,
-      bam:                    NodeWithCalls::BamCall,
-      bam_with_returns:       NodeWithCalls::BamWithReturnsCall,
-      boo:                    NodeWithCalls::BooCall,
-      boo_with_returns:       NodeWithCalls::BooWithReturnsCall,
-      pow:                    NodeWithCalls::PowCall,
-      no_execute_method:      NodeWithCalls::NoExecuteMethodCall,
-      with_connection_result: NodeWithCalls::WithConnectionResultCall
+      foo:                    FieldWithCalls::FooCall,
+      foo_with_returns:       FieldWithCalls::FooWithReturnsCall,
+      bar:                    FieldWithCalls::BarCall,
+      bar_with_returns:       FieldWithCalls::BarWithReturnsCall,
+      baz:                    FieldWithCalls::BazCall,
+      baz_with_returns:       FieldWithCalls::BazWithReturnsCall,
+      bam:                    FieldWithCalls::BamCall,
+      bam_with_returns:       FieldWithCalls::BamWithReturnsCall,
+      boo:                    FieldWithCalls::BooCall,
+      boo_with_returns:       FieldWithCalls::BooWithReturnsCall,
+      pow:                    FieldWithCalls::PowCall,
+      no_execute_method:      FieldWithCalls::NoExecuteMethodCall,
+      with_connection_result: FieldWithCalls::WithConnectionResultCall
     }
 
-    assert_equal expected, NodeWithCalls.calls
+    assert_equal expected, FieldWithCalls.calls
   end
 
   test "superclasses" do
-    assert_equal GQL::Call,                         NodeWithCalls.calls[:foo].superclass
-    assert_equal GQL::Call,                         NodeWithCalls.calls[:foo_with_returns].superclass
-    assert_equal GQL::Call,                         NodeWithCalls.calls[:bar].superclass
-    assert_equal GQL::Call,                         NodeWithCalls.calls[:bar_with_returns].superclass
-    assert_equal CallClassWithoutResultClass,       NodeWithCalls.calls[:baz].superclass
-    assert_equal CallClassWithoutResultClass,       NodeWithCalls.calls[:baz_with_returns].superclass
-    assert_equal CallClassWithExplicitResultClass,  NodeWithCalls.calls[:bam].superclass
-    assert_equal CallClassWithExplicitResultClass,  NodeWithCalls.calls[:bam_with_returns].superclass
-    assert_equal CallClassWithImplicitResultClass,  NodeWithCalls.calls[:boo].superclass
-    assert_equal CallClassWithImplicitResultClass,  NodeWithCalls.calls[:boo_with_returns].superclass
-    assert_equal GQL::Call,                         NodeWithCalls.calls[:pow].superclass
-    assert_equal CallClassWithoutExecuteMethod,     NodeWithCalls.calls[:no_execute_method].superclass
+    assert_equal GQL::Call,                         FieldWithCalls.calls[:foo].superclass
+    assert_equal GQL::Call,                         FieldWithCalls.calls[:foo_with_returns].superclass
+    assert_equal GQL::Call,                         FieldWithCalls.calls[:bar].superclass
+    assert_equal GQL::Call,                         FieldWithCalls.calls[:bar_with_returns].superclass
+    assert_equal CallClassWithoutResultClass,       FieldWithCalls.calls[:baz].superclass
+    assert_equal CallClassWithoutResultClass,       FieldWithCalls.calls[:baz_with_returns].superclass
+    assert_equal CallClassWithExplicitResultClass,  FieldWithCalls.calls[:bam].superclass
+    assert_equal CallClassWithExplicitResultClass,  FieldWithCalls.calls[:bam_with_returns].superclass
+    assert_equal CallClassWithImplicitResultClass,  FieldWithCalls.calls[:boo].superclass
+    assert_equal CallClassWithImplicitResultClass,  FieldWithCalls.calls[:boo_with_returns].superclass
+    assert_equal GQL::Call,                         FieldWithCalls.calls[:pow].superclass
+    assert_equal CallClassWithoutExecuteMethod,     FieldWithCalls.calls[:no_execute_method].superclass
   end
 
   test "ids" do
-    assert_equal 'foo',                NodeWithCalls.calls[:foo].id
-    assert_equal 'foo_with_returns',   NodeWithCalls.calls[:foo_with_returns].id
-    assert_equal 'bar',                NodeWithCalls.calls[:bar].id
-    assert_equal 'bar_with_returns',   NodeWithCalls.calls[:bar_with_returns].id
-    assert_equal 'baz',                NodeWithCalls.calls[:baz].id
-    assert_equal 'baz_with_returns',   NodeWithCalls.calls[:baz_with_returns].id
-    assert_equal 'bam',                NodeWithCalls.calls[:bam].id
-    assert_equal 'bam_with_returns',   NodeWithCalls.calls[:bam_with_returns].id
-    assert_equal 'boo',                NodeWithCalls.calls[:boo].id
-    assert_equal 'boo_with_returns',   NodeWithCalls.calls[:boo_with_returns].id
-    assert_equal 'pow',                NodeWithCalls.calls[:pow].id
-    assert_equal 'no_execute_method',  NodeWithCalls.calls[:no_execute_method].id
+    assert_equal 'foo',                FieldWithCalls.calls[:foo].id
+    assert_equal 'foo_with_returns',   FieldWithCalls.calls[:foo_with_returns].id
+    assert_equal 'bar',                FieldWithCalls.calls[:bar].id
+    assert_equal 'bar_with_returns',   FieldWithCalls.calls[:bar_with_returns].id
+    assert_equal 'baz',                FieldWithCalls.calls[:baz].id
+    assert_equal 'baz_with_returns',   FieldWithCalls.calls[:baz_with_returns].id
+    assert_equal 'bam',                FieldWithCalls.calls[:bam].id
+    assert_equal 'bam_with_returns',   FieldWithCalls.calls[:bam_with_returns].id
+    assert_equal 'boo',                FieldWithCalls.calls[:boo].id
+    assert_equal 'boo_with_returns',   FieldWithCalls.calls[:boo_with_returns].id
+    assert_equal 'pow',                FieldWithCalls.calls[:pow].id
+    assert_equal 'no_execute_method',  FieldWithCalls.calls[:no_execute_method].id
   end
 
   test "inheritance" do
-    assert_equal 13, NodeWithCalls.calls.size
+    assert_equal 13, FieldWithCalls.calls.size
     assert_equal 14, Inherited.calls.size
 
-    assert_equal NodeWithCalls.calls.keys + [:bingo], Inherited.calls.keys
+    assert_equal FieldWithCalls.calls.keys + [:bingo], Inherited.calls.keys
   end
 
   test "chaining" do

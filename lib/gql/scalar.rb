@@ -1,5 +1,5 @@
 module GQL
-  class Scalar < Node
+  class Scalar < Field
     def scalar_value
       target
     end

@@ -1,6 +1,6 @@
 require 'cases/helper'
 
-class MyGQLNode < GQL::Node
+class MyGQLField < GQL::Field
 end
 
 class ConfigTest < GQL::TestCase
@@ -14,24 +14,24 @@ class ConfigTest < GQL::TestCase
     end
   end
 
-  test "has no root node class set by default" do
-    assert_nil GQL.root_node_class
+  test "has no root field class set by default" do
+    assert_nil GQL.root_field_class
   end
 
-  test "can set the root node class to a valid class" do
+  test "can set the root field class to a valid class" do
     begin
-      prev = GQL.root_node_class
+      prev = GQL.root_field_class
 
-      assert_nothing_raised { GQL.root_node_class = MyGQLNode }
-      assert_equal MyGQLNode, GQL.root_node_class
+      assert_nothing_raised { GQL.root_field_class = MyGQLField }
+      assert_equal MyGQLField, GQL.root_field_class
     ensure
-      GQL.root_node_class = prev
+      GQL.root_field_class = prev
     end
   end
 
-  test "raises an GQL::Errors::InvalidNodeClass exception when setting an invalid root class" do
-    assert_raises GQL::Errors::InvalidNodeClass do
-      GQL.root_node_class = Array
+  test "raises an GQL::Errors::InvalidFieldClass exception when setting an invalid root class" do
+    assert_raises GQL::Errors::InvalidFieldClass do
+      GQL.root_field_class = Array
     end
   end
 
@@ -68,24 +68,24 @@ class ConfigTest < GQL::TestCase
     end
   end
 
-  test "uses GQL::Node as the default list class" do
-    assert_equal GQL::Node, GQL.default_list_class
+  test "uses GQL::Field as the default list class" do
+    assert_equal GQL::Field, GQL.default_list_field_class
   end
 
   test "can set the default list class to a valid class" do
     begin
-      prev = GQL.root_node_class
+      prev = GQL.root_field_class
 
-      assert_nothing_raised { GQL.default_list_class = MyGQLNode }
-      assert_equal MyGQLNode, GQL.default_list_class
+      assert_nothing_raised { GQL.default_list_field_class = MyGQLField }
+      assert_equal MyGQLField, GQL.default_list_field_class
     ensure
-      GQL.default_list_class = prev
+      GQL.default_list_field_class = prev
     end
   end
 
-  test "raises an GQL::Errors::InvalidNodeClass exception when setting an invalid list class" do
-    assert_raises GQL::Errors::InvalidNodeClass do
-      GQL.default_list_class = Array
+  test "raises an GQL::Errors::InvalidFieldClass exception when setting an invalid list class" do
+    assert_raises GQL::Errors::InvalidFieldClass do
+      GQL.default_list_field_class = Array
     end
   end
 

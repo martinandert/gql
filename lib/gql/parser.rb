@@ -27,7 +27,7 @@ module_eval(<<'...end parser.racc/module_eval...', 'parser.racc', 136)
     end
   end
 
-  class Node < Struct.new(:id, :alias_id, :call, :fields)
+  class Field < Struct.new(:id, :alias_id, :call, :fields)
     def as_json(*)
       {
         id:         id,
@@ -301,14 +301,14 @@ module_eval(<<'.,.,', 'parser.racc', 4)
 
 module_eval(<<'.,.,', 'parser.racc', 8)
   def _reduce_2(val, _values, result)
-      result = Node.new('[root]', nil, val[0], nil   )  
+      result = Field.new('[root]', nil, val[0], nil   )  
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.racc', 9)
   def _reduce_3(val, _values, result)
-      result = Node.new('[root]', nil, nil,    val[1])  
+      result = Field.new('[root]', nil, nil,    val[1])  
     result
   end
 .,.,
@@ -403,49 +403,49 @@ module_eval(<<'.,.,', 'parser.racc', 41)
 
 module_eval(<<'.,.,', 'parser.racc', 45)
   def _reduce_18(val, _values, result)
-       result = Node.new(val[0], val[2], nil,    val[1].presence)   
+       result = Field.new(val[0], val[2], nil,    val[1].presence)   
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.racc', 46)
   def _reduce_19(val, _values, result)
-       result = Node.new(val[0], val[1], nil,    val[2].presence)   
+       result = Field.new(val[0], val[1], nil,    val[2].presence)   
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.racc', 47)
   def _reduce_20(val, _values, result)
-       result = Node.new(val[0], val[3], val[2], nil            )   
+       result = Field.new(val[0], val[3], val[2], nil            )   
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.racc', 48)
   def _reduce_21(val, _values, result)
-       result = Node.new(val[0], val[1], nil,    nil            )   
+       result = Field.new(val[0], val[1], nil,    nil            )   
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.racc', 49)
   def _reduce_22(val, _values, result)
-       result = Node.new(val[0], nil,    nil,    val[1].presence)   
+       result = Field.new(val[0], nil,    nil,    val[1].presence)   
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.racc', 50)
   def _reduce_23(val, _values, result)
-       result = Node.new(val[0], nil,    val[2], nil            )   
+       result = Field.new(val[0], nil,    val[2], nil            )   
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.racc', 51)
   def _reduce_24(val, _values, result)
-       result = Node.new(val[0], nil,    nil,    nil            )   
+       result = Field.new(val[0], nil,    nil,    nil            )   
     result
   end
 .,.,

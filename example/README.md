@@ -7,7 +7,7 @@ Properties:
 * Sinatra as web framework
 * Sqlite3 as database (in development)
 * ActiveRecord for models (see `lib/app/models`)
-* all GQL nodes can be found under `lib/app/graph`
+* all GQL field and call definitions can be found under `lib/app/graph`
 
 Run `bin/console` for an interactive prompt (loaded with example models/data).
 

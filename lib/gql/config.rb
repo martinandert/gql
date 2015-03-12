@@ -2,16 +2,16 @@ require 'active_support/core_ext/class/subclasses'
 
 module GQL
   class Config
-    def root_node_class
-      @@root_node_class ||= nil
+    def root_field_class
+      @@root_field_class ||= nil
     end
 
-    def root_node_class=(value)
-      unless value.nil? || value <= Node
-        raise Errors::InvalidNodeClass.new(value, Node)
+    def root_field_class=(value)
+      unless value.nil? || value <= Field
+        raise Errors::InvalidFieldClass.new(value, Field)
       end
 
-      @@root_node_class = value
+      @@root_field_class = value
     end
 
     def root_target_proc
@@ -37,16 +37,16 @@ module GQL
       @@field_types = value
     end
 
-    def default_list_class
-      @@default_list_class ||= Node
+    def default_list_field_class
+      @@default_list_field_class ||= Field
     end
 
-    def default_list_class=(value)
-      unless value.nil? || value <= Node
-        raise Errors::InvalidNodeClass.new(value, Node)
+    def default_list_field_class=(value)
+      unless value.nil? || value <= Field
+        raise Errors::InvalidFieldClass.new(value, Field)
       end
 
-      @@default_list_class = value
+      @@default_list_field_class = value
     end
 
     def default_field_proc
@@ -96,31 +96,31 @@ module GQL
       end
 
       def switch_on_type_field
-        return if Node.fields.has_key? :__type__
+        return if Field.has_field? :__type__
 
-        type_field_class = Node.object :__type__, -> { field_class }, node_class: Schema::Field
+        type_field_class = Field.object :__type__, -> { field_class }, field_class: Schema::Field
 
-        Node.descendants.each do |node_class|
-          node_class.fields[:__type__] = type_field_class
+        Field.descendants.each do |field_class|
+          field_class.fields[:__type__] = type_field_class
         end
       end
 
       def switch_off_type_field
-        return unless Node.fields.has_key? :__type__
+        return unless Field.has_field? :__type__
 
-        [Node, *Node.descendants].each do |node_class|
-          node_class.remove_field :__type__
+        [Field, *Field.descendants].each do |field_class|
+          field_class.remove_field :__type__
         end
       end
 
       def switch_on_execution_context
-        Node.send :remove_const, :ExecutionContext if Node.const_defined?(:ExecutionContext)
-        Node.const_set :ExecutionContext, Node::ExecutionContextDebug
+        Field.send :remove_const, :ExecutionContext if Field.const_defined?(:ExecutionContext)
+        Field.const_set :ExecutionContext, Field::ExecutionContextDebug
       end
 
       def switch_off_execution_context
-        Node.send :remove_const, :ExecutionContext if Node.const_defined?(:ExecutionContext)
-        Node.const_set :ExecutionContext, Node::ExecutionContextNoDebug
+        Field.send :remove_const, :ExecutionContext if Field.const_defined?(:ExecutionContext)
+        Field.const_set :ExecutionContext, Field::ExecutionContextNoDebug
       end
 
   end

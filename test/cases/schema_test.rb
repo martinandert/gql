@@ -1,6 +1,6 @@
 require 'cases/helper'
 
-class NodeForSchemaCall < GQL::Call
+class FieldForSchemaCall < GQL::Call
   def execute(a, *b, &c)
   end
 end
@@ -20,7 +20,7 @@ class SchemaTest < GQL::TestCase
       ])
     ])
 
-    schema_call = GQL::Schema::Call.new(ast_node, NodeForSchemaCall, {}, {})
+    schema_call = GQL::Schema::Call.new(ast_node, FieldForSchemaCall, {}, {})
 
     expected = [{ id: 'a', type: 'required' }, { id: 'b', type: 'rest' }, { id: 'c', type: 'block' }]
 
@@ -42,7 +42,7 @@ class SchemaTest < GQL::TestCase
     assert_equal expected, schema_call.value[:parameters]
   end
 
-  test "parameter node has a scalar value" do
+  test "schema parameter has a scalar value" do
     ast_node = AstField.new(nil, nil, nil, [
       AstField.new(:parameters, nil, nil, nil)
     ])
@@ -53,28 +53,20 @@ class SchemaTest < GQL::TestCase
     assert_not_empty schema_call.value[:parameters].compact
   end
 
-  test "root node has a scalar value" do
+  test "schema field has a scalar value" do
     ast_node = AstField.new(nil, nil, nil, nil)
 
-    root = GQL::Schema::Field.new(ast_node, GQL::Node, {}, {})
+    field = GQL::Schema::Field.new(ast_node, GQL::Field, {}, {})
 
-    assert_equal 'GQL::Node', root.value
+    assert_equal 'GQL::Field', field.value
   end
 
-  test "field node has a scalar value" do
+  test "schema call has a scalar value" do
     ast_node = AstField.new(nil, nil, nil, nil)
 
-    field = GQL::Schema::Field.new(ast_node, GQL::Node, {}, {})
+    call = GQL::Schema::Call.new(ast_node, GQL::Field, {}, {})
 
-    assert_equal 'GQL::Node', field.value
-  end
-
-  test "call node has a scalar value" do
-    ast_node = AstField.new(nil, nil, nil, nil)
-
-    call = GQL::Schema::Call.new(ast_node, GQL::Node, {}, {})
-
-    assert_equal 'GQL::Node', call.value
+    assert_equal 'GQL::Field', call.value
   end
 end
 

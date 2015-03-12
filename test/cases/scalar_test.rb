@@ -19,20 +19,20 @@ class ExtendedScalar < GQL::Scalar
   string :baz
 end
 
-class NodeWithScalar < GQL::Node
+class FieldWithScalar < GQL::Field
   field :identity, type: GQL::Scalar
   field :extended, -> { target }, type: ExtendedScalar
 end
 
 class ScalarTest < GQL::TestCase
   setup do
-    @old_root, GQL.root_node_class = GQL.root_node_class, NodeWithScalar
+    @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithScalar
     @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { ScalarTarget.new('foo') }
   end
 
   teardown do
     GQL.root_target_proc = @old_proc
-    GQL.root_node_class = @old_root
+    GQL.root_field_class = @old_root
   end
 
   test "returns raw value" do

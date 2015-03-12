@@ -1,16 +1,16 @@
 require 'cases/helper'
 
-class NodeWithNumber < GQL::Node
+class FieldWithNumber < GQL::Field
   number :number, -> { 42 }
 end
 
 class NumberTest < GQL::TestCase
   setup do
-    @old_root, GQL.root_node_class = GQL.root_node_class, NodeWithNumber
+    @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithNumber
   end
 
   teardown do
-    GQL.root_node_class = @old_root
+    GQL.root_field_class = @old_root
   end
 
   test "returns number value" do

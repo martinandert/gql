@@ -1,6 +1,6 @@
 module GQL
   module Schema
-    class Parameter < GQL::Node
+    class Parameter < GQL::Field
       TYPES = {
         req:      'required',
         opt:      'optional',

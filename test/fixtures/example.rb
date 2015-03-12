@@ -43,7 +43,7 @@ class User < FakeRecord
   attr_accessor :account, :albums
 end
 
-class Timestamp < GQL::Node
+class Timestamp < GQL::Field
   call :format,     -> (format = 'default') { I18n.localize target, format: format.to_sym }, returns: GQL::String
   call :ago,        -> { 'a long time ago' }, returns: GQL::String
   call :add_years,  -> years { target + years * 365*24*60*60 }
@@ -63,7 +63,7 @@ end
 
 GQL.field_types.update timestamp: Timestamp
 
-class List < GQL::Node
+class List < GQL::Field
   number  :count
   boolean :any, -> { target.any? }
 
@@ -74,24 +74,24 @@ class List < GQL::Node
   end
 end
 
-GQL.default_list_class = List
+GQL.default_list_field_class = List
 
-class UserNode < GQL::Node
+class UserField < GQL::Field
 end
 
-class SongNode < GQL::Node
+class SongField < GQL::Field
 end
 
-class AlbumNode < GQL::Node
+class AlbumField < GQL::Field
 end
 
-class AccountNode < GQL::Node
+class AccountField < GQL::Field
 end
 
-class MoneyNode < GQL::Node
+class MoneyField < GQL::Field
 end
 
-class UserNode
+class UserField
   cursor :token
 
   string :id, -> { target.token }
@@ -103,18 +103,18 @@ class UserNode
   string      :first_name
   string      :last_name
   boolean     :is_admin,  -> { target.admin? }
-  object      :account,     node_class: AccountNode
-  connection  :albums,      item_class: AlbumNode
+  object      :account,     field_class: AccountField
+  connection  :albums,      item_field_class: AlbumField
   timestamp   :created_at
 end
 
-class AccountNode
+class AccountField
   cursor -> { target.iban }
 
   number  :id
-  object  :user,      node_class: UserNode
-  object  :saldo,     node_class: MoneyNode
-  array   :fibonacci, item_class: GQL::Number
+  object  :user,      field_class: UserField
+  object  :saldo,     field_class: MoneyField
+  array   :fibonacci, item_field_class: GQL::Number
   string  :iban
   string  :bank_name
 
@@ -123,7 +123,7 @@ class AccountNode
   call :reversed_number, -> { target.number.reverse }, returns: GQL::String
 end
 
-class MoneyNode
+class MoneyField
   cursor -> { 'money' }
 
   number :cents,    -> { target[:cents] }
@@ -134,21 +134,21 @@ class MoneyNode
   end
 end
 
-class AlbumNode
+class AlbumField
   cursor :id
 
   number      :id
-  object      :user, node_class: UserNode
+  object      :user, field_class: UserField
   string      :artist
   string      :title
-  connection  :songs, item_class: SongNode
+  connection  :songs, item_field_class: SongField
 end
 
-class SongNode
+class SongField
   cursor :id
 
   number :id
-  object :album, node_class: AlbumNode
+  object :album, field_class: AlbumField
   string :title
 end
 
@@ -207,39 +207,39 @@ class UpdateUserNameCall < GQL::Call
     }
   end
 
-  # class Result < GQL::Node
-  #   object :user,     -> { target[:user]     }, node_class: UserNode
+  # class Result < GQL::Field
+  #   object :user,     -> { target[:user]     }, field_class: UserField
   #   string :old_name, -> { target[:old_name] }
   #   string :new_name, -> { target[:new_name] }
   # end
   # returns Result
 
   returns do
-    object :user, node_class: UserNode
+    object :user, field_class: UserField
     string :old_name
     string :new_name
   end
 end
 
-class RootNode < GQL::Node
-  connection :users,  -> { $users  }, item_class: UserNode, list_class: List
-  connection :songs,  -> { $songs  }, item_class: SongNode
-  connection :albums, -> { $albums }, item_class: AlbumNode
+class RootField < GQL::Field
+  connection :users,  -> { $users  }, item_field_class: UserField, list_field_class: List
+  connection :songs,  -> { $songs  }, item_field_class: SongField
+  connection :albums, -> { $albums }, item_field_class: AlbumField
 
-  call :user,     -> token { $users.find { |user| user.token == token } }, returns: UserNode
-  call :viewer,   -> { $users.find { |user| user.token == context[:auth_token] } }, returns: UserNode
-  call :account,  -> id { $accounts.find { |account| account.id == id } }, returns: AccountNode
-  call :album,    -> id { $albums.find { |album| album.id == id } }, returns: AlbumNode
-  call :song,     -> id { $songs.find { |song| song.id == id } }, returns: SongNode
+  call :user,     -> token { $users.find { |user| user.token == token } }, returns: UserField
+  call :viewer,   -> { $users.find { |user| user.token == context[:auth_token] } }, returns: UserField
+  call :account,  -> id { $accounts.find { |account| account.id == id } }, returns: AccountField
+  call :album,    -> id { $albums.find { |album| album.id == id } }, returns: AlbumField
+  call :song,     -> id { $songs.find { |song| song.id == id } }, returns: SongField
 
   call :update_user_name, UpdateUserNameCall
 
   # this should normally be a connection field
-  call :accounts, -> { $accounts }, returns: [AccountNode]
+  call :accounts, -> { $accounts }, returns: [AccountField]
 
   call :everything, -> { ($users + $albums + $songs + $accounts).shuffle }, returns: [
-    User => UserNode, Album => AlbumNode, Song => SongNode, Account => AccountNode
+    User => UserField, Album => AlbumField, Song => SongField, Account => AccountField
   ]
 end
 
-GQL.root_node_class = RootNode
+GQL.root_field_class = RootField

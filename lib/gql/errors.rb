@@ -28,26 +28,26 @@ module GQL
   module Errors
     class NotFoundError < Error
       private
-        def construct_message(node_class, id, name, method)
-          items = node_class.send(method).keys.sort.map { |key| "`#{key}'" }
+        def construct_message(field_class, id, name, method)
+          items = field_class.send(method).keys.sort.map { |key| "`#{key}'" }
 
-          msg =  "#{node_class} has no #{name} named `#{id}'."
+          msg =  "#{field_class} has no #{name} named `#{id}'."
           msg << " Available #{name.pluralize}: #{items.to_sentence}." if items.any?
           msg
         end
     end
 
     class CallNotFound < NotFoundError
-      def initialize(id, node_class)
-        msg = construct_message(node_class, id, 'call', :calls)
+      def initialize(id, field_class)
+        msg = construct_message(field_class, id, 'call', :calls)
 
         super(msg, 111, id)
       end
     end
 
     class FieldNotFound < NotFoundError
-      def initialize(id, node_class)
-        msg = construct_message(node_class, id, 'field', :fields)
+      def initialize(id, field_class)
+        msg = construct_message(field_class, id, 'field', :fields)
 
         super(msg, 112, id)
       end
@@ -61,37 +61,46 @@ module GQL
       end
     end
 
-    class InvalidNodeClass < Error
+    class RootClassNotSet < Error
+      def initialize
+        msg =  "GQL root field class is not set. "
+        msg << "Set it with `GQL.root_field_class = MyRootField'."
+
+        super(msg, 121)
+      end
+    end
+
+    class FieldClassNotSet < Error
+      def initialize(node_class, name)
+        msg =  "#{node_class} must have a #{name} class set. "
+        msg << "Set it with `self.#{name}_class = My#{name.camelize}Class'."
+
+        super(msg, 122)
+      end
+    end
+
+    class InvalidFieldClass < Error
       def initialize(node_class, super_class)
         msg = "#{node_class} must be a (subclass of) #{super_class}."
 
-        super(msg, 121)
+        super(msg, 123)
       end
     end
 
     class NoMethodError < Error
       attr_reader :cause
 
-      def initialize(node_class, id, cause)
+      def initialize(field_class, id, cause)
         @cause = cause
 
-        msg =  "Undefined method `#{id}' for #{node_class}. "
+        msg =  "Undefined method `#{id}' for #{field_class}. "
         msg << "Did you try to add a field of type `#{id}'? "
         msg << "If so, you have to register your field type first "
         msg << "like this: `GQL.field_types[:#{id}] = My#{id.to_s.camelize}'. "
         msg << "The following field types are currently registered: "
         msg << GQL.field_types.keys.sort.map { |key| "`#{key}'" }.to_sentence
 
-        super(msg, 122)
-      end
-    end
-
-    class RootClassNotSet < Error
-      def initialize
-        msg =  "GQL root node class is not set. "
-        msg << "Set it with `GQL.root_node_class = MyRootNode'."
-
-        super(msg, 123)
+        super(msg, 124)
       end
     end
 
@@ -107,15 +116,6 @@ module GQL
         msg = "Unexpected #{token}: `#{value}' (line #{lineno})."
 
         super(msg, 132, value)
-      end
-    end
-
-    class UndefinedNodeClass < Error
-      def initialize(node_class, name)
-        msg =  "#{node_class} must have a #{name} class set. "
-        msg << "Set it with `self.#{name}_class = My#{name.camelize}Class'."
-
-        super(msg, 124)
       end
     end
   end

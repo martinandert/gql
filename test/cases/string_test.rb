@@ -1,16 +1,16 @@
 require 'cases/helper'
 
-class NodeWithString < GQL::Node
+class FieldWithString < GQL::Field
   string :string, -> { 'fOoBaR' }
 end
 
 class StringTest < GQL::TestCase
   setup do
-    @old_root, GQL.root_node_class = GQL.root_node_class, NodeWithString
+    @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithString
   end
 
   teardown do
-    GQL.root_node_class = @old_root
+    GQL.root_field_class = @old_root
   end
 
   test "returns string value" do

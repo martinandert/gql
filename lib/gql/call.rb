@@ -32,7 +32,7 @@ module GQL
         end
 
         def result_class_from_block(block)
-          Class.new(Node).tap do |result_class|
+          Class.new(Field).tap do |result_class|
             result_class.field_proc = -> id { -> { target[id] } }
             result_class.class_eval(&block)
           end

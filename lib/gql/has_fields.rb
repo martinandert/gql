@@ -15,10 +15,10 @@ module GQL
     module ClassMethods
       def add_field(id, *args, &block)
         options = args.extract_options!
-        type = options.delete(:type) || Node
+        type = options.delete(:type) || Field
         proc = args.shift || block || proc_for_field(id)
 
-        Node.validate_is_subclass! type, 'type'
+        Field.validate_is_subclass! type, 'type'
 
         type.build_class(id, proc, options).tap do |field_class|
           const_name = const_name_for_field(id)
@@ -74,7 +74,7 @@ module GQL
         end
 
         def define_field_method(name, type)
-          Node.define_singleton_method name do |*args, &block|
+          Field.define_singleton_method name do |*args, &block|
             options = args.extract_options!.merge(type: type)
             args = args.push(options)
 

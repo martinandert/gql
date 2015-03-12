@@ -1,14 +1,14 @@
 require 'active_support/core_ext/class/attribute'
 
 module GQL
-  class Object < Node
+  class Object < Field
     class << self
       def build_class(id, proc, options = {})
-        node_class = options.delete(:node_class)
+        field_class = options.delete(:field_class)
 
-        Node.validate_is_subclass! node_class, 'node'
+        Field.validate_is_subclass! field_class, 'field'
 
-        node_class.build_class id, proc, options
+        field_class.build_class id, proc, options
       end
     end
   end

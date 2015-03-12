@@ -29,21 +29,21 @@ module App
   module Graph
     extend ActiveSupport::Autoload
 
-    autoload :AlbumNode
-    autoload :BandNode
-    autoload :DateNode
-    autoload :DurationNode
-    autoload :ListNode
-    autoload :MembershipNode
-    autoload :ModelNode
-    autoload :PersonNode
-    autoload :RoleNode
-    autoload :RootNode
-    autoload :SongNode
+    autoload :AlbumField
+    autoload :BandField
+    autoload :DateField
+    autoload :DurationField
+    autoload :ListField
+    autoload :MembershipField
+    autoload :ModelField
+    autoload :PersonField
+    autoload :RoleField
+    autoload :RootField
+    autoload :SongField
 
-    GQL.field_types.update date: DateNode, duration: DurationNode
-    GQL.default_list_class = ListNode
-    GQL.root_node_class = RootNode
+    GQL.field_types.update date: DateField, duration: DurationField
+    GQL.default_list_field_class = ListField
+    GQL.root_field_class = RootField
 
     extend(Module.new {
       def query(*args)

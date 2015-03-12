@@ -1,6 +1,6 @@
 module GQL
   module Schema
-    class CallerClass < GQL::Node
+    class CallerClass < GQL::Field
     end
   end
 end

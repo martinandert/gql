@@ -21,7 +21,7 @@ module GQL
         result_spec = options[:returns] || call_spec.try(:result_class)
         result_class = result_class_from_spec(result_spec)
 
-        Node.validate_is_subclass! result_class, 'result' if result_class
+        Field.validate_is_subclass! result_class, 'result' if result_class
 
         call_class = call_class_from_spec(call_spec)
         call_class.id = id.to_s
@@ -65,12 +65,12 @@ module GQL
 
         def result_class_from_connection_spec(spec)
           if spec.size == 1
-            spec.unshift GQL.default_list_class
+            spec.unshift GQL.default_list_field_class
           end
 
           options = {
-            list_class: spec.first,
-            item_class: spec.last
+            list_field_class: spec.first,
+            item_field_class: spec.last
           }
 
           Connection.build_class :result, nil, options
