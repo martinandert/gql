@@ -27,15 +27,6 @@ module_eval(<<'...end parser.racc/module_eval...', 'parser.racc', 136)
     end
   end
 
-  class Root < Struct.new(:call, :fields)
-    def as_json(*)
-      {
-        call:       call.as_json,
-        fields:     fields.as_json
-      }
-    end
-  end
-
   class Node < Struct.new(:id, :alias_id, :call, :fields)
     def as_json(*)
       {
