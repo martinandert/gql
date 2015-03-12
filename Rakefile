@@ -25,6 +25,8 @@ end
 task :push_example_to_heroku do
   # https://github.com/apenwarr/git-subtree/
   sh "git subtree push --prefix example heroku master"
+  # if the above does not work, you can try
+  # sh "git push heroku `git subtree split --prefix example master`:master --force"
 end
 
 Rake::TestTask.new :test do |t|
