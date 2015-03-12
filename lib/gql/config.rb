@@ -1,3 +1,5 @@
+require 'active_support/core_ext/class/subclasses'
+
 module GQL
   class Config
     def root_node_class
@@ -7,10 +9,6 @@ module GQL
     def root_node_class=(value)
       unless value.nil? || value <= Node
         raise Errors::InvalidNodeClass.new(value, Node)
-      end
-
-      if value && ENV['DEBUG']
-        value.call :schema, -> { context[:__schema_root] }, returns: Schema::Root
       end
 
       @@root_node_class = value
@@ -66,5 +64,57 @@ module GQL
     def default_call_proc=(value)
       @@default_call_proc = value
     end
+
+    def debug
+      @@debug ||= ENV.has_key?('DEBUG')
+    end
+
+    def debug=(value)
+      value = !!value
+
+      return if value == debug
+
+      value ? switch_debug_on : switch_debug_off
+
+      @@debug = value
+    end
+
+    private
+      def switch_debug_on
+        switch_on_type_field
+        switch_on_execution_context
+      end
+
+      def switch_debug_off
+        switch_off_type_field
+        switch_off_execution_context
+      end
+
+      def switch_on_type_field
+        return if Node.fields.has_key? :__type__
+
+        [Node, *Node.descendants].each do |node_class|
+          node_class.object :__type__, -> { field_class }, node_class: Schema::Field
+        end
+      end
+
+      def switch_off_type_field
+        return unless Node.fields.has_key? :__type__
+
+        [Node, *Node.descendants].each do |node_class|
+          node_class.remove_field :__type__
+        end
+      end
+
+      def switch_on_execution_context
+        Node.send :remove_const, :ExecutionContext if Node.const_defined?(:ExecutionContext)
+        Node.const_set :ExecutionContext, Node::ExecutionContextDebug
+      end
+
+      def switch_off_execution_context
+        Node.send :remove_const, :ExecutionContext if Node.const_defined?(:ExecutionContext)
+        Node.const_set :ExecutionContext, Node::ExecutionContextNoDebug
+      end
+
   end
 end

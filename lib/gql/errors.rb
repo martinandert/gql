@@ -19,7 +19,7 @@ module GQL
       }
 
       result[:error][:handle] = handle.to_s if handle
-      result[:error][:message] = message if ENV['DEBUG']
+      result[:error][:message] = message if GQL.debug
 
       result
     end

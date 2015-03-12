@@ -310,14 +310,14 @@ module_eval(<<'.,.,', 'parser.racc', 4)
 
 module_eval(<<'.,.,', 'parser.racc', 8)
   def _reduce_2(val, _values, result)
-      result = Root.new(val[0], nil   )  
+      result = Node.new('[root]', nil, val[0], nil   )  
     result
   end
 .,.,
 
 module_eval(<<'.,.,', 'parser.racc', 9)
   def _reduce_3(val, _values, result)
-      result = Root.new(nil,    val[1])  
+      result = Node.new('[root]', nil, nil,    val[1])  
     result
   end
 .,.,

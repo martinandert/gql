@@ -11,11 +11,13 @@ module GQL
       class_attribute :fields, :field_proc, instance_accessor: false, instance_predicate: false
       self.fields = {}
 
-      object :__type__, -> { field_class }, node_class: Schema::Field if ENV['DEBUG']
+      object :__type__, -> { field_class }, node_class: Schema::Field if GQL.debug
+
+      const_set :ExecutionContext, GQL.debug ? ExecutionContextDebug : ExecutionContextNoDebug
     end
 
     module ClassMethods
-      def field(id, *args, &block)
+      def add_field(id, *args, &block)
         options = args.extract_options!
         type = options.delete(:type) || Node
         proc = args.shift || block || proc_for_field(id)
@@ -23,18 +25,31 @@ module GQL
         Node.validate_is_subclass! type, 'type'
 
         type.build_class(id, proc, options).tap do |field_class|
-          prefix = id == :__type__ ? 'SchemaType' : id.to_s.camelize
+          const_name = const_name_for_field(id)
 
-          self.const_set "#{prefix}Field", field_class
+          const_set const_name, field_class unless const_defined?(const_name)
           self.fields = fields.merge(id.to_sym => field_class)
         end
+      end
+
+      alias :field :add_field
+
+      def remove_field(id)
+        const_name = const_name_for_field(id)
+
+        send :remove_const, const_name if const_defined?(const_name)
+        fields.delete id
+      end
+
+      def has_field?(id)
+        fields.has_key? id
       end
 
       def cursor(id_or_proc)
         id = id_or_proc.is_a?(Proc) ? nil : id_or_proc
         proc = id ? -> { target.public_send(id) } : id_or_proc
 
-        field :cursor, proc, type: Raw
+        add_field :cursor, proc, type: Raw
       end
 
       def respond_to?(method, *args)
@@ -53,6 +68,11 @@ module GQL
       end
 
       private
+        def const_name_for_field(id)
+          prefix = id == :__type__ ? 'Schema_Type' : id.to_s.camelize
+          :"#{prefix}Field"
+        end
+
         def proc_for_field(id)
           instance_exec id, &(field_proc || GQL.default_field_proc)
         end
@@ -62,7 +82,7 @@ module GQL
             options = args.extract_options!.merge(type: type)
             args = args.push(options)
 
-            field(*args, &block)
+            add_field(*args, &block)
           end
         end
     end
@@ -95,23 +115,21 @@ module GQL
 
       def target_for_field(current_target, proc)
         args = [current_target, context]
-        args.push self.class if ENV['DEBUG']
+        args.push self.class if GQL.debug
 
-        method = ExecutionContext.new(*args)
+        method = self.class.const_get(:ExecutionContext).new(*args)
         method.execute proc
       end
 
-      if ENV['DEBUG']
-        class ExecutionContext < Struct.new(:target, :context, :field_class)
-          def execute(method, args = [])
-            instance_exec(*args, &method)
-          end
+      class ExecutionContextNoDebug < Struct.new(:target, :context)
+        def execute(method, args = [])
+          instance_exec(*args, &method)
         end
-      else
-        class ExecutionContext < Struct.new(:target, :context)
-          def execute(method, args = [])
-            instance_exec(*args, &method)
-          end
+      end
+
+      class ExecutionContextDebug < Struct.new(:target, :context, :field_class)
+        def execute(method, args = [])
+          instance_exec(*args, &method)
         end
       end
   end

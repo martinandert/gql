@@ -14,8 +14,6 @@ module GQL
 
       variables.update vars
 
-      context[:__schema_root] = node_class if ENV['DEBUG']
-
       target = GQL.root_target_proc.call(context)
 
       node = node_class.new(ast_root, target, variables, context)

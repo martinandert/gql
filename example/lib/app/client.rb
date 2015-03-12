@@ -188,34 +188,36 @@ module App
         }, {
           name: 'Schema Info (3 levels deep)',
           value: <<-QUERY.strip_heredoc
-            schema {
-              name,
-              calls {
-                count,
-                edges {
-                  id,
-                  parameters,
-                  result_class {
-                    name,
-                    calls { count },
-                    fields { count }
-                  }
-                }
-              },
-              fields {
-                count,
-                edges {
-                  id,
-                  calls {
-                    count,
-                    edges {
-                      id
+            {
+              __type__ {
+                name,
+                calls {
+                  count,
+                  edges {
+                    id,
+                    parameters,
+                    result_class {
+                      name,
+                      calls { count },
+                      fields { count }
                     }
-                  },
-                  fields {
-                    count,
-                    edges {
-                      id
+                  }
+                },
+                fields {
+                  count,
+                  edges {
+                    id,
+                    calls {
+                      count,
+                      edges {
+                        id
+                      }
+                    },
+                    fields {
+                      count,
+                      edges {
+                        id
+                      }
                     }
                   }
                 }

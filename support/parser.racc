@@ -6,8 +6,8 @@ rule
     ;
 
   root
-    : call                  {  result = Root.new(val[0], nil   )  }
-    | '{' field_list '}'    {  result = Root.new(nil,    val[1])  }
+    : call                  {  result = Node.new('[root]', nil, val[0], nil   )  }
+    | '{' field_list '}'    {  result = Node.new('[root]', nil, nil,    val[1])  }
     ;
 
   call

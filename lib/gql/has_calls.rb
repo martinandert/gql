@@ -14,7 +14,7 @@ module GQL
     end
 
     module ClassMethods
-      def call(id, *args, &block)
+      def add_call(id, *args, &block)
         options = args.extract_options!
 
         call_spec = args.shift || block || proc_for_call(id)
@@ -31,11 +31,28 @@ module GQL
           call_class.const_set :Result, result_class
         end
 
-        self.const_set "#{id.to_s.camelize}Call", call_class
+        self.const_set const_name_for_call(id), call_class
         self.calls = calls.merge(id.to_sym => call_class)
       end
 
+      alias :call :add_call
+
+      def remove_call(id)
+        const_name = const_name_for_call(id)
+
+        send :remove_const, const_name if const_defined?(const_name)
+        calls.delete id
+      end
+
+      def has_call?(id)
+        calls.has_key? id
+      end
+
       private
+        def const_name_for_call(id)
+          :"#{id.to_s.camelize}Call"
+        end
+
         def proc_for_call(id)
           instance_exec id, &(call_proc || GQL.default_call_proc)
         end

@@ -58,7 +58,7 @@ module GQL
 
     %w(root_node_class root_target_proc field_types
        default_list_class default_field_proc
-       default_call_proc).each do |method|
+       default_call_proc debug).each do |method|
       module_eval <<-DELEGATORS, __FILE__, __LINE__ + 1
         def #{method}
           config.#{method}

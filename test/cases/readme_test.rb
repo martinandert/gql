@@ -6,7 +6,7 @@ class ReadmeTest < GQL::TestCase
     @old_list = GQL.default_list_class
     @old_types = GQL.field_types.dup
 
-    require 'fixtures/example'
+    load 'fixtures/example.rb'
   end
 
   teardown do

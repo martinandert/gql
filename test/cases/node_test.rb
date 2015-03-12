@@ -94,4 +94,27 @@ class NodeTest < GQL::TestCase
       assert_instance_of NoMethodError, exc.cause
     end
   end
+
+  test "in debug mode each node exposes a __type__ subfield" do
+    begin
+      prev, GQL.debug = GQL.debug, false
+
+      assert_raises GQL::Errors::FieldNotFound, /__type__/ do
+        GQL.execute '{ __type__ }'
+      end
+
+      assert_raises GQL::Errors::FieldNotFound, /__type__/ do
+        GQL.execute '{ some_field { __type__ } }'
+      end
+
+      GQL.debug = true
+
+      assert_nothing_raised do
+        assert_equal 'NodeRootNode', GQL.execute('{ __type__ }')[:__type__]
+        assert_equal 'NodeRootNode', GQL.execute('{ __type__ { name } }')[:__type__][:name]
+      end
+    ensure
+      GQL.debug = prev
+    end
+  end
 end

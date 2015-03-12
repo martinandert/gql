@@ -19,6 +19,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: { id: :call, arguments: [], call: nil, fields: nil },
         fields: nil,
       },
@@ -199,6 +200,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: nil,
         fields: [{ id: :field, alias_id: nil, call: nil, fields: nil }],
       },
@@ -213,6 +215,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: nil,
         fields: [
           { id: :one, alias_id: nil, call: nil, fields: nil },
@@ -232,6 +235,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: { id: :call, arguments: [], call: nil, fields: nil },
         fields: nil,
       },
@@ -250,6 +254,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: nil,
         fields: [{ id: :field, alias_id: nil, call: nil, fields: nil }],
       },
@@ -293,6 +298,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: { id: :call, arguments: [], call: nil, fields: nil },
         fields: nil,
       },
@@ -310,6 +316,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: nil,
         fields: [
           { id: :field1, alias_id: :foo, call: nil, fields: nil },
@@ -328,6 +335,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: nil,
         fields: [
           { id: :field1, alias_id: :foo, fields: nil, call: {
@@ -348,6 +356,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: nil,
         fields: [
           { id: :field1, alias_id: :foo, fields: nil, call: {
@@ -367,6 +376,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: nil,
         fields: [
           { id: :field1, alias_id: :foo, call: nil, fields: [
@@ -388,6 +398,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: nil,
         fields: [
           { id: :field1, alias_id: :foo, fields: nil, call: {
@@ -411,6 +422,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: nil,
         fields: [
           { id: :field1, alias_id: :foo, fields: nil, call: {
@@ -469,6 +481,7 @@ class ParserTest < GQL::TestCase
 
     expected = {
       root: {
+        id: '[root]', alias_id: nil,
         call: {
           id: :user,
           arguments: [:token],
