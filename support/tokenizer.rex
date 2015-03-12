@@ -7,11 +7,11 @@ macro
 # STRING        "(?:[^"\\]|\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4}))*"
   STRING        "(?:[^"\\]|\\["\\\/bfnrt]|\\u[0-9a-fA-F]{4})*"
   NUMBER        -?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?
-  TRUE          true
-  FALSE         false
-  NULL          null
+  TRUE          true\b
+  FALSE         false\b
+  NULL          null\b
+  AS            [aA][sS]\b
   IDENT         [a-zA-Z_][a-zA-Z0-9_]*
-  AS            [aA][sS]
 
 rule
 

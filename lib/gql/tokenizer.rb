@@ -69,16 +69,16 @@ class GQL::Tokenizer < Racc::Parser
       when (text = @ss.scan(/-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/))
          action { [:NUMBER, text] }
 
-      when (text = @ss.scan(/true/))
+      when (text = @ss.scan(/true\b/))
          action { [:TRUE, text] }
 
-      when (text = @ss.scan(/false/))
+      when (text = @ss.scan(/false\b/))
          action { [:FALSE, text] }
 
-      when (text = @ss.scan(/null/))
+      when (text = @ss.scan(/null\b/))
          action { [:NULL, text] }
 
-      when (text = @ss.scan(/[aA][sS]/))
+      when (text = @ss.scan(/[aA][sS]\b/))
          action { [:AS, text] }
 
       when (text = @ss.scan(/[a-zA-Z_][a-zA-Z0-9_]*/))
