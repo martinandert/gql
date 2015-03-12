@@ -14,7 +14,7 @@ module GQL
       result = {
         error: {
           code: code,
-          type: self.class.name.split('::').last.underscore
+          type: self.class.name.split('::').last.titleize.downcase
         }
       }
 
@@ -72,8 +72,8 @@ module GQL
 
     class FieldClassNotSet < Error
       def initialize(node_class, name)
-        msg =  "#{node_class} must have a #{name} class set. "
-        msg << "Set it with `self.#{name}_class = My#{name.camelize}Class'."
+        msg =  "#{node_class} must have a #{name.humanize(capitalize: false)} set. "
+        msg << "Set it with `self.#{name} = My#{name.camelize}Class'."
 
         super(msg, 122)
       end

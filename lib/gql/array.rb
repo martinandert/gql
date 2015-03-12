@@ -9,11 +9,11 @@ module GQL
         item_field_class = options.delete(:item_field_class) || self.item_field_class
 
         if item_field_class.is_a?(Hash)
-          item_field_class.values.each do |klass|
-            Field.validate_is_subclass! klass, 'item'
+          item_field_class.values.each do |ifc|
+            Field.validate_is_subclass! ifc, 'item_field_class'
           end
         else
-          Field.validate_is_subclass! item_field_class, 'item'
+          Field.validate_is_subclass! item_field_class, 'item_field_class'
           item_field_class = Hash.new(item_field_class)
         end
 

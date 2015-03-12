@@ -21,7 +21,7 @@ module GQL
         result_spec = options[:returns] || call_spec.try(:result_class)
         result_class = result_class_from_spec(result_spec)
 
-        Field.validate_is_subclass! result_class, 'result' if result_class
+        Field.validate_is_subclass! result_class, 'result_class' if result_class
 
         call_class = call_class_from_spec(call_spec)
         call_class.id = id.to_s

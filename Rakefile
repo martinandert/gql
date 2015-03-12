@@ -22,11 +22,15 @@ file 'lib/gql/parser.rb' => 'support/parser.racc' do |t|
   sh "sed --in-place 's/  end\s*# module/end #/g' #{t.name}"
 end
 
-task :push_example_to_heroku do
-  # https://github.com/apenwarr/git-subtree/
-  sh "git subtree push --prefix example heroku master"
-  # if the above does not work, you can try
-  # sh "git push heroku `git subtree split --prefix example master`:master --force"
+namespace :heroku do
+  namespace :push do
+    desc 'Push app in example directory to Heroku'
+    task :example do
+      # https://github.com/apenwarr/git-subtree/
+      # sh "git subtree push --prefix example heroku master"
+      sh "git push heroku `git subtree split --prefix example master`:master --force"
+    end
+  end
 end
 
 Rake::TestTask.new :test do |t|
@@ -36,7 +40,9 @@ Rake::TestTask.new :test do |t|
 # t.verbose = true
 end
 
+desc 'Compile tokenizer and parser'
 task :compile => ['lib/gql/tokenizer.rb', 'lib/gql/parser.rb']
+
 task :test    => :compile
 task :build   => :test
 task :default => :test
