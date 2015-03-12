@@ -66,13 +66,18 @@ module GQL
     end
 
     def debug
-      @@debug ||= ENV.has_key?('DEBUG')
+      if defined? @@debug
+        @@debug
+      else
+        @@debug = nil
+        self.debug = ENV.has_key?('DEBUG')
+      end
     end
 
     def debug=(value)
       value = !!value
 
-      return if value == debug
+      return if value == @@debug
 
       value ? switch_debug_on : switch_debug_off
 
@@ -93,8 +98,10 @@ module GQL
       def switch_on_type_field
         return if Node.fields.has_key? :__type__
 
-        [Node, *Node.descendants].each do |node_class|
-          node_class.object :__type__, -> { field_class }, node_class: Schema::Field
+        type_field_class = Node.object :__type__, -> { field_class }, node_class: Schema::Field
+
+        Node.descendants.each do |node_class|
+          node_class.fields[:__type__] = type_field_class
         end
       end
 

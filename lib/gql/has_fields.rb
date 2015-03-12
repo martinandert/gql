@@ -10,10 +10,6 @@ module GQL
     included do
       class_attribute :fields, :field_proc, instance_accessor: false, instance_predicate: false
       self.fields = {}
-
-      object :__type__, -> { field_class }, node_class: Schema::Field if GQL.debug
-
-      const_set :ExecutionContext, GQL.debug ? ExecutionContextDebug : ExecutionContextNoDebug
     end
 
     module ClassMethods
