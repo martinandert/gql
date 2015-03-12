@@ -186,7 +186,7 @@ module App
             }
           QUERY
         }, {
-          name: 'Schema Info (3 levels deep)',
+          name: 'Schema Info (first three levels)',
           value: <<-QUERY.strip_heredoc
             {
               __type__ {
@@ -216,7 +216,12 @@ module App
                     fields {
                       count,
                       edges {
-                        id
+                        id,
+                        fields {
+                          edges {
+                            id
+                          }
+                        }
                       }
                     }
                   }
