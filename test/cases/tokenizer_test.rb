@@ -88,6 +88,13 @@ class TokenizerTest < GQL::TestCase
     end
   end
 
+  test "allows language constants and keywords as identifier prefixes" do
+    actual = GQL.tokenize('truethy falsey nullify ast')
+    expected = [[:IDENT, 'truethy'], [:IDENT, 'falsey'], [:IDENT, 'nullify'], [:IDENT, 'ast']]
+
+    assert_equal expected, actual
+  end
+
   test "strings with special chars" do
     str = "ä \" \\ \b \f \n \r \t \u01ab ƫ \u34cd 㓍 µ @"
     q = JSON.generate([str])[1..-2]
