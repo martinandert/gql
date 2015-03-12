@@ -91,7 +91,7 @@ module App
             }
           QUERY
         }, {
-          name: 'Everything you need to know about "Smells Like Teen Spririt"',
+          name: 'Smells Like Teen Spirit',
           value: <<-QUERY.strip_heredoc
             song("nirvana-smells-like-teen-spirit") {
               id,
