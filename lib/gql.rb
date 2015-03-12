@@ -31,6 +31,7 @@ module GQL
       autoload :ScanError
       autoload :SyntaxError
       autoload :UndefinedNodeClass
+      autoload :VariableNotFound
     end
   end
 

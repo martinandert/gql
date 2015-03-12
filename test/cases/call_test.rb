@@ -275,6 +275,12 @@ class CallTest < GQL::TestCase
     assert_equal 8, GQL.execute('{ me.pow(<x>, <y>) } <x> = 2 <y> = 3')[:me]
   end
 
+  test "raises on variable not found" do
+    assert_raises GQL::Errors::VariableNotFound, /<y>/ do
+      GQL.execute '{ me.pow(<x>, <y>) } <x> = 2'
+    end
+  end
+
   test "no execute method" do
     assert_raises NotImplementedError do
       GQL.execute '{ me.no_execute_method(42) }'

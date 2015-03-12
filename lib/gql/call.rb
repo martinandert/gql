@@ -21,8 +21,16 @@ module GQL
 
       private
         def substitute_variables(args, variables)
-          return args unless variables.any?
-          args.map { |arg| arg.is_a?(::Symbol) ? variables[arg] : arg }
+          args.map do |arg|
+            substitute_variable arg, variables
+          end
+        end
+
+        def substitute_variable(arg, variables)
+          return arg unless arg.is_a?(::Symbol)
+          return variables[arg] if variables.has_key?(arg)
+
+          raise Errors::VariableNotFound, arg
         end
 
         def result_class_from_block(block)

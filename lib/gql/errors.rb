@@ -53,6 +53,14 @@ module GQL
       end
     end
 
+    class VariableNotFound < NotFoundError
+      def initialize(id)
+        msg = "The variable named `<#{id}>' has no value."
+
+        super(msg, 113, id)
+      end
+    end
+
     class InvalidNodeClass < Error
       def initialize(node_class, super_class)
         msg = "#{node_class} must be a (subclass of) #{super_class}."
