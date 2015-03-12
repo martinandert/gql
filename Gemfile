@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
 
+ruby ENV['RUBY_VERSION'] || '2.0.0'
+
 gem 'rake'
 gem 'thin'
 gem 'sinatra'

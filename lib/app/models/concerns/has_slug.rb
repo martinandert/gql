@@ -16,7 +16,7 @@ module App
             if id_or_slug.to_s !~ /\A\d+\z/
               where(slug: id_or_slug).take
             else
-              where('id = ? OR slug = ?', id_or_slug, id_or_slug).take
+              where('id = ? OR slug = ?', id_or_slug, id_or_slug.to_s).take
             end
           end
         end
