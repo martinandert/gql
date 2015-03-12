@@ -5,9 +5,6 @@ require 'gql/has_fields'
 
 module GQL
   class Node
-    include HasCalls
-    include HasFields
-
     class_attribute :id, :proc, instance_accessor: false, instance_predicate: false
 
     class << self
@@ -28,6 +25,9 @@ module GQL
         end
       end
     end
+
+    include HasCalls
+    include HasFields
 
     attr_reader :ast_node, :target, :variables, :context
 

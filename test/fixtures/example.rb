@@ -212,7 +212,6 @@ class UpdateUserNameCall < GQL::Call
   #   string :old_name, -> { target[:old_name] }
   #   string :new_name, -> { target[:new_name] }
   # end
-
   # returns Result
 
   returns do

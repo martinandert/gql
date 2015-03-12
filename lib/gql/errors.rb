@@ -80,7 +80,7 @@ module GQL
         msg << "If so, you have to register your field type first "
         msg << "like this: `GQL.field_types[:#{id}] = My#{id.to_s.camelize}'. "
         msg << "The following field types are currently registered: "
-        msg << GQL.field_types.keys.sort.map { |id| "`#{id}'" }.to_sentence
+        msg << GQL.field_types.keys.sort.map { |key| "`#{key}'" }.to_sentence
 
         super(msg, 122)
       end

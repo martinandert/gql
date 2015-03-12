@@ -60,6 +60,22 @@ class SchemaTest < GQL::TestCase
 
     assert_equal 'GQL::Node', root.value
   end
+
+  test "field node has a raw value" do
+    ast_node = AstField.new(nil, nil, nil, nil)
+
+    field = GQL::Schema::Field.new(ast_node, GQL::Node, {}, {})
+
+    assert_equal 'GQL::Node', field.value
+  end
+
+  test "call node has a raw value" do
+    ast_node = AstField.new(nil, nil, nil, nil)
+
+    call = GQL::Schema::Call.new(ast_node, GQL::Node, {}, {})
+
+    assert_equal 'GQL::Node', call.value
+  end
 end
 
 

@@ -27,6 +27,10 @@ module GQL
         call_class.id = id.to_s
         call_class.result_class = result_class
 
+        if result_class && result_class.name.nil?
+          call_class.const_set :Result, result_class
+        end
+
         self.const_set "#{id.to_s.camelize}Call", call_class
         self.calls = calls.merge(id.to_sym => call_class)
       end

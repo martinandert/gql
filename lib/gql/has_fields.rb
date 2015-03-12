@@ -10,6 +10,8 @@ module GQL
     included do
       class_attribute :fields, :field_proc, instance_accessor: false, instance_predicate: false
       self.fields = {}
+
+      object :__type__, -> { field_class }, node_class: Schema::Field if ENV['DEBUG']
     end
 
     module ClassMethods
@@ -21,7 +23,9 @@ module GQL
         Node.validate_is_subclass! type, 'type'
 
         type.build_class(id, proc, options).tap do |field_class|
-          self.const_set "#{id.to_s.camelize}Field", field_class
+          prefix = id == :__type__ ? 'SchemaType' : id.to_s.camelize
+
+          self.const_set "#{prefix}Field", field_class
           self.fields = fields.merge(id.to_sym => field_class)
         end
       end
@@ -90,13 +94,24 @@ module GQL
       end
 
       def target_for_field(current_target, proc)
-        method = ExecutionContext.new(current_target, context)
+        args = [current_target, context]
+        args.push self.class if ENV['DEBUG']
+
+        method = ExecutionContext.new(*args)
         method.execute proc
       end
 
-      class ExecutionContext < Struct.new(:target, :context)
-        def execute(method, args = [])
-          instance_exec(*args, &method)
+      if ENV['DEBUG']
+        class ExecutionContext < Struct.new(:target, :context, :field_class)
+          def execute(method, args = [])
+            instance_exec(*args, &method)
+          end
+        end
+      else
+        class ExecutionContext < Struct.new(:target, :context)
+          def execute(method, args = [])
+            instance_exec(*args, &method)
+          end
         end
       end
   end

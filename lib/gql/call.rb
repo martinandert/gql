@@ -21,9 +21,7 @@ module GQL
 
       private
         def substitute_variables(args, variables)
-          args.map do |arg|
-            substitute_variable arg, variables
-          end
+          args.map { |arg| substitute_variable arg, variables }
         end
 
         def substitute_variable(arg, variables)
