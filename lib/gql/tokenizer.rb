@@ -5,7 +5,7 @@
 #++
 
 require 'racc/parser'
-class GQL::Parser < Racc::Parser
+class GQL::Tokenizer < Racc::Parser
   require 'strscan'
 
   class Unused < StandardError ; end

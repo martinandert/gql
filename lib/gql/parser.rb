@@ -14,7 +14,7 @@ require 'active_support/core_ext/object/json'
 require 'gql/tokenizer'
 
 module GQL
-  class Parser < Racc::Parser
+  class Parser < Tokenizer
 
 module_eval(<<'...end parser.racc/module_eval...', 'parser.racc', 136)
 

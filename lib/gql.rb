@@ -18,6 +18,7 @@ module GQL
   autoload :Raw
   autoload :String
   autoload :TestCase
+  autoload :Tokenizer
 
   module Errors
     extend ActiveSupport::Autoload
@@ -81,10 +82,11 @@ module GQL
     end
 
     def tokenize(input)
-      parser = Parser.new(input)
+      tokenizer = Tokenizer.new
+      tokenizer.scan_setup input
 
       [].tap do |result|
-        while token = parser.next_token
+        while token = tokenizer.next_token
           result << token
           yield token if block_given?
         end

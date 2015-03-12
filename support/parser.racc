@@ -1,4 +1,4 @@
-class GQL::Parser
+class GQL::Parser < Tokenizer
 token STRING NUMBER TRUE FALSE NULL AS IDENT
 rule
   query

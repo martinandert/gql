@@ -1,4 +1,4 @@
-class GQL::Parser
+class GQL::Tokenizer
 macro
   BLANK         \s+
   REM_IN        \/\*
