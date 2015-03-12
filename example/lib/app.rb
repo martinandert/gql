@@ -6,6 +6,7 @@ module App
   extend ActiveSupport::Autoload
 
   autoload :Client
+  autoload :Helper
 
   module Models
     extend ActiveSupport::Autoload
@@ -44,13 +45,5 @@ module App
     GQL.field_types.update date: DateField, duration: DurationField
     GQL.default_list_field_class = ListField
     GQL.root_field_class = RootField
-
-    extend(Module.new {
-      def query(*args)
-        GQL.execute(*args)
-      rescue GQL::Error => exc
-        exc.as_json
-      end
-    })
   end
 end

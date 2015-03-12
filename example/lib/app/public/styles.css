@@ -91,3 +91,7 @@ button:hover {
   background-color: #286090;
   border-color: #204d74;
 }
+
+.ace_hidden-cursors .ace_cursor {
+  opacity: 0 !important;
+}

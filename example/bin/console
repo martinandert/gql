@@ -12,7 +12,7 @@ ActiveRecord::Base.configurations = { 'development' => ActiveRecord::Base.connec
 include App::Models
 
 def q(*args)
-  App::Graph.query(*args)
+  GQL.execute(*args)
 end
 
 require 'irb'

@@ -8,10 +8,6 @@ module App
       connection :bands_as_member,  item_field_class: BandField
       connection :songs_as_writer,  item_field_class: SongField
       connection :roles_in_bands,   item_field_class: RoleField
-
-      def scalar_value
-        target.name
-      end
     end
   end
 end
