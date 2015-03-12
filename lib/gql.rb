@@ -15,7 +15,7 @@ module GQL
   autoload :Number
   autoload :Object
   autoload :Parser
-  autoload :Raw
+  autoload :Scalar
   autoload :String
   autoload :TestCase
   autoload :Tokenizer

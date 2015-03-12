@@ -9,7 +9,7 @@ module App
       number :month
       number :day
 
-      def raw_value
+      def scalar_value
         target.to_s :db
       end
     end

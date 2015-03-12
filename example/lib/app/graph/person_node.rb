@@ -9,7 +9,7 @@ module App
       connection :songs_as_writer,  item_class: SongNode
       connection :roles_in_bands,   item_class: RoleNode
 
-      def raw_value
+      def scalar_value
         target.name
       end
     end

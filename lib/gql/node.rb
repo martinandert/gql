@@ -42,11 +42,11 @@ module GQL
       elsif ast_fields = ast_node.fields
         value_of_fields ast_fields
       else
-        raw_value
+        scalar_value
       end
     end
 
-    def raw_value
+    def scalar_value
       nil
     end
   end

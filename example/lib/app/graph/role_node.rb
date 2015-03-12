@@ -3,7 +3,7 @@ module App
     class RoleNode < ModelNode
       connection :members, item_class: PersonNode
 
-      def raw_value
+      def scalar_value
         target.name
       end
     end

@@ -1,6 +1,6 @@
 require 'cases/helper'
 
-class RawTarget < Struct.new(:foo)
+class ScalarTarget < Struct.new(:foo)
   def identity
     self
   end
@@ -14,20 +14,20 @@ class RawTarget < Struct.new(:foo)
   end
 end
 
-class ExtendedRaw < GQL::Raw
+class ExtendedScalar < GQL::Scalar
   call :bar
   string :baz
 end
 
-class NodeWithRaw < GQL::Node
-  field :identity, type: GQL::Raw
-  field :extended, -> { target }, type: ExtendedRaw
+class NodeWithScalar < GQL::Node
+  field :identity, type: GQL::Scalar
+  field :extended, -> { target }, type: ExtendedScalar
 end
 
-class RawTest < GQL::TestCase
+class ScalarTest < GQL::TestCase
   setup do
-    @old_root, GQL.root_node_class = GQL.root_node_class, NodeWithRaw
-    @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { RawTarget.new('foo') }
+    @old_root, GQL.root_node_class = GQL.root_node_class, NodeWithScalar
+    @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { ScalarTarget.new('foo') }
   end
 
   teardown do
@@ -38,14 +38,14 @@ class RawTest < GQL::TestCase
   test "returns raw value" do
     value = GQL.execute('{ identity }')
 
-    assert_instance_of RawTarget, value[:identity]
+    assert_instance_of ScalarTarget, value[:identity]
     assert_equal 'foo', value[:identity].foo
   end
 
   test "extended returns raw value" do
     value = GQL.execute('{ extended }')
 
-    assert_instance_of RawTarget, value[:extended]
+    assert_instance_of ScalarTarget, value[:extended]
     assert_equal 'foo', value[:extended].foo
   end
 

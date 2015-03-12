@@ -42,7 +42,7 @@ class SchemaTest < GQL::TestCase
     assert_equal expected, schema_call.value[:parameters]
   end
 
-  test "parameter node has a raw value" do
+  test "parameter node has a scalar value" do
     ast_node = AstField.new(nil, nil, nil, [
       AstField.new(:parameters, nil, nil, nil)
     ])
@@ -53,7 +53,7 @@ class SchemaTest < GQL::TestCase
     assert_not_empty schema_call.value[:parameters].compact
   end
 
-  test "root node has a raw value" do
+  test "root node has a scalar value" do
     ast_node = AstField.new(nil, nil, nil, nil)
 
     root = GQL::Schema::Field.new(ast_node, GQL::Node, {}, {})
@@ -61,7 +61,7 @@ class SchemaTest < GQL::TestCase
     assert_equal 'GQL::Node', root.value
   end
 
-  test "field node has a raw value" do
+  test "field node has a scalar value" do
     ast_node = AstField.new(nil, nil, nil, nil)
 
     field = GQL::Schema::Field.new(ast_node, GQL::Node, {}, {})
@@ -69,7 +69,7 @@ class SchemaTest < GQL::TestCase
     assert_equal 'GQL::Node', field.value
   end
 
-  test "call node has a raw value" do
+  test "call node has a scalar value" do
     ast_node = AstField.new(nil, nil, nil, nil)
 
     call = GQL::Schema::Call.new(ast_node, GQL::Node, {}, {})

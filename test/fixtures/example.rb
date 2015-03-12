@@ -56,7 +56,7 @@ class Timestamp < GQL::Node
   number :minute, -> { target.min }
   number :second, -> { target.sec }
 
-  def raw_value
+  def scalar_value
     target.to_i * 1000
   end
 end
@@ -129,7 +129,7 @@ class MoneyNode
   number :cents,    -> { target[:cents] }
   string :currency, -> { target[:currency] }
 
-  def raw_value
+  def scalar_value
     "#{'%.2f' % (target[:cents] / 100.0)} #{target[:currency]}"
   end
 end

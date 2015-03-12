@@ -34,7 +34,7 @@ class CallClassWithExplicitResultClass < GQL::Call
   end
 
   class Result < GQL::Node
-    field :result, -> { target[:result] }, type: GQL::Raw
+    field :result, -> { target[:result] }, type: GQL::Scalar
   end
 
   returns Result
@@ -48,7 +48,7 @@ class CallClassWithImplicitResultClass < GQL::Call
   end
 
   returns do
-    field :result, type: GQL::Raw
+    field :result, type: GQL::Scalar
   end
 end
 
@@ -56,13 +56,13 @@ class CallClassWithoutExecuteMethod < GQL::Call
 end
 
 class FooBarResultClass < GQL::Node
-  field :foobar, -> { target }, type: GQL::Raw
-  field :foobar_value, -> { target.value }, type: GQL::Raw
+  field :foobar, -> { target }, type: GQL::Scalar
+  field :foobar_value, -> { target.value }, type: GQL::Scalar
 end
 
 class NodeWithCalls < GQL::Node
   object :me, -> { target }, node_class: NodeWithCalls
-  field :value, type: GQL::Raw
+  field :value, type: GQL::Scalar
 
   call :foo
   call :foo_with_returns, returns: FooBarResultClass
@@ -89,7 +89,7 @@ class NodeWithCalls < GQL::Node
 end
 
 class Inherited < NodeWithCalls
-  call :bingo, -> { 'BINGO!' }, returns: GQL::Raw
+  call :bingo, -> { 'BINGO!' }, returns: GQL::Scalar
 end
 
 class CallTest < GQL::TestCase

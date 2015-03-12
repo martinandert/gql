@@ -8,7 +8,7 @@ module GQL
       connection  :calls,  -> { target.calls.values  }, list_class: List, item_class: Call
       connection  :fields, -> { target.fields.values }, list_class: List, item_class: Field
 
-      def raw_value
+      def scalar_value
         target.name
       end
     end

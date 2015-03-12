@@ -45,7 +45,7 @@ module GQL
         id = id_or_proc.is_a?(Proc) ? nil : id_or_proc
         proc = id ? -> { target.public_send(id) } : id_or_proc
 
-        add_field :cursor, proc, type: Raw
+        add_field :cursor, proc, type: Scalar
       end
 
       def respond_to?(method, *args)

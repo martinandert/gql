@@ -8,7 +8,7 @@ module GQL
       object  :result_class, -> { target.result_class || CallerClass }, node_class: Field
       array   :parameters,   -> { (target.proc || target.instance_method(:execute)).parameters }, item_class: Parameter
 
-      def raw_value
+      def scalar_value
         target.name
       end
     end
