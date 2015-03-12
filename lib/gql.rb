@@ -69,11 +69,11 @@ module GQL
       DELEGATORS
     end
 
-    def execute(input, context = {})
+    def execute(input, context = {}, variables = {})
       query = parse(input)
 
       executor = Executor.new(query)
-      executor.execute context
+      executor.execute context, variables
     end
 
     def parse(input)

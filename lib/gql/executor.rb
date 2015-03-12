@@ -7,10 +7,12 @@ module GQL
       @variables  = ast_query.variables
     end
 
-    def execute(context = {})
+    def execute(context = {}, vars = {})
       node_class = GQL.root_node_class
 
       raise Errors::RootClassNotSet if node_class.nil?
+
+      variables.update vars
 
       context[:__schema_root] = node_class if ENV['DEBUG']
 
