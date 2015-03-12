@@ -56,7 +56,7 @@ class SchemaTest < GQL::TestCase
   test "root node has a raw value" do
     ast_node = AstField.new(nil, nil, nil, nil)
 
-    root = GQL::Schema::Root.new(ast_node, GQL::Node, {}, {})
+    root = GQL::Schema::Field.new(ast_node, GQL::Node, {}, {})
 
     assert_equal 'GQL::Node', root.value
   end

@@ -43,8 +43,7 @@ module GQL
     autoload :Field
     autoload :List
     autoload :Parameter
-    autoload :Placeholder
-    autoload :Root
+    autoload :CallerClass
   end
 
   extend(Module.new {
