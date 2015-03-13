@@ -1,5 +1,3 @@
-require 'active_support/core_ext/class/subclasses'
-
 module GQL
   class Config
     def root_field_class
