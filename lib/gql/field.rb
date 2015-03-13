@@ -1,7 +1,8 @@
 require 'active_support/core_ext/class/attribute'
 
-require 'gql/has_calls'
-require 'gql/has_fields'
+require 'gql/mixins/common'
+require 'gql/mixins/has_calls'
+require 'gql/mixins/has_fields'
 
 module GQL
   class Field
@@ -16,8 +17,9 @@ module GQL
       end
     end
 
-    include HasCalls
-    include HasFields
+    extend Mixins::Common
+    include Mixins::HasCalls
+    include Mixins::HasFields
 
     attr_reader :ast_node, :target, :variables, :context
 
