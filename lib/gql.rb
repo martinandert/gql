@@ -1,5 +1,7 @@
 require 'active_support/dependencies/autoload'
+
 require 'gql/version'
+require 'gql/errors'
 
 module GQL
   extend ActiveSupport::Autoload
@@ -9,7 +11,6 @@ module GQL
   autoload :Call
   autoload :Config
   autoload :Connection
-  autoload :Error, 'gql/errors'
   autoload :Executor
   autoload :Field
   autoload :Lazy
@@ -20,22 +21,6 @@ module GQL
   autoload :Scalar
   autoload :String
   autoload :Tokenizer
-
-  module Errors
-    extend ActiveSupport::Autoload
-
-    autoload_at 'gql/errors' do
-      autoload :CallNotFound
-      autoload :FieldClassNotSet
-      autoload :FieldNotFound
-      autoload :InvalidFieldClass
-      autoload :NoMethodError
-      autoload :RootClassNotSet
-      autoload :ScanError
-      autoload :SyntaxError
-      autoload :VariableNotFound
-    end
-  end
 
   module Schema
     extend ActiveSupport::Autoload
