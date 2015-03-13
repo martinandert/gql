@@ -132,9 +132,15 @@ class UserField < GQL::Field
   string      :first_name
   string      :last_name
   boolean     :is_admin,  -> { target.admin? }
+
   object      :account,     as: 'AccountField'
+              # must use a string here  ^  b/c AccountField constant is not yet defined
+
   connection  :albums,      item_class: 'AlbumField'
-  timestamp   :created_at # using registered field type here
+                                # same here  ^
+
+  timestamp   :created_at
+  #   ^  using registered field type here
 
   string :full_name do
     target.first_name + ' ' + target.last_name
@@ -164,7 +170,10 @@ class AccountField < GQL::Field
 
   number  :id
   object  :user,      as: UserField
-  money   :saldo # using registered field type here
+
+  money   :saldo
+  # ^ using registered field type here
+
   array   :fibonacci, item_class: GQL::Number
   string  :iban
   string  :bank_name
@@ -230,7 +239,7 @@ class RootField < GQL::Field
   call :update_user_name, UpdateUserNameCall
 
   # this should normally be a connection field
-  call :accounts, -> { $accounts }, returns: [AccountField]
+  call :accounts, -> { $accounts }, returns: ['AccountField']
 
   call :everything, -> { ($users + $albums + $songs + $accounts).shuffle }, returns: [
     User => 'UserField', Album => 'AlbumField', Song => 'SongField', Account => 'AccountField'
