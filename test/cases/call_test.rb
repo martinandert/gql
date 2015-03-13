@@ -120,7 +120,7 @@ class Inherited < FieldWithCalls
   call :bingo, -> { 'BINGO!' }, returns: GQL::Scalar
 end
 
-class CallTest < GQL::TestCase
+class CallTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithCalls
     @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { CallerTarget.new }

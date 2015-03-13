@@ -24,7 +24,7 @@ module GQL
 
         field_class =
           if type.is_a? ::String
-            Unresolved.build_class id, proc, options.merge(owner: self, type: type)
+            Lazy.build_class id, proc, options.merge(owner: self, type: type)
           else
             Registry.fetch(type).build_class id, proc, options
           end

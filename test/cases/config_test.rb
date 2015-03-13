@@ -3,7 +3,7 @@ require 'cases/helper'
 class MyGQLField < GQL::Field
 end
 
-class ConfigTest < GQL::TestCase
+class ConfigTest < ActiveSupport::TestCase
   test "can set the configuration object" do
     begin
       GQL.config = self

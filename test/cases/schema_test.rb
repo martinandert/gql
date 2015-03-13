@@ -11,7 +11,7 @@ end
 class ClassWithProc < Struct.new(:proc)
 end
 
-class SchemaTest < GQL::TestCase
+class SchemaTest < ActiveSupport::TestCase
   test "call class parameters" do
     ast_node = AstField.new(nil, nil, nil, [
       AstField.new(:parameters, nil, nil, [

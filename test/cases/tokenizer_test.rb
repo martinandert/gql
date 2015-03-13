@@ -1,7 +1,7 @@
 require 'cases/helper'
 require 'json'
 
-class TokenizerTest < GQL::TestCase
+class TokenizerTest < ActiveSupport::TestCase
   test "token types" do
     q = <<-QUERY
       _ foo Foo _foo _Foo _1 _1foo

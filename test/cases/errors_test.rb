@@ -1,6 +1,6 @@
 require 'cases/helper'
 
-class ErrorsTest < GQL::TestCase
+class ErrorsTest < ActiveSupport::TestCase
   test "errors expose json representation" do
     begin
       prev, GQL.debug = GQL.debug, false

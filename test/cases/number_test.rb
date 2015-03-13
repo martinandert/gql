@@ -4,7 +4,7 @@ class FieldWithNumber < GQL::Field
   number :number, -> { 42 }
 end
 
-class NumberTest < GQL::TestCase
+class NumberTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithNumber
   end

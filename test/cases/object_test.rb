@@ -28,7 +28,7 @@ class FieldWithObject < GQL::Field
   object :mapped, -> { BClass.new('b') }, field_class: { AClass => AClassField, BClass => BClassField }
 end
 
-class ObjectTest < GQL::TestCase
+class ObjectTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithObject
   end

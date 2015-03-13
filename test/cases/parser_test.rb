@@ -1,7 +1,7 @@
 require 'cases/helper'
 require 'json'
 
-class ParserTest < GQL::TestCase
+class ParserTest < ActiveSupport::TestCase
   test "empty query" do
     assert_raises GQL::Errors::SyntaxError do
       GQL.parse ''

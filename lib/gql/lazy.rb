@@ -1,7 +1,7 @@
 require 'active_support/core_ext/class/attribute'
 
 module GQL
-  class Unresolved < Field
+  class Lazy < Field
     class_attribute :owner, :type, :options, instance_accessor: false, instance_predicate: false
 
     class << self

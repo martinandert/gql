@@ -20,7 +20,7 @@ class FieldWithArrays < GQL::Field
   array :multiple_item_field_classes_unresolved, -> { ['foo', 42] }, item_field_class: { Fixnum => 'MyFixnum', String => 'MyString' }
 end
 
-class ArrayTest < GQL::TestCase
+class ArrayTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithArrays
   end

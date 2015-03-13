@@ -1,6 +1,6 @@
 require 'cases/helper'
 
-class ExecutorTest < GQL::TestCase
+class ExecutorTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_field_class = GQL.root_field_class, nil
   end

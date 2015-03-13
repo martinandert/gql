@@ -1,6 +1,6 @@
 require 'cases/helper'
 
-class ReadmeTest < GQL::TestCase
+class ReadmeTest < ActiveSupport::TestCase
   setup do
     @old_root = GQL.root_field_class
     @old_list = GQL.default_list_field_class

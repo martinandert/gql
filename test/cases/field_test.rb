@@ -27,7 +27,7 @@ class HasRemoveCallTest < GQL::Field
   call :present
 end
 
-class FieldTest < GQL::TestCase
+class FieldTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_field_class = GQL.root_field_class, FieldRootField
     @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { 42 }

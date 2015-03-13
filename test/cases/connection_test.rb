@@ -18,7 +18,7 @@ class FieldWithConnections < GQL::Field
   connection :custom_list_field_class,  -> { FieldWithConnections::ITEMS }, item_field_class: ConnectionItemClass, list_field_class: ConnectionListClass
 end
 
-class ConnectionTest < GQL::TestCase
+class ConnectionTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithConnections
   end

@@ -24,7 +24,7 @@ class FieldWithScalar < GQL::Field
   field :extended, -> { target }, type: ExtendedScalar
 end
 
-class ScalarTest < GQL::TestCase
+class ScalarTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithScalar
     @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { ScalarTarget.new('foo') }

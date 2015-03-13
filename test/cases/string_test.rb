@@ -4,7 +4,7 @@ class FieldWithString < GQL::Field
   string :string, -> { 'fOoBaR' }
 end
 
-class StringTest < GQL::TestCase
+class StringTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithString
   end
