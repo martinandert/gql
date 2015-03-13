@@ -8,8 +8,23 @@ class ObjectFieldClass < GQL::Field
   string :foo
 end
 
+class AClass < Struct.new(:a)
+end
+
+class BClass < Struct.new(:b)
+end
+
+class AClassField < GQL::Field
+  string :a
+end
+
+class BClassField < GQL::Field
+  string :b
+end
+
 class FieldWithObject < GQL::Field
   object :object, -> { MyObject.new('bar') }, field_class: ObjectFieldClass
+  object :mapped, -> { BClass.new('b') }, field_class: { AClass => AClassField, BClass => BClassField }
 end
 
 class ObjectTest < GQL::TestCase
@@ -37,5 +52,11 @@ class ObjectTest < GQL::TestCase
     value = GQL.execute('{ object.upcase_foo { foo } }')
 
     assert_equal 'BAR', value[:object][:foo]
+  end
+
+  test "object type field with model mapping as field class" do
+    value = GQL.execute('{ mapped { b } }')
+
+    assert_equal 'b', value[:mapped][:b]
   end
 end
