@@ -69,7 +69,7 @@ class ConfigTest < GQL::TestCase
   end
 
   test "uses GQL::Field as the default list class" do
-    assert_equal GQL::Field, GQL.default_list_field_class
+    assert_equal 'GQL::Field', GQL.default_list_field_class
   end
 
   test "can set the default list class to a valid class" do

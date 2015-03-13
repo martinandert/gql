@@ -15,6 +15,9 @@ end
 class FieldWithArrays < GQL::Field
   array :single_item_field_class, -> { %w(a b) }, item_field_class: ArrayItemClass
   array :multiple_item_field_classes, -> { ['foo', 42] }, item_field_class: { Fixnum => MyFixnum, String => MyString }
+
+  array :single_item_field_class_unresolved, -> { %w(a b) }, item_field_class: 'ArrayItemClass'
+  array :multiple_item_field_classes_unresolved, -> { ['foo', 42] }, item_field_class: { Fixnum => 'MyFixnum', String => 'MyString' }
 end
 
 class ArrayTest < GQL::TestCase
@@ -44,5 +47,19 @@ class ArrayTest < GQL::TestCase
     value = GQL.execute('{ multiple_item_field_classes { whoami } }')
 
     assert_equal [{ whoami: 'I am a string.' }, { whoami: 'I am a number.' }], value[:multiple_item_field_classes]
+  end
+
+  test "works with unresolved item class" do
+    value = GQL.execute('{ single_item_field_class_unresolved }')
+    assert_equal ['a', 'b'], value[:single_item_field_class_unresolved]
+
+    value = GQL.execute('{ multiple_item_field_classes_unresolved }')
+    assert_equal ['foo', 42], value[:multiple_item_field_classes_unresolved]
+
+    value = GQL.execute('{ single_item_field_class_unresolved { upcased } }')
+    assert_equal [{ upcased: 'A' }, { upcased: 'B' }], value[:single_item_field_class_unresolved]
+
+    value = GQL.execute('{ multiple_item_field_classes_unresolved { whoami } }')
+    assert_equal [{ whoami: 'I am a string.' }, { whoami: 'I am a number.' }], value[:multiple_item_field_classes_unresolved]
   end
 end

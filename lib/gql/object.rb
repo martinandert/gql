@@ -7,15 +7,7 @@ module GQL
     class << self
       def build_class(id, proc, options = {})
         field_class = options.delete(:field_class)
-
-        if field_class.is_a?(Hash)
-          field_class.values.each do |fc|
-            Field.validate_is_subclass! fc, 'field_class'
-          end
-        else
-          Field.validate_is_subclass! field_class, 'field_class'
-          field_class = Hash.new(field_class)
-        end
+        field_class = ::Hash.new(field_class) unless field_class.is_a?(::Hash)
 
         Class.new(self).tap do |klass|
           klass.id = id.to_s
@@ -26,7 +18,9 @@ module GQL
     end
 
     def value
-      field = self.class.field_class[target.class].new(ast_node, target, variables, context)
+      field_class = Registry.fetch(self.class.field_class[target.class])
+
+      field = field_class.new(ast_node, target, variables, context)
       field.value
     end
   end

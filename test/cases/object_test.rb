@@ -24,6 +24,7 @@ end
 
 class FieldWithObject < GQL::Field
   object :object, -> { MyObject.new('bar') }, field_class: ObjectFieldClass
+  object :object_unresolved, -> { MyObject.new('bar') }, field_class: 'ObjectFieldClass'
   object :mapped, -> { BClass.new('b') }, field_class: { AClass => AClassField, BClass => BClassField }
 end
 
@@ -58,5 +59,11 @@ class ObjectTest < GQL::TestCase
     value = GQL.execute('{ mapped { b } }')
 
     assert_equal 'b', value[:mapped][:b]
+  end
+
+  test "works with unresolved field class" do
+    value = GQL.execute('{ object_unresolved { foo } }')
+
+    assert_equal 'bar', value[:object_unresolved][:foo]
   end
 end

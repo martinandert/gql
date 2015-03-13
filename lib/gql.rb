@@ -15,10 +15,12 @@ module GQL
   autoload :Number
   autoload :Object
   autoload :Parser
+  autoload :Registry
   autoload :Scalar
   autoload :String
   autoload :TestCase
   autoload :Tokenizer
+  autoload :Unresolved
 
   module Errors
     extend ActiveSupport::Autoload

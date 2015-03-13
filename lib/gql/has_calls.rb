@@ -15,13 +15,14 @@ module GQL
 
     module ClassMethods
       def add_call(id, *args, &block)
+        id = id.to_sym
         options = args.extract_options!
 
         call_spec = args.shift || block || proc_for_call(id)
         result_spec = options[:returns] || call_spec.try(:result_class)
         result_class = result_class_from_spec(result_spec)
 
-        Field.validate_is_subclass! result_class, 'result_class' if result_class
+        result_class = Registry.fetch(result_class) if result_class
 
         call_class = call_class_from_spec(call_spec)
         call_class.id = id.to_s
@@ -31,13 +32,20 @@ module GQL
           call_class.const_set :Result, result_class
         end
 
-        self.const_set const_name_for_call(id), call_class
+        const_set const_name_for_call(id), call_class
         self.calls = calls.merge(id.to_sym => call_class)
+
+        descendants.each do |descendant|
+          descendant.calls[id] = call_class
+        end
+
+        call_class
       end
 
       alias :call :add_call
 
       def remove_call(id)
+        id = id.to_sym
         const_name = const_name_for_call(id)
 
         send :remove_const, const_name if const_defined?(const_name)
@@ -45,7 +53,7 @@ module GQL
       end
 
       def has_call?(id)
-        calls.has_key? id
+        calls.has_key? id.to_sym
       end
 
       private

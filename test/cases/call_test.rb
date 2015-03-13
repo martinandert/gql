@@ -231,7 +231,7 @@ class CallTest < GQL::TestCase
   end
 
   test "with connection result class" do
-    assert FieldWithCalls.calls[:with_connection_result].result_class.fields.has_key?(:edges)
+    assert FieldWithCalls.calls[:with_connection_result].result_class.has_field?(:edges)
   end
 
   test "with model-to-field mapping given as returns" do

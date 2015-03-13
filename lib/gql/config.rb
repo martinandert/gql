@@ -24,12 +24,12 @@ module GQL
 
     def field_types
       @@field_types ||= {
-        array:      Array,
-        boolean:    Boolean,
-        connection: Connection,
-        number:     Number,
-        object:     Object,
-        string:     String
+        array:      'GQL::Array',
+        boolean:    'GQL::Boolean',
+        connection: 'GQL::Connection',
+        number:     'GQL::Number',
+        object:     'GQL::Object',
+        string:     'GQL::String'
       }
     end
 
@@ -38,11 +38,11 @@ module GQL
     end
 
     def default_list_field_class
-      @@default_list_field_class ||= Field
+      @@default_list_field_class ||= 'GQL::Field'
     end
 
     def default_list_field_class=(value)
-      unless value.nil? || value <= Field
+      unless !value.is_a?(::Class) || value <= Field
         raise Errors::InvalidFieldClass.new(value, Field)
       end
 
@@ -77,6 +77,8 @@ module GQL
     def debug=(value)
       value = !!value
 
+      @@debug = nil unless defined?(@@debug)
+
       return if value == @@debug
 
       value ? switch_debug_on : switch_debug_off
@@ -96,21 +98,11 @@ module GQL
       end
 
       def switch_on_type_field
-        return if Field.has_field? :__type__
-
-        type_field_class = Field.object :__type__, -> { field_class }, field_class: Schema::Field
-
-        Field.descendants.each do |field_class|
-          field_class.fields[:__type__] = type_field_class
-        end
+        Field.object :__type__, -> { field_class }, field_class: Schema::Field
       end
 
       def switch_off_type_field
-        return unless Field.has_field? :__type__
-
-        [Field, *Field.descendants].each do |field_class|
-          field_class.remove_field :__type__
-        end
+        Field.remove_field :__type__
       end
 
       def switch_on_execution_context

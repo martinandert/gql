@@ -14,16 +14,6 @@ module GQL
           field_class.proc = proc
         end
       end
-
-      def validate_is_subclass!(subclass, name)
-        if subclass.nil?
-          raise Errors::FieldClassNotSet.new(self, name)
-        end
-
-        unless subclass <= self
-          raise Errors::InvalidFieldClass.new(subclass, self)
-        end
-      end
     end
 
     include HasCalls

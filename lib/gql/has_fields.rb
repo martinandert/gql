@@ -14,31 +14,46 @@ module GQL
 
     module ClassMethods
       def add_field(id, *args, &block)
+        remove_field id
+
+        id = id.to_sym
         options = args.extract_options!
         type = options.delete(:type) || Field
         proc = args.shift || block || proc_for_field(id)
+        const_name = const_name_for_field(id)
 
-        Field.validate_is_subclass! type, 'type'
+        field_class =
+          if type.is_a? ::String
+            Unresolved.build_class id, proc, options.merge(owner: self, type: type)
+          else
+            Registry.fetch(type).build_class id, proc, options
+          end
 
-        type.build_class(id, proc, options).tap do |field_class|
-          const_name = const_name_for_field(id)
+        send :remove_const, const_name if const_defined?(const_name, false)
+        const_set const_name, field_class #unless const_defined?(const_name, false)
+        self.fields = fields.merge(id => field_class)
 
-          const_set const_name, field_class unless const_defined?(const_name)
-          self.fields = fields.merge(id.to_sym => field_class)
-        end
+        descendants.each { |f| f.fields[id] = field_class }
+
+        field_class
       end
 
       alias :field :add_field
 
       def remove_field(id)
+        id = id.to_sym
         const_name = const_name_for_field(id)
 
-        send :remove_const, const_name if const_defined?(const_name)
-        fields.delete id
+        [self, *descendants].each do |f|
+          next unless f.has_field? id
+
+          f.send :remove_const, const_name if f.const_defined?(const_name, false)
+          f.fields.delete id
+        end
       end
 
       def has_field?(id)
-        fields.has_key? id
+        fields.has_key? id.to_sym
       end
 
       def cursor(id_or_proc)
