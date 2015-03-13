@@ -17,21 +17,15 @@ module GQL
       def add_field(id, *args, &block)
         remove_field id
 
-        id = id.to_sym
-        options = args.extract_options!
-        type = options.delete(:type) || Field
-        proc = args.shift || block || proc_for_field(id)
-        const_name = const_name_for_field(id)
-
-        field_class =
-          if type.is_a? ::String
-            Lazy.build_class id, proc, options.merge(owner: self, type: type)
-          else
-            Registry.fetch(type).build_class id, proc, options
-          end
+        id          = id.to_sym
+        options     = args.extract_options!
+        type        = options.delete(:type) || Field
+        proc        = args.shift || block || proc_for_field(id)
+        const_name  = const_name_for_field(id)
+        field_class = build_field_class(type, id, proc, options)
 
         send :remove_const, const_name if const_defined?(const_name, false)
-        const_set const_name, field_class #unless const_defined?(const_name, false)
+        const_set const_name, field_class
         self.fields = fields.merge(id => field_class)
 
         descendants.each { |f| f.fields[id] = field_class }
@@ -80,6 +74,14 @@ module GQL
       end
 
       private
+        def build_field_class(type, id, proc, options)
+          if type.is_a? ::String
+            Lazy.build_class id, proc, options.merge(owner: self, type: type)
+          else
+            Registry.fetch(type).build_class id, proc, options
+          end
+        end
+
         def const_name_for_field(id)
           prefix = id == :__type__ ? 'Schema_Type' : id.to_s.camelize
           :"#{prefix}Field"
