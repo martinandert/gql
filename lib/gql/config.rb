@@ -78,29 +78,13 @@ module GQL
 
     private
       def switch_debug_on
-        switch_on_type_field
-        switch_on_execution_context
-      end
-
-      def switch_debug_off
-        switch_off_type_field
-        switch_off_execution_context
-      end
-
-      def switch_on_type_field
         Field.object :__type__, -> { field_class }, class: Schema::Field
-      end
-
-      def switch_off_type_field
-        Field.remove_field :__type__
-      end
-
-      def switch_on_execution_context
         Field.send :remove_const, :ExecutionContext if Field.const_defined?(:ExecutionContext)
         Field.const_set :ExecutionContext, Field::ExecutionContextDebug
       end
 
-      def switch_off_execution_context
+      def switch_debug_off
+        Field.remove_field :__type__
         Field.send :remove_const, :ExecutionContext if Field.const_defined?(:ExecutionContext)
         Field.const_set :ExecutionContext, Field::ExecutionContextNoDebug
       end
