@@ -54,7 +54,7 @@ class ObjectTest < GQL::TestCase
     assert_equal 'BAR', value[:object][:foo]
   end
 
-  test "object type field with model mapping as field class" do
+  test "object type field with model-to-field mapping as field class" do
     value = GQL.execute('{ mapped { b } }')
 
     assert_equal 'b', value[:mapped][:b]

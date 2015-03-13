@@ -188,6 +188,7 @@ var Editor = React.createClass({
     this.editor.getSession().setMode('ace/mode/' + this.props.mode);
     this.editor.getSession().setTabSize(2);
     this.editor.setTheme('ace/theme/github');
+    this.editor.setShowPrintMargin(false);
     this.editor.setFontSize(this.props.fontSize);
     this.editor.setReadOnly(this.props.readOnly);
     this.editor.setHighlightActiveLine(this.props.highlightActiveLine);

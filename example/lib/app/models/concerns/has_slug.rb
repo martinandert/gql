@@ -6,15 +6,17 @@ module App
 
         included do
           validates :slug,
-                      :presence => true,
-                      :format => /\A[a-z][a-z0-9\-]*[a-z0-9]\z/,
-                      :uniqueness => { :case_sensitive => false }
+              presence:   true,
+              format:     /\A[a-z][a-z0-9\-]*[a-z0-9]\z/,
+              uniqueness: { case_sensitive: false }
         end
 
         module ClassMethods
-          def [](id)
-            clause = id.to_s =~ /\A\d+\z/ ? { id: id } : { slug: id.to_s }
-            where(clause).take!
+          def [](value)
+            value  = value.to_s
+            column = value =~ /\A\d+\z/ ? :id : :slug
+
+            where(column => value).take!
           end
         end
       end

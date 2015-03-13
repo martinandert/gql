@@ -1,12 +1,13 @@
 module App
   module Graph
     class ListField < GQL::Field
-      # MODEL_NODE_MAPPING = {
-      #   Models::Person => PersonField,
-      #   Models::Band => BandField,
-      #   Models::Album => AlbumField,
-      #   Models::Song => SongField,
-      #   Models::Role => RoleField
+      # MODEL_TO_FIELD_MAPPING = {
+      #   Models::Person      => PersonField,
+      #   Models::Band        => BandField,
+      #   Models::Album       => AlbumField,
+      #   Models::Song        => SongField,
+      #   Models::Role        => RoleField,
+      #   Models::Membership  => MembershipField
       # }.freeze
 
       number :count
@@ -15,8 +16,9 @@ module App
       call :skip, -> size { target.offset(size) }
       call :take, -> size { target.limit(size) }
 
-      # TODO :returns with a model map
-      # call :first, returns: MODEL_NODE_MAPPING
+      # proc given here b/c we want no arguments (-> just a single record) and raise! if not found
+      # call :first, -> { target.first! }, returns: MODEL_TO_FIELD_MAPPING
+      # call :last, ->  { target.last!  }, returns: MODEL_TO_FIELD_MAPPING
     end
   end
 end

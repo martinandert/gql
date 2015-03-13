@@ -58,9 +58,14 @@ module GQL
         end
 
         def result_class_from_spec(spec)
-          return spec unless spec.is_a? ::Array
-
-          result_class_from_connection_spec spec.dup
+          case spec
+          when ::Array
+            result_class_from_connection_spec spec.dup
+          when ::Hash
+            result_class_from_mapping_spec spec.dup
+          else
+            spec
+          end
         end
 
         def result_class_from_connection_spec(spec)
@@ -74,6 +79,10 @@ module GQL
           }
 
           Connection.build_class :result, nil, options
+        end
+
+        def result_class_from_mapping_spec(spec)
+          Object.build_class :result, nil, field_class: spec
         end
 
         def call_class_from_spec(spec)

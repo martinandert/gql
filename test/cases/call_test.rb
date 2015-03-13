@@ -60,6 +60,28 @@ class FooBarResultClass < GQL::Field
   field :foobar_value, -> { target.value }, type: GQL::Scalar
 end
 
+class AResultClass < Struct.new(:a)
+end
+
+class BResultClass < Struct.new(:b)
+end
+
+class AResultClassField < GQL::Field
+  string :a
+end
+
+class BResultClassField < GQL::Field
+  string :b
+end
+
+class CallClassWithMappingResultClass < GQL::Call
+  def execute(x)
+    x == 1 ? AResultClass.new('a') : BResultClass.new('b')
+  end
+
+  returns AResultClass => AResultClassField, BResultClass => BResultClassField
+end
+
 class FieldWithCalls < GQL::Field
   object :me, -> { target }, field_class: FieldWithCalls
   field :value, type: GQL::Scalar
@@ -86,6 +108,12 @@ class FieldWithCalls < GQL::Field
   call :no_execute_method, CallClassWithoutExecuteMethod
 
   call :with_connection_result, returns: [GQL::String]
+
+  call :mapped_object_as_returns, returns: { AResultClass => AResultClassField, BResultClass => BResultClassField } do |x|
+    x == 1 ? AResultClass.new('a') : BResultClass.new('b')
+  end
+
+  call :call_class_returning_mapping, CallClassWithMappingResultClass
 end
 
 class Inherited < FieldWithCalls
@@ -206,21 +234,33 @@ class CallTest < GQL::TestCase
     assert FieldWithCalls.calls[:with_connection_result].result_class.fields.has_key?(:edges)
   end
 
+  test "with model-to-field mapping given as returns" do
+    assert_equal({ a: 'a' }, GQL.execute('mapped_object_as_returns(1) { a }'))
+    assert_equal({ me: { b: 'b' } }, GQL.execute('{ me.mapped_object_as_returns(42) { b } }'))
+  end
+
+  test "with call class returning mapping" do
+    assert_equal({ a: 'a' }, GQL.execute('call_class_returning_mapping(1) { a }'))
+    assert_equal({ me: { b: 'b' } }, GQL.execute('{ me.call_class_returning_mapping(42) { b } }'))
+  end
+
   test "constants" do
     expected = {
-      foo:                    FieldWithCalls::FooCall,
-      foo_with_returns:       FieldWithCalls::FooWithReturnsCall,
-      bar:                    FieldWithCalls::BarCall,
-      bar_with_returns:       FieldWithCalls::BarWithReturnsCall,
-      baz:                    FieldWithCalls::BazCall,
-      baz_with_returns:       FieldWithCalls::BazWithReturnsCall,
-      bam:                    FieldWithCalls::BamCall,
-      bam_with_returns:       FieldWithCalls::BamWithReturnsCall,
-      boo:                    FieldWithCalls::BooCall,
-      boo_with_returns:       FieldWithCalls::BooWithReturnsCall,
-      pow:                    FieldWithCalls::PowCall,
-      no_execute_method:      FieldWithCalls::NoExecuteMethodCall,
-      with_connection_result: FieldWithCalls::WithConnectionResultCall
+      foo:                          FieldWithCalls::FooCall,
+      foo_with_returns:             FieldWithCalls::FooWithReturnsCall,
+      bar:                          FieldWithCalls::BarCall,
+      bar_with_returns:             FieldWithCalls::BarWithReturnsCall,
+      baz:                          FieldWithCalls::BazCall,
+      baz_with_returns:             FieldWithCalls::BazWithReturnsCall,
+      bam:                          FieldWithCalls::BamCall,
+      bam_with_returns:             FieldWithCalls::BamWithReturnsCall,
+      boo:                          FieldWithCalls::BooCall,
+      boo_with_returns:             FieldWithCalls::BooWithReturnsCall,
+      pow:                          FieldWithCalls::PowCall,
+      no_execute_method:            FieldWithCalls::NoExecuteMethodCall,
+      with_connection_result:       FieldWithCalls::WithConnectionResultCall,
+      mapped_object_as_returns:     FieldWithCalls::MappedObjectAsReturnsCall,
+      call_class_returning_mapping: FieldWithCalls::CallClassReturningMappingCall
     }
 
     assert_equal expected, FieldWithCalls.calls
@@ -257,8 +297,8 @@ class CallTest < GQL::TestCase
   end
 
   test "inheritance" do
-    assert_equal 13, FieldWithCalls.calls.size
-    assert_equal 14, Inherited.calls.size
+    assert_equal 15, FieldWithCalls.calls.size
+    assert_equal 16, Inherited.calls.size
 
     assert_equal FieldWithCalls.calls.keys + [:bingo], Inherited.calls.keys
   end
