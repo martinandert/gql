@@ -5,10 +5,6 @@ module GQL
     end
 
     def root_class=(value)
-      unless value.nil? || value <= Field
-        raise Errors::InvalidFieldClass.new(value, Field)
-      end
-
       @@root_class = value
     end
 
@@ -40,10 +36,6 @@ module GQL
     end
 
     def default_list_class=(value)
-      unless !value.is_a?(::Class) || value <= Field
-        raise Errors::InvalidFieldClass.new(value, Field)
-      end
-
       @@default_list_class = value
     end
 

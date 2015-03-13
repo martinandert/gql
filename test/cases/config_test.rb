@@ -1,8 +1,5 @@
 require 'cases/helper'
 
-class MyGQLField < GQL::Field
-end
-
 class ConfigTest < ActiveSupport::TestCase
   test "can set the configuration object" do
     begin
@@ -22,16 +19,10 @@ class ConfigTest < ActiveSupport::TestCase
     begin
       prev = GQL.root_class
 
-      assert_nothing_raised { GQL.root_class = MyGQLField }
-      assert_equal MyGQLField, GQL.root_class
+      assert_nothing_raised { GQL.root_class = 'Foo' }
+      assert_equal 'Foo', GQL.root_class
     ensure
       GQL.root_class = prev
-    end
-  end
-
-  test "raises an GQL::Errors::InvalidFieldClass exception when setting an invalid root class" do
-    assert_raises GQL::Errors::InvalidFieldClass do
-      GQL.root_class = Array
     end
   end
 
@@ -76,16 +67,10 @@ class ConfigTest < ActiveSupport::TestCase
     begin
       prev = GQL.root_class
 
-      assert_nothing_raised { GQL.default_list_class = MyGQLField }
-      assert_equal MyGQLField, GQL.default_list_class
+      assert_nothing_raised { GQL.default_list_class = 'Foo' }
+      assert_equal 'Foo', GQL.default_list_class
     ensure
       GQL.default_list_class = prev
-    end
-  end
-
-  test "raises an GQL::Errors::InvalidFieldClass exception when setting an invalid list class" do
-    assert_raises GQL::Errors::InvalidFieldClass do
-      GQL.default_list_class = Array
     end
   end
 

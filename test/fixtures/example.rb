@@ -18,6 +18,17 @@ class FakeRecord
   end
 end
 
+
+### Models:
+
+class User < FakeRecord
+  def admin?
+    first_name == 'Martin'
+  end
+
+  attr_accessor :account, :albums
+end
+
 class Account < FakeRecord
   def saldo
     { cents: cents, currency: currency }
@@ -35,122 +46,8 @@ end
 class Song < FakeRecord
 end
 
-class User < FakeRecord
-  def admin?
-    first_name == 'Martin'
-  end
 
-  attr_accessor :account, :albums
-end
-
-class Timestamp < GQL::Field
-  call :format,     -> (format = 'default') { I18n.localize target, format: format.to_sym }, returns: GQL::String
-  call :ago,        -> { 'a long time ago' }, returns: GQL::String
-  call :add_years,  -> years { target + years * 365*24*60*60 }
-  call :to_s, returns: GQL::String
-
-  number :year
-  number :month
-  number :day
-  number :hour
-  number :minute, -> { target.min }
-  number :second, -> { target.sec }
-
-  def scalar_value
-    target.to_i * 1000
-  end
-end
-
-GQL.field_types.update timestamp: Timestamp
-
-class List < GQL::Field
-  number  :count
-  boolean :any, -> { target.any? }
-
-  call :all, -> { target }
-
-  call :first do |size|
-    target[0...size]
-  end
-end
-
-GQL.default_list_class = List
-
-class UserField < GQL::Field
-end
-
-class SongField < GQL::Field
-end
-
-class AlbumField < GQL::Field
-end
-
-class AccountField < GQL::Field
-end
-
-class MoneyField < GQL::Field
-end
-
-class UserField
-  cursor :token
-
-  string :id, -> { target.token }
-
-  string :full_name do
-    target.first_name + ' ' + target.last_name
-  end
-
-  string      :first_name
-  string      :last_name
-  boolean     :is_admin,  -> { target.admin? }
-  object      :account,     class: AccountField
-  connection  :albums,      item_class: AlbumField
-  timestamp   :created_at
-end
-
-class AccountField
-  cursor -> { target.iban }
-
-  number  :id
-  object  :user,      class: UserField
-  object  :saldo,     class: MoneyField
-  array   :fibonacci, item_class: GQL::Number
-  string  :iban
-  string  :bank_name
-
-  string  :holder, -> { target.owner }
-
-  call :reversed_number, -> { target.number.reverse }, returns: GQL::String
-end
-
-class MoneyField
-  cursor -> { 'money' }
-
-  number :cents,    -> { target[:cents] }
-  string :currency, -> { target[:currency] }
-
-  def scalar_value
-    "#{'%.2f' % (target[:cents] / 100.0)} #{target[:currency]}"
-  end
-end
-
-class AlbumField
-  cursor :id
-
-  number      :id
-  object      :user, class: UserField
-  string      :artist
-  string      :title
-  connection  :songs, item_class: SongField
-end
-
-class SongField
-  cursor :id
-
-  number :id
-  object :album, class: AlbumField
-  string :title
-end
+### Populate models with some data:
 
 $time = Time.at(1425560620).utc
 
@@ -192,7 +89,90 @@ $albums[2].songs = []
 
 $viewer = $users[0]
 
-require 'active_support/concern'
+
+### Graph nodes:
+
+class Money < GQL::Field
+  cursor -> { 'money' }
+
+  number :cents,    -> { target[:cents] }
+  string :currency, -> { target[:currency] }
+
+  def scalar_value
+    "#{'%.2f' % (target[:cents] / 100.0)} #{target[:currency]}"
+  end
+end
+
+class Timestamp < GQL::Field
+  call :format,     -> (format = 'default') { I18n.localize target, format: format.to_sym }, returns: 'GQL::String'
+  call :ago,        -> { 'a long time ago' }, returns: 'GQL::String'
+  call :add_years,  -> years { target + years * 365*24*60*60 }
+  call :to_s, returns: 'GQL::String'
+
+  number :year
+  number :month
+  number :day
+  number :hour
+  number :minute, -> { target.min }
+  number :second, -> { target.sec }
+
+  def scalar_value
+    target.to_i * 1000
+  end
+end
+
+# register field types
+GQL.field_types.update money: Money, timestamp: Timestamp
+
+
+class UserField < GQL::Field
+  cursor :token
+
+  string      :id, -> { target.token }
+  string      :first_name
+  string      :last_name
+  boolean     :is_admin,  -> { target.admin? }
+  object      :account,     as: 'AccountField'
+  connection  :albums,      item_class: 'AlbumField'
+  timestamp   :created_at # using registered field type here
+
+  string :full_name do
+    target.first_name + ' ' + target.last_name
+  end
+end
+
+class AlbumField < GQL::Field
+  cursor :id
+
+  number      :id
+  object      :user, as: UserField
+  string      :artist
+  string      :title
+  connection  :songs, item_class: 'SongField'
+end
+
+class SongField < GQL::Field
+  cursor :id
+
+  number :id
+  object :album, as: AlbumField
+  string :title
+end
+
+class AccountField < GQL::Field
+  cursor -> { target.iban }
+
+  number  :id
+  object  :user,      as: UserField
+  money   :saldo # using registered field type here
+  array   :fibonacci, item_class: GQL::Number
+  string  :iban
+  string  :bank_name
+
+  string  :holder, -> { target.owner }
+
+  call :reversed_number, -> { target.number.reverse }, returns: 'GQL::String'
+end
 
 class UpdateUserNameCall < GQL::Call
   def execute(token, new_name)
@@ -215,22 +195,37 @@ class UpdateUserNameCall < GQL::Call
   # returns Result
 
   returns do
-    object :user, class: UserField
+    object :user, as: 'UserField'
     string :old_name
     string :new_name
   end
 end
 
-class RootField < GQL::Field
-  connection :users,  -> { $users  }, item_class: UserField, list_class: List
-  connection :songs,  -> { $songs  }, item_class: SongField
-  connection :albums, -> { $albums }, item_class: AlbumField
+class List < GQL::Field
+  number  :count
+  boolean :any, -> { target.any? }
 
-  call :user,     -> token { $users.find { |user| user.token == token } }, returns: UserField
-  call :viewer,   -> { $users.find { |user| user.token == context[:auth_token] } }, returns: UserField
-  call :account,  -> id { $accounts.find { |account| account.id == id } }, returns: AccountField
-  call :album,    -> id { $albums.find { |album| album.id == id } }, returns: AlbumField
-  call :song,     -> id { $songs.find { |song| song.id == id } }, returns: SongField
+  call :all, -> { target }
+
+  call :first do |size|
+    target[0...size]
+  end
+end
+
+# if not list_class is specified on `connection` fields
+GQL.default_list_class = List
+
+
+class RootField < GQL::Field
+  connection :users,  -> { $users  }, item_class: 'UserField', list_class: 'List'
+  connection :songs,  -> { $songs  }, item_class: 'SongField'
+  connection :albums, -> { $albums }, item_class: 'AlbumField'
+
+  call :user,     -> token { $users.find { |user| user.token == token } }, returns: 'UserField'
+  call :viewer,   -> { $users.find { |user| user.token == context[:auth_token] } }, returns: 'UserField'
+  call :account,  -> id { $accounts.find { |account| account.id == id } }, returns: 'AccountField'
+  call :album,    -> id { $albums.find { |album| album.id == id } }, returns: 'AlbumField'
+  call :song,     -> id { $songs.find { |song| song.id == id } }, returns: 'SongField'
 
   call :update_user_name, UpdateUserNameCall
 
@@ -238,7 +233,7 @@ class RootField < GQL::Field
   call :accounts, -> { $accounts }, returns: [AccountField]
 
   call :everything, -> { ($users + $albums + $songs + $accounts).shuffle }, returns: [
-    User => UserField, Album => AlbumField, Song => SongField, Account => AccountField
+    User => 'UserField', Album => 'AlbumField', Song => 'SongField', Account => 'AccountField'
   ]
 end
 

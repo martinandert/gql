@@ -16,7 +16,7 @@ module GQL
 
       target = GQL.root_target_proc.call(context)
 
-      field = field_class.new(ast_root, target, variables, context)
+      field = Registry.fetch(field_class).new(ast_root, target, variables, context)
       field.value
     end
   end
