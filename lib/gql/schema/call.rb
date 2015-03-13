@@ -5,8 +5,8 @@ module GQL
 
       string  :id
       string  :name
-      object  :result_class, -> { target.result_class || CallerClass }, field_class: Field
-      array   :parameters,   -> { (target.proc || target.instance_method(:execute)).parameters }, item_field_class: Parameter
+      object  :result_class, -> { target.result_class || CallerClass }, class: Field
+      array   :parameters,   -> { (target.proc || target.instance_method(:execute)).parameters }, item_class: Parameter
 
       def scalar_value
         target.name

@@ -6,11 +6,11 @@ end
 
 class StringTest < ActiveSupport::TestCase
   setup do
-    @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithString
+    @old_root, GQL.root_class = GQL.root_class, FieldWithString
   end
 
   teardown do
-    GQL.root_field_class = @old_root
+    GQL.root_class = @old_root
   end
 
   test "returns string value" do

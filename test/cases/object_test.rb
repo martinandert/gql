@@ -23,18 +23,18 @@ class BClassField < GQL::Field
 end
 
 class FieldWithObject < GQL::Field
-  object :object, -> { MyObject.new('bar') }, field_class: ObjectFieldClass
-  object :object_unresolved, -> { MyObject.new('bar') }, field_class: 'ObjectFieldClass'
-  object :mapped, -> { BClass.new('b') }, field_class: { AClass => AClassField, BClass => BClassField }
+  object :object, -> { MyObject.new('bar') }, class: ObjectFieldClass
+  object :object_unresolved, -> { MyObject.new('bar') }, class: 'ObjectFieldClass'
+  object :mapped, -> { BClass.new('b') }, class: { AClass => AClassField, BClass => BClassField }
 end
 
 class ObjectTest < ActiveSupport::TestCase
   setup do
-    @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithObject
+    @old_root, GQL.root_class = GQL.root_class, FieldWithObject
   end
 
   teardown do
-    GQL.root_field_class = @old_root
+    GQL.root_class = @old_root
   end
 
   test "returns nil without fields" do

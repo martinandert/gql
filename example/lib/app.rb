@@ -43,7 +43,7 @@ module App
     autoload :SongField
 
     GQL.field_types.update date: DateField, duration: DurationField
-    GQL.default_list_field_class = ListField
-    GQL.root_field_class = RootField
+    GQL.default_list_class = ListField
+    GQL.root_class = RootField
   end
 end

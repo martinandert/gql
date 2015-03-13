@@ -83,7 +83,7 @@ class CallClassWithMappingResultClass < GQL::Call
 end
 
 class FieldWithCalls < GQL::Field
-  object :me, -> { target }, field_class: FieldWithCalls
+  object :me, -> { target }, class: FieldWithCalls
   field :value, type: GQL::Scalar
 
   call :foo
@@ -122,13 +122,13 @@ end
 
 class CallTest < ActiveSupport::TestCase
   setup do
-    @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithCalls
+    @old_root, GQL.root_class = GQL.root_class, FieldWithCalls
     @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { CallerTarget.new }
   end
 
   teardown do
     GQL.root_target_proc = @old_proc
-    GQL.root_field_class = @old_root
+    GQL.root_class = @old_root
   end
 
   test "without proc and result class and returns" do

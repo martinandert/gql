@@ -15,23 +15,23 @@ class ConfigTest < ActiveSupport::TestCase
   end
 
   test "has no root field class set by default" do
-    assert_nil GQL.root_field_class
+    assert_nil GQL.root_class
   end
 
   test "can set the root field class to a valid class" do
     begin
-      prev = GQL.root_field_class
+      prev = GQL.root_class
 
-      assert_nothing_raised { GQL.root_field_class = MyGQLField }
-      assert_equal MyGQLField, GQL.root_field_class
+      assert_nothing_raised { GQL.root_class = MyGQLField }
+      assert_equal MyGQLField, GQL.root_class
     ensure
-      GQL.root_field_class = prev
+      GQL.root_class = prev
     end
   end
 
   test "raises an GQL::Errors::InvalidFieldClass exception when setting an invalid root class" do
     assert_raises GQL::Errors::InvalidFieldClass do
-      GQL.root_field_class = Array
+      GQL.root_class = Array
     end
   end
 
@@ -69,23 +69,23 @@ class ConfigTest < ActiveSupport::TestCase
   end
 
   test "uses GQL::Field as the default list class" do
-    assert_equal 'GQL::Field', GQL.default_list_field_class
+    assert_equal 'GQL::Field', GQL.default_list_class
   end
 
   test "can set the default list class to a valid class" do
     begin
-      prev = GQL.root_field_class
+      prev = GQL.root_class
 
-      assert_nothing_raised { GQL.default_list_field_class = MyGQLField }
-      assert_equal MyGQLField, GQL.default_list_field_class
+      assert_nothing_raised { GQL.default_list_class = MyGQLField }
+      assert_equal MyGQLField, GQL.default_list_class
     ensure
-      GQL.default_list_field_class = prev
+      GQL.default_list_class = prev
     end
   end
 
   test "raises an GQL::Errors::InvalidFieldClass exception when setting an invalid list class" do
     assert_raises GQL::Errors::InvalidFieldClass do
-      GQL.default_list_field_class = Array
+      GQL.default_list_class = Array
     end
   end
 

@@ -5,8 +5,8 @@ module App
 
       number :id
       string :type, -> { target.class.name.split('::').last.downcase }
-      object :band,   field_class: BandField
-      object :member, field_class: PersonField
+      object :band,   class: BandField
+      object :member, class: PersonField
       number :started_year
       number :ended_year
 

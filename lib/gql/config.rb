@@ -1,15 +1,15 @@
 module GQL
   class Config
-    def root_field_class
-      @@root_field_class ||= nil
+    def root_class
+      @@root_class ||= nil
     end
 
-    def root_field_class=(value)
+    def root_class=(value)
       unless value.nil? || value <= Field
         raise Errors::InvalidFieldClass.new(value, Field)
       end
 
-      @@root_field_class = value
+      @@root_class = value
     end
 
     def root_target_proc
@@ -35,16 +35,16 @@ module GQL
       @@field_types = value
     end
 
-    def default_list_field_class
-      @@default_list_field_class ||= 'GQL::Field'
+    def default_list_class
+      @@default_list_class ||= 'GQL::Field'
     end
 
-    def default_list_field_class=(value)
+    def default_list_class=(value)
       unless !value.is_a?(::Class) || value <= Field
         raise Errors::InvalidFieldClass.new(value, Field)
       end
 
-      @@default_list_field_class = value
+      @@default_list_class = value
     end
 
     def default_field_proc
@@ -96,7 +96,7 @@ module GQL
       end
 
       def switch_on_type_field
-        Field.object :__type__, -> { field_class }, field_class: Schema::Field
+        Field.object :__type__, -> { field_class }, class: Schema::Field
       end
 
       def switch_off_type_field

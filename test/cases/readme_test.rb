@@ -2,8 +2,8 @@ require 'cases/helper'
 
 class ReadmeTest < ActiveSupport::TestCase
   setup do
-    @old_root = GQL.root_field_class
-    @old_list = GQL.default_list_field_class
+    @old_root = GQL.root_class
+    @old_list = GQL.default_list_class
     @old_types = GQL.field_types.dup
 
     load 'fixtures/example.rb'
@@ -11,8 +11,8 @@ class ReadmeTest < ActiveSupport::TestCase
 
   teardown do
     GQL.field_types = @old_types
-    GQL.default_list_field_class = @old_list
-    GQL.root_field_class = @old_root
+    GQL.default_list_class = @old_list
+    GQL.root_class = @old_root
   end
 
   test "readme example works as advertised" do

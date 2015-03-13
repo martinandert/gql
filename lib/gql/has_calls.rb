@@ -83,19 +83,19 @@ module GQL
 
         def result_class_from_connection_spec(spec)
           if spec.size == 1
-            spec.unshift GQL.default_list_field_class
+            spec.unshift GQL.default_list_class
           end
 
           options = {
-            list_field_class: spec.first,
-            item_field_class: spec.last
+            list_class: spec.first,
+            item_class: spec.last
           }
 
           Connection.build_class :result, nil, options
         end
 
         def result_class_from_mapping_spec(spec)
-          Object.build_class :result, nil, field_class: spec
+          Object.build_class :result, nil, class: spec
         end
 
         def call_class_from_spec(spec)

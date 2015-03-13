@@ -56,8 +56,8 @@ module GQL
       Thread.current[:gql_config] = value
     end
 
-    %w(root_field_class root_target_proc field_types
-       default_list_field_class default_field_proc
+    %w(root_class root_target_proc field_types
+       default_list_class default_field_proc
        default_call_proc debug).each do |method|
       module_eval <<-DELEGATORS, __FILE__, __LINE__ + 1
         def #{method}

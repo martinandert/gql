@@ -9,8 +9,8 @@ class FieldWithProcCursor < GQL::Number
 end
 
 class FieldRootField < GQL::Field
-  object :id_cursor,   -> { target }, field_class: FieldWithIdCursor
-  object :proc_cursor, -> { target }, field_class: FieldWithProcCursor
+  object :id_cursor,   -> { target }, class: FieldWithIdCursor
+  object :proc_cursor, -> { target }, class: FieldWithProcCursor
 
   string :no_calls, -> { 'foo' }
 
@@ -29,13 +29,13 @@ end
 
 class FieldTest < ActiveSupport::TestCase
   setup do
-    @old_root, GQL.root_field_class = GQL.root_field_class, FieldRootField
+    @old_root, GQL.root_class = GQL.root_class, FieldRootField
     @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { 42 }
   end
 
   teardown do
     GQL.root_target_proc = @old_proc
-    GQL.root_field_class = @old_root
+    GQL.root_class = @old_root
   end
 
   test "cursor with id" do

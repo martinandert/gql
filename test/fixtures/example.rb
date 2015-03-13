@@ -74,7 +74,7 @@ class List < GQL::Field
   end
 end
 
-GQL.default_list_field_class = List
+GQL.default_list_class = List
 
 class UserField < GQL::Field
 end
@@ -103,8 +103,8 @@ class UserField
   string      :first_name
   string      :last_name
   boolean     :is_admin,  -> { target.admin? }
-  object      :account,     field_class: AccountField
-  connection  :albums,      item_field_class: AlbumField
+  object      :account,     class: AccountField
+  connection  :albums,      item_class: AlbumField
   timestamp   :created_at
 end
 
@@ -112,9 +112,9 @@ class AccountField
   cursor -> { target.iban }
 
   number  :id
-  object  :user,      field_class: UserField
-  object  :saldo,     field_class: MoneyField
-  array   :fibonacci, item_field_class: GQL::Number
+  object  :user,      class: UserField
+  object  :saldo,     class: MoneyField
+  array   :fibonacci, item_class: GQL::Number
   string  :iban
   string  :bank_name
 
@@ -138,17 +138,17 @@ class AlbumField
   cursor :id
 
   number      :id
-  object      :user, field_class: UserField
+  object      :user, class: UserField
   string      :artist
   string      :title
-  connection  :songs, item_field_class: SongField
+  connection  :songs, item_class: SongField
 end
 
 class SongField
   cursor :id
 
   number :id
-  object :album, field_class: AlbumField
+  object :album, class: AlbumField
   string :title
 end
 
@@ -208,23 +208,23 @@ class UpdateUserNameCall < GQL::Call
   end
 
   # class Result < GQL::Field
-  #   object :user,     -> { target[:user]     }, field_class: UserField
+  #   object :user,     -> { target[:user]     }, class: UserField
   #   string :old_name, -> { target[:old_name] }
   #   string :new_name, -> { target[:new_name] }
   # end
   # returns Result
 
   returns do
-    object :user, field_class: UserField
+    object :user, class: UserField
     string :old_name
     string :new_name
   end
 end
 
 class RootField < GQL::Field
-  connection :users,  -> { $users  }, item_field_class: UserField, list_field_class: List
-  connection :songs,  -> { $songs  }, item_field_class: SongField
-  connection :albums, -> { $albums }, item_field_class: AlbumField
+  connection :users,  -> { $users  }, item_class: UserField, list_class: List
+  connection :songs,  -> { $songs  }, item_class: SongField
+  connection :albums, -> { $albums }, item_class: AlbumField
 
   call :user,     -> token { $users.find { |user| user.token == token } }, returns: UserField
   call :viewer,   -> { $users.find { |user| user.token == context[:auth_token] } }, returns: UserField
@@ -242,4 +242,4 @@ class RootField < GQL::Field
   ]
 end
 
-GQL.root_field_class = RootField
+GQL.root_class = RootField

@@ -8,7 +8,7 @@ module GQL
     end
 
     def execute(context = {}, vars = {})
-      field_class = GQL.root_field_class
+      field_class = GQL.root_class
 
       raise Errors::RootClassNotSet if field_class.nil?
 

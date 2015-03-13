@@ -6,11 +6,11 @@ end
 
 class NumberTest < ActiveSupport::TestCase
   setup do
-    @old_root, GQL.root_field_class = GQL.root_field_class, FieldWithNumber
+    @old_root, GQL.root_class = GQL.root_class, FieldWithNumber
   end
 
   teardown do
-    GQL.root_field_class = @old_root
+    GQL.root_class = @old_root
   end
 
   test "returns number value" do

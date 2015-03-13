@@ -2,11 +2,11 @@ require 'cases/helper'
 
 class ExecutorTest < ActiveSupport::TestCase
   setup do
-    @old_root, GQL.root_field_class = GQL.root_field_class, nil
+    @old_root, GQL.root_class = GQL.root_class, nil
   end
 
   teardown do
-    GQL.root_field_class = @old_root
+    GQL.root_class = @old_root
   end
 
   test "raises when root field class is not set" do

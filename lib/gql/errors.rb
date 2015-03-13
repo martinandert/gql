@@ -64,7 +64,7 @@ module GQL
     class RootClassNotSet < Error
       def initialize
         msg =  "GQL root field class is not set. "
-        msg << "Set it with `GQL.root_field_class = MyRootField'."
+        msg << "Set it with `GQL.root_class = MyRootField'."
 
         super(msg, 121)
       end
