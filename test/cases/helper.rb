@@ -7,5 +7,6 @@ require 'gql'
 
 require 'active_support'
 require 'active_support/testing/autorun'
+require 'minitest/perf' if ENV['PERF']
 
 ActiveSupport::TestCase.test_order = :random

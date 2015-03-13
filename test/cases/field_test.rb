@@ -106,8 +106,6 @@ class FieldTest < ActiveSupport::TestCase
   end
 
   test "in debug mode each field exposes a __type__ subfield" do
-    skip
-
     begin
       prev, GQL.debug = GQL.debug, false
 
@@ -121,10 +119,8 @@ class FieldTest < ActiveSupport::TestCase
 
       GQL.debug = true
 
-      assert_nothing_raised do
-        assert_equal 'FieldRootField', GQL.execute('{ __type__ }')[:__type__]
-        assert_equal 'FieldRootField', GQL.execute('{ __type__ { name } }')[:__type__]
-      end
+      assert_equal 'FieldRootField', GQL.execute('{ __type__ }')[:__type__]
+      assert_equal 'FieldRootField', GQL.execute('{ __type__ { name } }')[:__type__][:name]
     ensure
       GQL.debug = prev
     end

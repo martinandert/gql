@@ -282,18 +282,18 @@ class CallTest < ActiveSupport::TestCase
   end
 
   test "ids" do
-    assert_equal 'foo',                FieldWithCalls.calls[:foo].id
-    assert_equal 'foo_with_returns',   FieldWithCalls.calls[:foo_with_returns].id
-    assert_equal 'bar',                FieldWithCalls.calls[:bar].id
-    assert_equal 'bar_with_returns',   FieldWithCalls.calls[:bar_with_returns].id
-    assert_equal 'baz',                FieldWithCalls.calls[:baz].id
-    assert_equal 'baz_with_returns',   FieldWithCalls.calls[:baz_with_returns].id
-    assert_equal 'bam',                FieldWithCalls.calls[:bam].id
-    assert_equal 'bam_with_returns',   FieldWithCalls.calls[:bam_with_returns].id
-    assert_equal 'boo',                FieldWithCalls.calls[:boo].id
-    assert_equal 'boo_with_returns',   FieldWithCalls.calls[:boo_with_returns].id
-    assert_equal 'pow',                FieldWithCalls.calls[:pow].id
-    assert_equal 'no_execute_method',  FieldWithCalls.calls[:no_execute_method].id
+    assert_equal :foo,                FieldWithCalls.calls[:foo].id
+    assert_equal :foo_with_returns,   FieldWithCalls.calls[:foo_with_returns].id
+    assert_equal :bar,                FieldWithCalls.calls[:bar].id
+    assert_equal :bar_with_returns,   FieldWithCalls.calls[:bar_with_returns].id
+    assert_equal :baz,                FieldWithCalls.calls[:baz].id
+    assert_equal :baz_with_returns,   FieldWithCalls.calls[:baz_with_returns].id
+    assert_equal :bam,                FieldWithCalls.calls[:bam].id
+    assert_equal :bam_with_returns,   FieldWithCalls.calls[:bam_with_returns].id
+    assert_equal :boo,                FieldWithCalls.calls[:boo].id
+    assert_equal :boo_with_returns,   FieldWithCalls.calls[:boo_with_returns].id
+    assert_equal :pow,                FieldWithCalls.calls[:pow].id
+    assert_equal :no_execute_method,  FieldWithCalls.calls[:no_execute_method].id
   end
 
   test "inheritance" do

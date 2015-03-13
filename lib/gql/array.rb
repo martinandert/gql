@@ -10,7 +10,7 @@ module GQL
         item_field_class = ::Hash.new(item_field_class) unless item_field_class.is_a?(::Hash)
 
         Class.new(self).tap do |field_class|
-          field_class.id = id.to_s
+          field_class.id = id
           field_class.proc = proc
           field_class.item_field_class = item_field_class
         end

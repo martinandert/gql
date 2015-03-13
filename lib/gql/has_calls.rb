@@ -15,6 +15,8 @@ module GQL
 
     module ClassMethods
       def add_call(id, *args, &block)
+        remove_call id
+
         id = id.to_sym
         options = args.extract_options!
 
@@ -25,7 +27,7 @@ module GQL
         result_class = Registry.fetch(result_class) if result_class
 
         call_class = call_class_from_spec(call_spec)
-        call_class.id = id.to_s
+        call_class.id = id
         call_class.result_class = result_class
 
         if result_class && result_class.name.nil?
@@ -33,11 +35,9 @@ module GQL
         end
 
         const_set const_name_for_call(id), call_class
-        self.calls = calls.merge(id.to_sym => call_class)
+        self.calls = calls.merge(id => call_class)
 
-        descendants.each do |descendant|
-          descendant.calls[id] = call_class
-        end
+        descendants.each { |c| c.calls[id] = call_class }
 
         call_class
       end
@@ -48,8 +48,12 @@ module GQL
         id = id.to_sym
         const_name = const_name_for_call(id)
 
-        send :remove_const, const_name if const_defined?(const_name)
-        calls.delete id
+        [self, *descendants].each do |c|
+          next unless c.has_call? id
+
+          c.send :remove_const, const_name if c.const_defined?(const_name, false)
+          c.calls.delete id
+        end
       end
 
       def has_call?(id)

@@ -1,8 +1,8 @@
 /.bundle/
 /.env
 /.yardoc
+/.minitest-perf.db
 /Gemfile.lock
-/_yardoc/
 /coverage/
 /doc/
 /example/.env
