@@ -25,12 +25,12 @@ module GQL
         field_class = build_field_class(type, id, proc, options)
 
         send :remove_const, const_name if const_defined?(const_name, false)
-        const_set const_name, field_class
-        self.fields = fields.merge(id => field_class)
 
-        descendants.each { |f| f.fields[id] = field_class }
-
-        field_class
+        field_class.tap do |fc|
+          const_set const_name, fc
+          self.fields = fields.merge(id => fc)
+          descendants.each { |f| f.fields[id] = fc }
+        end
       end
 
       alias :field :add_field
