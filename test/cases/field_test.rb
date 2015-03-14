@@ -70,23 +70,6 @@ class FieldTest < ActiveSupport::TestCase
     GQL.field_types.delete :foo
   end
 
-  test "validate_is_subclass!" do
-    GQL::Registry.reset
-
-    assert_nothing_raised do
-      GQL::Registry.fetch GQL::Field
-      GQL::Registry.fetch GQL::String
-    end
-
-    assert_raises GQL::Errors::FieldClassNotSet do
-      GQL::Registry.fetch nil
-    end
-
-    assert_raises GQL::Errors::InvalidFieldClass do
-      GQL::Registry.fetch Fixnum
-    end
-  end
-
   test "undefined field type raises error" do
     assert_raises GQL::Errors::NoMethodError do
       Class.new(GQL::Field).class_eval do

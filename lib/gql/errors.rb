@@ -70,16 +70,7 @@ module GQL
       end
     end
 
-    class FieldClassNotSet < Error
-      def initialize(node_class, name)
-        msg =  "#{node_class} must have a #{name.humanize(capitalize: false)} set. "
-        msg << "Set it with `self.#{name} = My#{name.camelize}Class'."
-
-        super(msg, 122)
-      end
-    end
-
-    class InvalidFieldClass < Error
+    class InvalidClass < Error
       def initialize(node_class, super_class)
         msg = "#{node_class} must be a (subclass of) #{super_class}."
 
