@@ -16,8 +16,8 @@ class FieldWithArrays < GQL::Field
   array :single_item_class, -> { %w(a b) }, item_class: ArrayItemClass
   array :multiple_item_classes, -> { ['foo', 42] }, item_class: { Fixnum => MyFixnum, String => MyString }
 
-  array :single_item_class_unresolved, -> { %w(a b) }, item_class: 'ArrayItemClass'
-  array :multiple_item_classes_unresolved, -> { ['foo', 42] }, item_class: { Fixnum => 'MyFixnum', String => 'MyString' }
+  array :single_string_item_class, -> { %w(a b) }, item_class: 'ArrayItemClass'
+  array :multiple_string_item_classes, -> { ['foo', 42] }, item_class: { Fixnum => 'MyFixnum', String => 'MyString' }
 end
 
 class ArrayTest < ActiveSupport::TestCase
@@ -49,17 +49,15 @@ class ArrayTest < ActiveSupport::TestCase
     assert_equal [{ whoami: 'I am a string.' }, { whoami: 'I am a number.' }], value[:multiple_item_classes]
   end
 
-  test "works with unresolved item class" do
-    value = GQL.execute('{ single_item_class_unresolved }')
-    assert_equal ['a', 'b'], value[:single_item_class_unresolved]
+  test "works with string item class" do
+    GQL::Registry.reset
 
-    value = GQL.execute('{ multiple_item_classes_unresolved }')
-    assert_equal ['foo', 42], value[:multiple_item_classes_unresolved]
+    assert FieldWithArrays.fields[:single_string_item_class] < GQL::Lazy
+    value = GQL.execute('{ single_string_item_class }')
+    assert_equal ['a', 'b'], value[:single_string_item_class]
 
-    value = GQL.execute('{ single_item_class_unresolved { upcased } }')
-    assert_equal [{ upcased: 'A' }, { upcased: 'B' }], value[:single_item_class_unresolved]
-
-    value = GQL.execute('{ multiple_item_classes_unresolved { whoami } }')
-    assert_equal [{ whoami: 'I am a string.' }, { whoami: 'I am a number.' }], value[:multiple_item_classes_unresolved]
+    assert FieldWithArrays.fields[:multiple_string_item_classes] < GQL::Lazy
+    value = GQL.execute('{ multiple_string_item_classes }')
+    assert_equal ['foo', 42], value[:multiple_string_item_classes]
   end
 end

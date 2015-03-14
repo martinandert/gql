@@ -24,8 +24,10 @@ end
 
 class FieldWithObject < GQL::Field
   object :object, -> { MyObject.new('bar') }, object_class: ObjectFieldClass
-  object :object_unresolved, -> { MyObject.new('bar') }, object_class: 'ObjectFieldClass'
+  object :string_object_class, -> { MyObject.new('bar') }, object_class: 'ObjectFieldClass'
+
   object :mapped, -> { BClass.new('b') }, object_class: { AClass => AClassField, BClass => BClassField }
+  object :string_mapped, -> { BClass.new('b') }, object_class: { AClass => 'AClassField', BClass => 'BClassField' }
 end
 
 class ObjectTest < ActiveSupport::TestCase
@@ -61,9 +63,15 @@ class ObjectTest < ActiveSupport::TestCase
     assert_equal 'b', value[:mapped][:b]
   end
 
-  test "works with unresolved field class" do
-    value = GQL.execute('{ object_unresolved { foo } }')
+  test "works with string object class" do
+    GQL::Registry.reset
 
-    assert_equal 'bar', value[:object_unresolved][:foo]
+    assert FieldWithObject.fields[:string_object_class] < GQL::Lazy
+    value = GQL.execute('{ string_object_class { foo } }')
+    assert_equal 'bar', value[:string_object_class][:foo]
+
+    assert FieldWithObject.fields[:string_mapped] < GQL::Lazy
+    value = GQL.execute('{ string_mapped { b } }')
+    assert_equal 'b', value[:string_mapped][:b]
   end
 end
