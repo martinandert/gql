@@ -2,7 +2,7 @@ require 'active_support/core_ext/array/conversions'
 require 'active_support/core_ext/string/inflections'
 
 module GQL
-  class Error < StandardError
+  class Error < RuntimeError
     attr_reader :code, :handle
 
     def initialize(msg, code = 100, handle = nil)
@@ -78,16 +78,10 @@ module GQL
       end
     end
 
-    class NoMethodError < Error
-      attr_reader :cause
-
-      def initialize(field_class, id, cause)
-        @cause = cause
-
-        msg =  "Undefined method `#{id}' for #{field_class}. "
-        msg << "Did you try to add a field of type `#{id}'? "
-        msg << "If so, you have to register your field type first "
-        msg << "like this: `GQL.field_types[:#{id}] = My#{id.to_s.camelize}'. "
+    class UnknownFieldType < Error
+      def initialize(type, using_class)
+        msg =  "The field type `#{type}' used in #{using_class} is not known."
+        msg << "Register your field type with: `GQL.field_types[:#{type}] = My#{type.to_s.camelize}'. "
         msg << "The following field types are currently registered: "
         msg << GQL.field_types.keys.sort.map { |key| "`#{key}'" }.to_sentence
 

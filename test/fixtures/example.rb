@@ -92,39 +92,6 @@ $viewer = $users[0]
 
 ### Graph nodes:
 
-class Money < GQL::Field
-  cursor -> { 'money' }
-
-  number :cents,    -> { target[:cents] }
-  string :currency, -> { target[:currency] }
-
-  def scalar_value
-    "#{'%.2f' % (target[:cents] / 100.0)} #{target[:currency]}"
-  end
-end
-
-class Timestamp < GQL::Field
-  call :format,     -> (format = 'default') { I18n.localize target, format: format.to_sym }, returns: 'GQL::String'
-  call :ago,        -> { 'a long time ago' }, returns: 'GQL::String'
-  call :add_years,  -> years { target + years * 365*24*60*60 }
-  call :to_s, returns: 'GQL::String'
-
-  number :year
-  number :month
-  number :day
-  number :hour
-  number :minute, -> { target.min }
-  number :second, -> { target.sec }
-
-  def scalar_value
-    target.to_i * 1000
-  end
-end
-
-# register field types
-GQL.field_types.update money: Money, timestamp: Timestamp
-
-
 class UserField < GQL::Field
   cursor :token
 
@@ -140,7 +107,7 @@ class UserField < GQL::Field
                                 # same here  ^
 
   timestamp   :created_at
-  #   ^  using registered field type here
+  #   ^   using custom field type here (see below for definition)
 
   string :full_name do
     target.first_name + ' ' + target.last_name
@@ -172,7 +139,7 @@ class AccountField < GQL::Field
   object  :user,      as: UserField
 
   money   :saldo
-  # ^ using registered field type here
+  # ^ using custom field type here (see below for definition)
 
   array   :fibonacci, item_class: GQL::Number
   string  :iban
@@ -182,6 +149,61 @@ class AccountField < GQL::Field
 
   call :reversed_number, -> { target.number.reverse }, returns: 'GQL::String'
 end
+
+
+### Custom field types:
+
+class Money < GQL::Field
+  cursor -> { 'money' }
+
+  number :cents,    -> { target[:cents] }
+  string :currency, -> { target[:currency] }
+
+  def scalar_value
+    "#{'%.2f' % (target[:cents] / 100.0)} #{target[:currency]}"
+  end
+end
+
+class Timestamp < GQL::Field
+  call :format,     -> (format = 'default') { I18n.localize target, format: format.to_sym }, returns: 'GQL::String'
+  call :ago,        -> { 'a long time ago' }, returns: 'GQL::String'
+  call :add_years,  -> years { target + years * 365*24*60*60 }
+  call :to_s, returns: 'GQL::String'
+
+  number :year
+  number :month
+  number :day
+  number :hour
+  number :minute, -> { target.min }
+  number :second, -> { target.sec }
+
+  def scalar_value
+    target.to_i * 1000
+  end
+end
+
+# register custom field types
+GQL.field_types.update money: Money, timestamp: Timestamp
+
+
+### Custom list type:
+
+class List < GQL::Field
+  number  :count
+  boolean :any, -> { target.any? }
+
+  call :all, -> { target }
+
+  call :first do |size|
+    target[0...size]
+  end
+end
+
+# used, when no list_class is specified on `connection` fields
+GQL.default_list_class = List
+
+
+### Calls can also be defined as classses:
 
 class UpdateUserNameCall < GQL::Call
   def execute(token, new_name)
@@ -196,34 +218,23 @@ class UpdateUserNameCall < GQL::Call
     }
   end
 
+  returns do
+    object :user, as: 'UserField'
+    string :old_name
+    string :new_name
+  end
+
+  #   ^  this is the same as doing it the more explicit way:
   # class Result < GQL::Field
   #   object :user,     -> { target[:user]     }, object_class: UserField
   #   string :old_name, -> { target[:old_name] }
   #   string :new_name, -> { target[:new_name] }
   # end
   # returns Result
-
-  returns do
-    object :user, as: 'UserField'
-    string :old_name
-    string :new_name
-  end
 end
 
-class List < GQL::Field
-  number  :count
-  boolean :any, -> { target.any? }
 
-  call :all, -> { target }
-
-  call :first do |size|
-    target[0...size]
-  end
-end
-
-# if not list_class is specified on `connection` fields
-GQL.default_list_class = List
-
+### The query root class:
 
 class RootField < GQL::Field
   connection :users,  -> { $users  }, item_class: 'UserField', list_class: 'List'

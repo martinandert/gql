@@ -70,24 +70,6 @@ class FieldTest < ActiveSupport::TestCase
     GQL.field_types.delete :foo
   end
 
-  test "undefined field type raises error" do
-    assert_raises GQL::Errors::NoMethodError do
-      Class.new(GQL::Field).class_eval do
-        undefined_field_type :foo
-      end
-    end
-  end
-
-  test "undefined field type has correct cause set" do
-    begin
-      Class.new(GQL::Field).class_eval do
-        undefined_field_type :foo
-      end
-    rescue GQL::Errors::NoMethodError => exc
-      assert_instance_of NoMethodError, exc.cause
-    end
-  end
-
   test "in debug mode each field exposes a __type__ subfield" do
     begin
       prev, GQL.debug = GQL.debug, false

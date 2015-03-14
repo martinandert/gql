@@ -54,15 +54,15 @@ module GQL
             define_field_method method, type
             send method, *args, &block
           else
-            super
+            options = args.extract_options!.merge(type: method.to_sym)
+            args = args.push(options)
+            add_field(*args, &block)
           end
-        rescue NoMethodError => exc
-          raise Errors::NoMethodError.new(self, method, exc)
         end
 
         private
           def build_field_class(type, id, proc, options)
-            if type.is_a? ::String
+            if type.is_a?(::String) || type.is_a?(::Symbol)
               Lazy.build_class id, proc, options.merge(owner: self, type: type)
             else
               Registry.fetch(type).build_class id, proc, options
