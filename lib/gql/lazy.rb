@@ -27,7 +27,6 @@ module GQL
           raise Errors::UnknownFieldType.new(type, owner) unless field_type
           owner.send type, id, proc, options
         end
-
     end
 
     def value

@@ -52,6 +52,18 @@ class CallClassWithImplicitResultClass < GQL::Call
   end
 end
 
+class CallClassAsString < GQL::Call
+  def execute(times = 1)
+    target << ('boo' * times)
+
+    { result: target.value }
+  end
+
+  returns do
+    field :result, type: GQL::Scalar
+  end
+end
+
 class CallClassWithoutExecuteMethod < GQL::Call
 end
 
@@ -79,7 +91,7 @@ class CallClassWithMappingResultClass < GQL::Call
     x == 1 ? AResultClass.new('a') : BResultClass.new('b')
   end
 
-  returns AResultClass => AResultClassField, BResultClass => BResultClassField
+  returns AResultClass => 'AResultClassField', BResultClass => BResultClassField
 end
 
 class FieldWithCalls < GQL::Field
@@ -96,7 +108,7 @@ class FieldWithCalls < GQL::Field
   call :baz_with_returns, CallClassWithoutResultClass, returns: FooBarResultClass
 
   call :bam,              CallClassWithExplicitResultClass
-  call :bam_with_returns, CallClassWithExplicitResultClass, returns: FooBarResultClass
+  call :bam_with_returns, CallClassWithExplicitResultClass, returns: 'FooBarResultClass'
 
   call :boo,              CallClassWithImplicitResultClass
   call :boo_with_returns, CallClassWithImplicitResultClass, returns: FooBarResultClass
@@ -109,11 +121,13 @@ class FieldWithCalls < GQL::Field
 
   call :with_connection_result, returns: [GQL::String]
 
-  call :mapped_object_as_returns, returns: { AResultClass => AResultClassField, BResultClass => BResultClassField } do |x|
+  call :mapped_object_as_returns, returns: { AResultClass => AResultClassField, BResultClass => 'BResultClassField' } do |x|
     x == 1 ? AResultClass.new('a') : BResultClass.new('b')
   end
 
   call :call_class_returning_mapping, CallClassWithMappingResultClass
+
+  call :call_class_as_string, 'CallClassAsString'
 end
 
 class Inherited < FieldWithCalls
@@ -230,6 +244,11 @@ class CallTest < ActiveSupport::TestCase
     assert_equal({ me: { foobar: { result: ['booboo'] } } }, GQL.execute('{ me.boo_with_returns(2) { foobar } }'))
   end
 
+  test "with call class given as string" do
+    assert_equal({ result: ['booboo'] }, GQL.execute('call_class_as_string(2) { result }'))
+    assert_equal({ me: { result: ['boobooboo'] } }, GQL.execute('{ me.call_class_as_string(3) { result } }'))
+  end
+
   test "with connection result class" do
     assert FieldWithCalls.calls[:with_connection_result].result_class.has_field?(:edges)
   end
@@ -260,7 +279,8 @@ class CallTest < ActiveSupport::TestCase
       no_execute_method:            FieldWithCalls::NoExecuteMethodCall,
       with_connection_result:       FieldWithCalls::WithConnectionResultCall,
       mapped_object_as_returns:     FieldWithCalls::MappedObjectAsReturnsCall,
-      call_class_returning_mapping: FieldWithCalls::CallClassReturningMappingCall
+      call_class_returning_mapping: FieldWithCalls::CallClassReturningMappingCall,
+      call_class_as_string:         FieldWithCalls::CallClassAsStringCall
     }
 
     assert_equal expected, FieldWithCalls.calls
@@ -297,10 +317,13 @@ class CallTest < ActiveSupport::TestCase
   end
 
   test "inheritance" do
-    assert_equal 15, FieldWithCalls.calls.size
-    assert_equal 16, Inherited.calls.size
+    a = FieldWithCalls.calls.keys
+    b = Inherited.calls.keys
 
-    assert_equal FieldWithCalls.calls.keys + [:bingo], Inherited.calls.keys
+    assert_equal 16, a.size
+    assert_equal 17, b.size
+
+    assert_equal b, b & a.push(:bingo)
   end
 
   test "chaining" do

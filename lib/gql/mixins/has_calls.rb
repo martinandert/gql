@@ -53,7 +53,8 @@ module GQL
           end
 
           def call_class_from_spec(spec)
-            return Class.new(spec) unless spec.is_a?(Proc)
+            return LazyCall.new(spec) if spec.is_a?(::String)
+            return Class.new(spec) unless spec.is_a?(::Proc)
 
             Class.new(Call).tap do |call_class|
               call_class.class_eval do
@@ -114,6 +115,21 @@ module GQL
 
         def call_class_for_id(id)
           self.class.calls[id] or raise Errors::CallNotFound.new(id, self.class)
+        end
+
+        class LazyCall
+          attr_reader :call_class_name
+          attr_accessor :id, :result_class
+
+          def initialize(call_class_name)
+            @call_class_name = call_class_name
+          end
+
+          def execute(caller_class, ast_node, target, variables, context)
+            real_call_class = Registry.fetch(call_class_name, Call)
+            call_class = caller_class.add_call(id, real_call_class, returns: result_class)
+            call_class.execute caller_class, ast_node, target, variables, context
+          end
         end
     end
   end
