@@ -83,7 +83,7 @@ class CallClassWithMappingResultClass < GQL::Call
 end
 
 class FieldWithCalls < GQL::Field
-  object :me, -> { target }, class: FieldWithCalls
+  object :me, -> { target }, object_class: FieldWithCalls
   field :value, type: GQL::Scalar
 
   call :foo

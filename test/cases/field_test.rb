@@ -9,8 +9,8 @@ class FieldWithProcCursor < GQL::Number
 end
 
 class FieldRootField < GQL::Field
-  object :id_cursor,   -> { target }, class: FieldWithIdCursor
-  object :proc_cursor, -> { target }, class: FieldWithProcCursor
+  object :id_cursor,   -> { target }, object_class: FieldWithIdCursor
+  object :proc_cursor, -> { target }, object_class: FieldWithProcCursor
 
   string :no_calls, -> { 'foo' }
 

@@ -197,7 +197,7 @@ class UpdateUserNameCall < GQL::Call
   end
 
   # class Result < GQL::Field
-  #   object :user,     -> { target[:user]     }, class: UserField
+  #   object :user,     -> { target[:user]     }, object_class: UserField
   #   string :old_name, -> { target[:old_name] }
   #   string :new_name, -> { target[:new_name] }
   # end

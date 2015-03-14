@@ -2,8 +2,8 @@ module App
   module Graph
     class SongField < ModelField
       string      :title
-      object      :album,   class: AlbumField
-      object      :band,    class: BandField
+      object      :album,   object_class: AlbumField
+      object      :band,    object_class: BandField
       connection  :writers, item_class: PersonField
       number      :track_number
       duration    :duration

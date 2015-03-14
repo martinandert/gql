@@ -102,7 +102,7 @@ module GQL
           end
 
           def result_class_from_mapping_spec(spec)
-            Object.build_class :result, nil, class: spec
+            Object.build_class :result, nil, object_class: spec
           end
       end
 

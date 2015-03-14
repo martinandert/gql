@@ -23,9 +23,9 @@ class BClassField < GQL::Field
 end
 
 class FieldWithObject < GQL::Field
-  object :object, -> { MyObject.new('bar') }, class: ObjectFieldClass
-  object :object_unresolved, -> { MyObject.new('bar') }, class: 'ObjectFieldClass'
-  object :mapped, -> { BClass.new('b') }, class: { AClass => AClassField, BClass => BClassField }
+  object :object, -> { MyObject.new('bar') }, object_class: ObjectFieldClass
+  object :object_unresolved, -> { MyObject.new('bar') }, object_class: 'ObjectFieldClass'
+  object :mapped, -> { BClass.new('b') }, object_class: { AClass => AClassField, BClass => BClassField }
 end
 
 class ObjectTest < ActiveSupport::TestCase

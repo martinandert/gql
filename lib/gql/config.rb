@@ -78,7 +78,7 @@ module GQL
 
     private
       def switch_debug_on
-        Field.object :__type__, -> { field_class }, class: Schema::Field
+        Field.object :__type__, -> { field_class }, object_class: Schema::Field
         Field.send :remove_const, :ExecutionContext if Field.const_defined?(:ExecutionContext)
         Field.const_set :ExecutionContext, Field::ExecutionContextDebug
       end

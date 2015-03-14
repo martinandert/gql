@@ -2,7 +2,7 @@ module App
   module Graph
     class AlbumField < ModelField
       string      :title
-      object      :band,        class: BandField
+      object      :band,        object_class: BandField
       connection  :songs,       item_class: SongField
       date        :released_on
 

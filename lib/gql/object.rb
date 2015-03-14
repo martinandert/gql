@@ -6,7 +6,7 @@ module GQL
 
     class << self
       def build_class(id, proc, options = {})
-        object_class = options.delete(:class) || options.delete(:as)
+        object_class = options.delete(:object_class) || options.delete(:as)
         object_class = ::Hash.new(object_class) unless object_class.is_a?(::Hash)
 
         Class.new(self).tap do |klass|
