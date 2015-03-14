@@ -16,14 +16,18 @@ module GQL
       end
 
       def spur
-        if type.is_a? ::Symbol
+        return spur_unknown_field_type if type.is_a? ::Symbol
+
+        owner.add_field id, proc, options.merge(type: Registry.fetch(type))
+      end
+
+      private
+        def spur_unknown_field_type
           field_type = GQL.field_types[type]
           raise Errors::UnknownFieldType.new(type, owner) unless field_type
           owner.send type, id, proc, options
-        else
-          owner.add_field id, proc, options.merge(type: Registry.fetch(type))
         end
-      end
+
     end
 
     def value
