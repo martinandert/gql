@@ -137,7 +137,7 @@ end
 class CallTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_class = GQL.root_class, FieldWithCalls
-    @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { CallerTarget.new }
+    @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> { CallerTarget.new }
   end
 
   teardown do

@@ -30,7 +30,7 @@ end
 class FieldTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_class = GQL.root_class, FieldRootField
-    @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { 42 }
+    @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> { 42 }
   end
 
   teardown do

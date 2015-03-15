@@ -103,35 +103,12 @@ module GQL
             field.value
           else
             field_class = field_class_for_id(ast_field.id)
-            next_target = target_for_field(target, field_class.proc)
-
-            field = field_class.new(ast_field, next_target, variables, context)
-            field.value
+            field_class.execute self.class, ast_field, target, variables, context
           end
         end
 
         def field_class_for_id(id)
           self.class.fields[id] or raise Errors::FieldNotFound.new(id, self.class)
-        end
-
-        def target_for_field(current_target, proc)
-          args = [current_target, context]
-          args.push self.class if GQL.debug
-
-          method = self.class.const_get(:ExecutionContext).new(*args)
-          method.execute proc
-        end
-
-        class ExecutionContextNoDebug < Struct.new(:target, :context)
-          def execute(method, args = [])
-            instance_exec(*args, &method)
-          end
-        end
-
-        class ExecutionContextDebug < Struct.new(:target, :context, :field_class)
-          def execute(method, args = [])
-            instance_exec(*args, &method)
-          end
         end
     end
   end

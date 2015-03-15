@@ -27,7 +27,7 @@ end
 class ScalarTest < ActiveSupport::TestCase
   setup do
     @old_root, GQL.root_class = GQL.root_class, FieldWithScalar
-    @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> _ { ScalarTarget.new('foo') }
+    @old_proc, GQL.root_target_proc = GQL.root_target_proc, -> { ScalarTarget.new('foo') }
   end
 
   teardown do

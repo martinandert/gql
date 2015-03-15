@@ -15,6 +15,14 @@ module GQL
           field_class.proc = proc
         end
       end
+
+      def execute(parent, ast_node, target, variables, context)
+        args    = [target, context, GQL.debug ? parent : nil]
+        method  = Executor::Context.new(*args)
+        field   = new(ast_node, method.execute(proc), variables, context)
+
+        field.value
+      end
     end
 
     extend Mixins::Common

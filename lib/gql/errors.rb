@@ -71,8 +71,8 @@ module GQL
     end
 
     class InvalidClass < Error
-      def initialize(node_class, super_class)
-        msg = "#{node_class} must be a (subclass of) #{super_class}."
+      def initialize(klass, baseclass)
+        msg = "#{klass} must be a (subclass of) #{baseclass}."
 
         super(msg, 123)
       end
