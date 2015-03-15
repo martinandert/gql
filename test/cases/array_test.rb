@@ -13,11 +13,13 @@ class MyString < GQL::String
 end
 
 class FieldWithArrays < GQL::Field
-  array :single_item_class, -> { %w(a b) }, item_class: ArrayItemClass
-  array :multiple_item_classes, -> { ['foo', 42] }, item_class: { Fixnum => MyFixnum, String => MyString }
+  array :class_as_item_class, -> { %w(a b) }, item_class: ArrayItemClass
+  array :string_as_item_class, -> { %w(a b) }, item_class: 'ArrayItemClass'
 
-  array :single_string_item_class, -> { %w(a b) }, item_class: 'ArrayItemClass'
-  array :multiple_string_item_classes, -> { ['foo', 42] }, item_class: { Fixnum => 'MyFixnum', String => 'MyString' }
+  array :hash_with_class_values_as_item_class, -> { ['foo', 42] }, item_class: { Fixnum => MyFixnum, String => MyString }
+  array :hash_with_string_values_as_item_class, -> { ['foo', 42] }, item_class: { Fixnum => 'MyFixnum', String => 'MyString' }
+
+  array :proc_as_item_class,  -> { ['foo', 42] }, item_class: -> item, _ { item.is_a?(String) ? MyString : 'MyFixnum' }
 end
 
 class ArrayTest < ActiveSupport::TestCase
@@ -30,34 +32,40 @@ class ArrayTest < ActiveSupport::TestCase
   end
 
   test "returns array value" do
-    value = GQL.execute('{ single_item_class }')
-    assert_equal ['a', 'b'], value[:single_item_class]
-
-    value = GQL.execute('{ multiple_item_classes }')
-    assert_equal ['foo', 42], value[:multiple_item_classes]
+    value = GQL.execute('{ class_as_item_class as arr }')
+    assert_equal ['a', 'b'], value[:arr]
   end
 
-  test "respects simple item class" do
-    value = GQL.execute('{ single_item_class { upcased } }')
+  test "class as item_class" do
+    value = GQL.execute('{ class_as_item_class as arr { upcased } }')
 
-    assert_equal [{ upcased: 'A' }, { upcased: 'B' }], value[:single_item_class]
+    assert_equal [{ upcased: 'A' }, { upcased: 'B' }], value[:arr]
   end
 
-  test "respects item class for each tyoe" do
-    value = GQL.execute('{ multiple_item_classes { whoami } }')
-
-    assert_equal [{ whoami: 'I am a string.' }, { whoami: 'I am a number.' }], value[:multiple_item_classes]
-  end
-
-  test "works with string item class" do
+  test "string as item_class" do
     GQL::Registry.reset
 
-    assert FieldWithArrays.fields[:single_string_item_class] < GQL::Lazy
-    value = GQL.execute('{ single_string_item_class }')
-    assert_equal ['a', 'b'], value[:single_string_item_class]
+    assert FieldWithArrays.fields[:string_as_item_class] < GQL::Lazy
+    value = GQL.execute('{ string_as_item_class as arr }')
+    assert_equal ['a', 'b'], value[:arr]
+  end
 
-    assert FieldWithArrays.fields[:multiple_string_item_classes] < GQL::Lazy
-    value = GQL.execute('{ multiple_string_item_classes }')
-    assert_equal ['foo', 42], value[:multiple_string_item_classes]
+  test "hash with class values provided as item_class" do
+    value = GQL.execute('{ hash_with_class_values_as_item_class as arr { whoami } }')
+    assert_equal [{ whoami: 'I am a string.' }, { whoami: 'I am a number.' }], value[:arr]
+  end
+
+  test "hash with string values provided as item_class" do
+    GQL::Registry.reset
+
+    value = GQL.execute('{ hash_with_string_values_as_item_class as arr { whoami } }')
+    assert_equal [{ whoami: 'I am a string.' }, { whoami: 'I am a number.' }], value[:arr]
+  end
+
+  test "proc as item_class" do
+    GQL::Registry.reset
+
+    value = GQL.execute('{ proc_as_item_class as arr { whoami } }')
+    assert_equal [{ whoami: 'I am a string.' }, { whoami: 'I am a number.' }], value[:arr]
   end
 end

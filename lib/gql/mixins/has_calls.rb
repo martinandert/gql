@@ -80,8 +80,8 @@ module GQL
               case spec
               when ::Array
                 result_class_from_connection_spec spec.dup
-              when ::Hash
-                result_class_from_mapping_spec spec.dup
+              when ::Hash, ::Proc
+                result_class_from_object_spec spec.dup
               else
                 spec
               end
@@ -102,7 +102,7 @@ module GQL
             Connection.build_class :result, nil, options
           end
 
-          def result_class_from_mapping_spec(spec)
+          def result_class_from_object_spec(spec)
             Object.build_class :result, nil, object_class: spec
           end
       end

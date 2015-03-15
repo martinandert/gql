@@ -37,7 +37,6 @@ class LazyTest < ActiveSupport::TestCase
       assert spurred_field_class < GQL::Array
       assert_equal :string_type, spurred_field_class.id
       assert_equal FieldWithLazies::PROC, spurred_field_class.proc
-      assert_equal GQL::String, spurred_field_class.item_class[:any]
     end
   end
 

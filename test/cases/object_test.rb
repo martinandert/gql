@@ -23,11 +23,14 @@ class BClassField < GQL::Field
 end
 
 class FieldWithObject < GQL::Field
-  object :object, -> { MyObject.new('bar') }, object_class: ObjectFieldClass
-  object :string_object_class, -> { MyObject.new('bar') }, object_class: 'ObjectFieldClass'
+  object :class_as_object_class,  -> { MyObject.new('bar') }, object_class: ObjectFieldClass
+  object :string_as_object_class, -> { MyObject.new('bar') }, object_class: 'ObjectFieldClass'
 
-  object :mapped, -> { BClass.new('b') }, object_class: { AClass => AClassField, BClass => BClassField }
-  object :string_mapped, -> { BClass.new('b') }, object_class: { AClass => 'AClassField', BClass => 'BClassField' }
+  object :hash_with_class_values_as_object_class,  -> { BClass.new('b') }, object_class: { AClass => AClassField, BClass => BClassField }
+  object :hash_with_string_values_as_object_class, -> { AClass.new('a') }, object_class: { AClass => 'AClassField', BClass => 'BClassField' }
+
+  object :proc_returning_class_as_object_class,  -> { AClass.new('a') }, object_class: -> target, _ { target.is_a?(AClass) ? AClassField : 'BClassField' }
+  object :proc_returning_string_as_object_class, -> { BClass.new('b') }, object_class: -> target, _ { target.is_a?(AClass) ? AClassField : 'BClassField' }
 end
 
 class ObjectTest < ActiveSupport::TestCase
@@ -40,38 +43,50 @@ class ObjectTest < ActiveSupport::TestCase
   end
 
   test "returns nil without fields" do
-    value = GQL.execute('{ object }')
+    value = GQL.execute('{ class_as_object_class as obj }')
 
-    assert_nil value[:object]
+    assert_nil value[:obj]
   end
 
   test "returns its fields" do
-    value = GQL.execute('{ object { foo } }')
+    value = GQL.execute('{ class_as_object_class as obj { foo } }')
 
-    assert_equal 'bar', value[:object][:foo]
+    assert_equal 'bar', value[:obj][:foo]
   end
 
   test "respects call" do
-    value = GQL.execute('{ object.upcase_foo { foo } }')
+    value = GQL.execute('{ class_as_object_class.upcase_foo { foo } as obj }')
 
-    assert_equal 'BAR', value[:object][:foo]
+    assert_equal 'BAR', value[:obj][:foo]
   end
 
-  test "object type field with model-to-field mapping as field class" do
-    value = GQL.execute('{ mapped { b } }')
-
-    assert_equal 'b', value[:mapped][:b]
-  end
-
-  test "works with string object class" do
+  test "string provided as object class" do
     GQL::Registry.reset
 
-    assert FieldWithObject.fields[:string_object_class] < GQL::Lazy
-    value = GQL.execute('{ string_object_class { foo } }')
-    assert_equal 'bar', value[:string_object_class][:foo]
+    assert FieldWithObject.fields[:string_as_object_class] < GQL::Lazy
+    value = GQL.execute('{ string_as_object_class as obj { foo } }')
+    assert_equal 'bar', value[:obj][:foo]
+  end
 
-    assert FieldWithObject.fields[:string_mapped] < GQL::Lazy
-    value = GQL.execute('{ string_mapped { b } }')
-    assert_equal 'b', value[:string_mapped][:b]
+  test "hash with class values provided as object_class" do
+    value = GQL.execute('{ hash_with_class_values_as_object_class as obj { b } }')
+    assert_equal 'b', value[:obj][:b]
+  end
+
+  test "hash with string values provided as object_class" do
+    GQL::Registry.reset
+
+    value = GQL.execute('{ hash_with_string_values_as_object_class as obj { a } }')
+    assert_equal 'a', value[:obj][:a]
+  end
+
+  test "proc returning class provided as object_class" do
+    value = GQL.execute('{ proc_returning_class_as_object_class as obj { a } }')
+    assert_equal 'a', value[:obj][:a]
+  end
+
+  test "proc returning string provided as object_class" do
+    value = GQL.execute('{ proc_returning_string_as_object_class as obj { b } }')
+    assert_equal 'b', value[:obj][:b]
   end
 end
