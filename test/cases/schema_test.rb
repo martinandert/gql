@@ -12,6 +12,9 @@ class AstCall < Struct.new(:id, :arguments, :call, :fields)
 end
 
 class ClassWithProc < Struct.new(:proc)
+  def parameters
+    proc.parameters
+  end
 end
 
 class SchemaTest < ActiveSupport::TestCase
