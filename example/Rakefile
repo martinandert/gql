@@ -14,6 +14,7 @@ namespace :db do
   end
 
   namespace :data do
+    desc "Reset all data in the db to fixtures state"
     task :reset => :load_config do
       [Album, Attribution, Band, Membership, MembershipRole, Person, Role, Song].map(&:delete_all)
       Rake::Task['db:fixtures:load'].invoke

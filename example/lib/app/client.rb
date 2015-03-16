@@ -39,6 +39,12 @@ module App
       JSON.pretty_generate result
     end
 
+    get '/reset-data' do
+      `bin/rake db:data:reset` if params[:s] == ENV['DATA_RESET_SECRET']
+      content_type :text
+      'ok'
+    end
+
     helpers do
       def queries_count
         session[:queries_count] ||= 0
