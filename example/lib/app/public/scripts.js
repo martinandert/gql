@@ -196,6 +196,8 @@ var Editor = React.createClass({
     this.editor.on('change', this.handleChanged);
     this.editor.setValue(this.props.value);
     this.editor.selection.selectFileStart();
+
+    $(React.findDOMNode(this)).data('ace', this.editor);
   },
 
   componentWillReceiveProps: function(nextProps) {
@@ -263,6 +265,10 @@ var App = React.createClass({
     };
   },
 
+  componentDidMount: function() {
+    $(window).resize(this.adjustControlHeights).trigger('resize');
+  },
+
   render: function() {
     return (
       <form onSubmit={this.handleSubmit}>
@@ -277,12 +283,13 @@ var App = React.createClass({
 
           <div className="center-panel">
             <h2>&nbsp;</h2>
-            <button type="submit">»</button>
+            <button type="submit" className="execute" title="Execute Query">»</button>
           </div>
 
           <div className="right-panel">
             <h2>Result</h2>
             <Editor name="result" mode="json" value={this.state.result} readOnly />
+            <p className="reset-note">All data will be reset daily at 08:00 UTC.</p>
           </div>
         </div>
       </form>
@@ -301,6 +308,16 @@ var App = React.createClass({
 
   handleQueryChanged: function(queryString) {
     this.setState({ query: queryString });
+  },
+
+  adjustControlHeights: function() {
+    var preferredHeight = $(window).height() - 200;
+
+    $('.ace_editor, .execute').height(preferredHeight);
+
+    $('.ace_editor').each(function() {
+      $(this).data('ace').resize();
+    });
   }
 });
 

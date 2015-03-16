@@ -12,4 +12,11 @@ namespace :db do
     # hook sinatra-activerecord registration
     App::Client
   end
+
+  namespace :data do
+    task :reset => :load_config do
+      [Album, Attribution, Band, Membership, MembershipRole, Person, Role, Song].map(&:delete_all)
+      Rake::Task['db:fixtures:load'].invoke
+    end
+  end
 end

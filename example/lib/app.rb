@@ -41,6 +41,9 @@ module App
     autoload :RoleField
     autoload :RootField
     autoload :SongField
+    autoload :YouField
+
+    autoload :CreateBandMembershipCall
 
     GQL.field_types.update date: DateField, duration: DurationField
     GQL.default_list_class = ListField

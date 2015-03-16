@@ -92,6 +92,11 @@ button:hover {
   border-color: #204d74;
 }
 
+.reset-note {
+  font-size: 80%;
+  opacity: 0.8;
+}
+
 .ace_hidden-cursors .ace_cursor {
   opacity: 0 !important;
 }

@@ -4,6 +4,7 @@ class CreateApp < ActiveRecord::Migration
       t.string  :slug,        :null => false
       t.string  :first_name,  :null => false
       t.string  :last_name,   :null => false
+      t.timestamps
     end
 
     add_index :people, :slug, :unique => true
@@ -11,6 +12,7 @@ class CreateApp < ActiveRecord::Migration
     create_table :bands do |t|
       t.string  :slug,  :null => false
       t.string  :name,  :null => false
+      t.timestamps
     end
 
     add_index :bands, :slug, :unique => true
@@ -20,6 +22,7 @@ class CreateApp < ActiveRecord::Migration
       t.references  :band,        :null => false
       t.string      :title,       :null => false
       t.date        :released_on, :null => false
+      t.timestamps
     end
 
     add_index :albums, :slug, :unique => true
@@ -34,6 +37,7 @@ class CreateApp < ActiveRecord::Migration
       t.integer     :duration,      :null => false
       t.integer     :track_number,  :null => false
       t.text        :note
+      t.timestamps
     end
 
     add_index :songs, :slug, :unique => true
@@ -46,6 +50,7 @@ class CreateApp < ActiveRecord::Migration
       t.references  :member,        :null => false
       t.integer     :started_year,  :null => false
       t.integer     :ended_year
+      t.timestamps
     end
 
     add_index :memberships, [:band_id, :member_id], :unique => true
@@ -53,6 +58,7 @@ class CreateApp < ActiveRecord::Migration
     create_table :roles do |t|
       t.string  :slug,  :null => false
       t.string  :name,  :null => false
+      t.timestamps
     end
 
     add_index :roles, :slug, :unique => true
@@ -61,6 +67,7 @@ class CreateApp < ActiveRecord::Migration
     create_table :membership_roles do |t|
       t.references :membership, :null => false
       t.references :role,       :null => false
+      t.timestamps
     end
 
     add_index :membership_roles, [:membership_id, :role_id], :unique => true
@@ -68,6 +75,7 @@ class CreateApp < ActiveRecord::Migration
     create_table :attributions do |t|
       t.references :song, :null => false
       t.references :writer, :null => false
+      t.timestamps
     end
 
     add_index :attributions, [:song_id, :writer_id], :unique => true

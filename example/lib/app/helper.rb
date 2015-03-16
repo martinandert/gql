@@ -176,7 +176,78 @@ module App
           }
         QUERY
       }, {
-        name: 'Schema Info (first three levels)',
+        name: 'Add a new person',
+        value: <<-QUERY.strip_heredoc
+          create_person(<record>) {
+            id,
+            name
+          }
+
+          // a variable used as call argument
+          <record> = {
+            "slug":       "eddievedder",
+            "first_name": "Eddie",
+            "last_name":  "Vedder"
+          }
+        QUERY
+      }, {
+        name: 'Assign a person to a band',
+        value: <<-QUERY.strip_heredoc
+          assign_person_to_band(<person>, <band>, <started>, <ended>, <roles>) {
+            member {
+              id,
+              name
+            },
+            band {
+              id,
+              name
+            },
+            started_year,
+            ended_year,
+            roles {
+              edges {
+                name
+              }
+            }
+          }
+
+          // arguments for the call
+          <person>  = "eddievedder"
+          <band>    = "pearljam"
+          <started> = 1990
+          <ended>   = null
+          <roles>   = ["lead-vocals", "guitar"]
+        QUERY
+      }, {
+        name: 'Schema: All root calls',
+        value: <<-QUERY.strip_heredoc
+          {
+            __type__ {
+              calls {
+                edges {
+                  id,
+                  parameters,
+                  result_class
+                }
+              }
+            }
+          }
+        QUERY
+      }, {
+        name: 'Schema: All root fields',
+        value: <<-QUERY.strip_heredoc
+          {
+            __type__ {
+              fields {
+                edges {
+                  id
+                }
+              }
+            }
+          }
+        QUERY
+      }, {
+        name: 'Schema info (first three levels)',
         value: <<-QUERY.strip_heredoc
           {
             __type__ {
@@ -220,6 +291,44 @@ module App
                 }
               }
             }
+          }
+        QUERY
+      }, {
+        name: "Syntax error",
+        value: <<-QUERY.strip_heredoc
+
+
+          foo() {
+            bar,
+            baz, // <-- bad comma
+          }
+
+        QUERY
+      }, {
+        name: "Unknown field",
+        value: <<-QUERY.strip_heredoc
+          person("kurtcobain") {
+            first_name,
+            zodiac_sign // <-- undefined field
+          }
+        QUERY
+      }, {
+        name: "Unknown call",
+        value: <<-QUERY.strip_heredoc
+          person("kurtcobain") {
+            first_name.reverse // <-- undefined call
+          }
+        QUERY
+      }, {
+        name: 'You',
+        value: <<-QUERY.strip_heredoc
+          /*
+           * shows context usage
+           */
+
+          you {
+            ip_address,
+            queries_count
           }
         QUERY
       }]

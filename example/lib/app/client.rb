@@ -7,6 +7,7 @@ require 'json'
 module App
   class Client < Sinatra::Base
     register Sinatra::ActiveRecordExtension
+    enable :sessions
 
     configure :development do
       $stdout.sync = true
@@ -24,9 +25,11 @@ module App
     post '/query' do
       content_type :json
 
+      context = { ip_address: request.ip, queries_count: queries_count }
+
       result =
         begin
-          GQL.execute params[:q]
+          GQL.execute params[:q], context
         rescue => exc
           Helper.error_as_json exc
         end
@@ -34,6 +37,13 @@ module App
       result = [result] unless result.respond_to?(:each)
 
       JSON.pretty_generate result
+    end
+
+    helpers do
+      def queries_count
+        session[:queries_count] ||= 0
+        session[:queries_count] += 1
+      end
     end
   end
 end

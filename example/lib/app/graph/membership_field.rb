@@ -10,6 +10,8 @@ module App
       number :started_year
       number :ended_year
 
+      connection :roles, -> { target.roles }, item_class: RoleField
+
       string :band_name,   -> { target.band.name }
       string :member_name, -> { target.member.name }
     end
