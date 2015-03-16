@@ -7,7 +7,7 @@
 
 A Ruby implementation of Facebook's yet-to-be-released GraphQL specification.
 
-Visit http://gql-demo.herokuapp.com/ for a live demo. The source code for this demo can be found in the "example" directory.
+Visit http://gql-demo.herokuapp.com/ for a live demo. The source code for this demo can be found in the [example directory](example/).
 
 **Disclaimer:** I can only speculate about how the final spec will look like. The implementation provided here is merely my guessing based on [this talk](https://youtu.be/9sc8Pyc51uU) and [this gist](https://gist.github.com/wincent/598fa75e22bdfa44cf47). Nonetheless, this project represents how I wish the official specification will define things.
 
@@ -44,7 +44,7 @@ In order to see how things are done and to explore this gem's features, I encour
 
 ## Example
 
-Apart from the more full-fledged live demo linked above, there's a simpler example available in "test/fixtures/example.rb".
+Apart from the more full-fledged live demo linked above, there's a simpler example available in [test/fixtures/example.rb](test/fixtures/example.rb).
 
 To play around with it, run `bin/console` from the project root. This starts an interactive prompt loaded with the example's models/data.
 
