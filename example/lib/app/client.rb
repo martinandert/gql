@@ -16,7 +16,9 @@ module App
     end
 
     get '/' do
-      erb :index, locals: {
+      view = request.user_agent =~ /mobile/i ? :mobile : :desktop
+
+      erb view, locals: {
         queries: JSON.generate(Helper.queries),
         initial_query: JSON.generate([Helper.initial_query])
       }

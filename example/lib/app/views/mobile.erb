@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>GQL Demo</title>
+    <link rel="stylesheet" href="/mobile.css" type="text/css" media="screen, projection">
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <a id="github-link" href="https://github.com/martinandert/gql" title="Visit project on GitHub"><img src="/github.png" /></a>
+
+    <script src="https://fb.me/react-0.13.0.js"></script>
+    <script src="https://fb.me/JSXTransformer-0.13.0.js"></script>
+    <script src="https://code.jquery.com/jquery-1.10.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.8/ace.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.8/mode-json.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.1.8/theme-github.js"></script>
+    <script type="text/javascript">var queries = <%= queries %>; var initialQuery = <%= initial_query %>[0];</script>
+    <script type="text/jsx" src="/mobile.js"></script>
+  </body>
+</html>
