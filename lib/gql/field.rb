@@ -6,6 +6,8 @@ require 'gql/mixins/has_fields'
 
 module GQL
   class Field
+    ExecutionContext = Struct.new(:target, :context, :field_class)
+
     class_attribute :id, :proc, instance_accessor: false, instance_predicate: false
 
     class << self
@@ -18,8 +20,8 @@ module GQL
 
       def execute(parent, ast_node, target, variables, context)
         args    = [target, context, GQL.debug ? parent : nil]
-        method  = Executor::Context.new(*args)
-        field   = new(ast_node, method.execute(proc), variables, context)
+        target  = ExecutionContext.new(*args).instance_exec(&proc)
+        field   = new(ast_node, target, variables, context)
 
         field.value
       end

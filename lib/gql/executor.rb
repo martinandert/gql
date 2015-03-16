@@ -1,11 +1,5 @@
 module GQL
   class Executor
-    class Context < Struct.new(:target, :context, :field_class)
-      def execute(method, args = [])
-        instance_exec(*args, &method)
-      end
-    end
-
     attr_reader :ast_root, :variables
 
     def initialize(ast_query)
