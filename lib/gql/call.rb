@@ -19,6 +19,10 @@ module GQL
         result.value
       end
 
+      def parameters
+        (proc || instance_method(:execute)).parameters
+      end
+
       private
         def substitute_variables(args, variables)
           args.map { |arg| substitute_variable arg, variables }

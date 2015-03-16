@@ -1,3 +1,5 @@
+require 'active_support/core_ext/object/try'
+
 module GQL
   module Schema
     class Call < GQL::Field
@@ -6,7 +8,7 @@ module GQL
       string  :id
       string  :name
       object  :result_class, -> { target.result_class || CallerClass }, object_class: Field
-      array   :parameters,   -> { (target.proc || target.instance_method(:execute)).parameters }, item_class: Parameter
+      array   :parameters,   -> { target.parameters }, item_class: Parameter
 
       def scalar_value
         target.name

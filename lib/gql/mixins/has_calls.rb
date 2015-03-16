@@ -126,10 +126,22 @@ module GQL
           end
 
           def execute(caller_class, ast_node, target, variables, context)
-            real_call_class = Registry.fetch(call_class_name, Call)
-            call_class = caller_class.add_call(id, real_call_class, returns: result_class)
-            call_class.execute caller_class, ast_node, target, variables, context
+            spurred = spur_call_class(caller_class, id)
+            spurred.execute caller_class, ast_node, target, variables, context
           end
+
+          def parameters
+            call_class.parameters
+          end
+
+          private
+            def call_class
+              @call_class ||= Registry.fetch(call_class_name, Call)
+            end
+
+            def spur_call_class(caller_class, id)
+              caller_class.add_call id, call_class, returns: result_class
+            end
         end
     end
   end
