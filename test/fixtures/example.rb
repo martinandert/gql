@@ -1,4 +1,6 @@
-class FakeRecord
+# Example
+
+class FakeRecord  # quick'n'dirty ActiveRecord
   attr_accessor :attributes
 
   def initialize(attributes = {})
@@ -95,18 +97,19 @@ $viewer = $users[0]
 class UserField < GQL::Field
   cursor :token
 
-  string      :id, -> { target.token }
-  string      :first_name
-  string      :last_name
-  boolean     :is_admin,  -> { target.admin? }
+  # define some fields
+  string  :id, -> { target.token } # use `target` to access the underlying record
+  string  :first_name # maps directly to `target.first_name`
+  string  :last_name
+  boolean :is_admin, -> { target.admin? }
 
-  object      :account,     as: 'AccountField'
-              # must use a string here  ^  b/c AccountField constant is not yet defined
+  object  :account, as: 'AccountField'
+       # must use a string here  ^  b/c AccountField constant is not yet defined
 
-  connection  :albums,      item_class: 'AlbumField'
-                                # same here  ^
+  connection :albums, item_class: 'AlbumField'
+                         # same here  ^
 
-  timestamp   :created_at
+  timestamp :created_at
   #   ^   using custom field type here (see below for definition)
 
   string :full_name do
@@ -136,7 +139,7 @@ class AccountField < GQL::Field
   cursor -> { target.iban }
 
   number  :id
-  object  :user,      as: UserField
+  object  :user, as: UserField
 
   money   :saldo
   # ^ using custom field type here (see below for definition)
@@ -166,7 +169,6 @@ end
 
 class Timestamp < GQL::Field
   call :format,     -> (format = 'default') { I18n.localize target, format: format.to_sym }, returns: 'GQL::String'
-  call :ago,        -> { 'a long time ago' }, returns: 'GQL::String'
   call :add_years,  -> years { target + years * 365*24*60*60 }
   call :to_s, returns: 'GQL::String'
 
@@ -199,11 +201,11 @@ class List < GQL::Field
   end
 end
 
-# used, when no list_class is specified on `connection` fields
+# used, when no list_class option is specified on `connection` fields
 GQL.default_list_class = List
 
 
-### Calls can also be defined as classses:
+### Calls can also be defined as classes:
 
 class UpdateUserNameCall < GQL::Call
   def execute(token, new_name)
@@ -223,7 +225,6 @@ class UpdateUserNameCall < GQL::Call
     string :old_name
     string :new_name
   end
-
   #   ^  this is the same as doing it the more explicit way:
   # class Result < GQL::Field
   #   object :user,     -> { target[:user]     }, object_class: UserField

@@ -5,7 +5,11 @@
 [![Test Coverage](https://codeclimate.com/github/martinandert/gql/badges/coverage.svg)](https://codeclimate.com/github/martinandert/gql)
 [![Dependency Status](https://gemnasium.com/martinandert/gql.svg)](https://gemnasium.com/martinandert/gql)
 
-A Ruby implementation of Facebook's yet-to-be-released GraphQL specification, inspired by [graphql-ruby](https://github.com/rmosolgo/graphql-ruby), but with other/more/less features/bugs.
+A Ruby implementation of Facebook's yet-to-be-released GraphQL specification.
+
+Visit http://gql-demo.herokuapp.com/ for a live demo. The source code for this demo can be found in the "example" directory.
+
+**Disclaimer:** I can only speculate about how the final spec will look like. The implementation provided here is merely my guessing based on [this talk](https://youtu.be/9sc8Pyc51uU) and [this gist](https://gist.github.com/wincent/598fa75e22bdfa44cf47). Nonetheless, this project represents how I wish the official specification will define things.
 
 
 ## Installation
@@ -31,12 +35,20 @@ $ gem install gql
 
 ## Usage
 
-TODO: Write usage instructions here
+Usage instructions and documentation will be added when Facebook releases the official GraphQL specification.
+
+Until then, if you have questions or comments, open a ticket in GitHub's issues tracker for this project.
+
+In order to see how things are done and to explore this gem's features, I encourage you to study the code and tests.
 
 
 ## Example
 
-Run `bin/console` for an interactive prompt (loaded with example models/data) and enter the following:
+Apart from the more full-fledged live demo linked above, there's a simpler example available in "test/fixtures/example.rb".
+
+To play around with it, run `bin/console` from the project root. This starts an interactive prompt loaded with the example's models/data.
+
+In the prompt, copy and paste the following Ruby code to execute your first query:
 
 ```ruby
 puts query(<<-QUERY_STRING).to_json
@@ -78,7 +90,7 @@ puts query(<<-QUERY_STRING).to_json
 QUERY_STRING
 ```
 
-This should result in the following JSON (after prettyfication):
+It all goes well, this should result in the following JSON (after prettyfication):
 
 ```json
 {
@@ -163,6 +175,13 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 7. Commit your changes (`git commit -am 'add some feature'`)
 8. Push to your fork (`git push origin my-new-feature`)
 9. Create a new Pull Request
+
+
+## Note
+
+For an alternative Ruby implementation, check out rmosolgo's [graphql-ruby](https://github.com/rmosolgo/graphql-ruby).
+
+The initial work on my gem was inspired by his code. Since then, both repos have diverged significantly.
 
 
 ## License
