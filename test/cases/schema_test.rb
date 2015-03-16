@@ -130,7 +130,7 @@ class SchemaTest < ActiveSupport::TestCase
 
     list = GQL::Schema::List.new(ast_field, [foo, bar], {}, {})
 
-    assert_equal({ id: 'bar', fields: { count: 2 } }, list.value)
+    assert_equal({ id: 'bar', fields: { count: GQL.debug ? 3 : 2 } }, list.value)
   end
 end
 
