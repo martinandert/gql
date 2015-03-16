@@ -19,7 +19,7 @@ class FieldWithArrays < GQL::Field
   array :hash_with_class_values_as_item_class, -> { ['foo', 42] }, item_class: { Fixnum => MyFixnum, String => MyString }
   array :hash_with_string_values_as_item_class, -> { ['foo', 42] }, item_class: { Fixnum => 'MyFixnum', String => 'MyString' }
 
-  array :proc_as_item_class,  -> { ['foo', 42] }, item_class: -> item, _ { item.is_a?(String) ? MyString : 'MyFixnum' }
+  array :proc_as_item_class,  -> { ['foo', 42] }, item_class: -> item { item.is_a?(String) ? MyString : 'MyFixnum' }
 end
 
 class ArrayTest < ActiveSupport::TestCase

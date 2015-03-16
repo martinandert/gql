@@ -20,9 +20,9 @@ module GQL
         def object_proc_for_class(object_class)
           case object_class
           when ::Hash
-            -> target, _ { object_class[target.class] }
+            -> target { object_class[target.class] }
           when ::Class, ::String
-            -> _, __ { object_class }
+            -> _ { object_class }
           when ::Proc
             object_class
           else
@@ -32,10 +32,21 @@ module GQL
     end
 
     def value
-      field_class = Registry.fetch(self.class.object_proc.call(target, context))
+      field_class = Registry.fetch(object_proc_result)
 
       field = field_class.new(ast_node, target, variables, context)
       field.value
     end
+
+    private
+      def object_proc_result
+        proc = self.class.object_proc
+
+        if proc.arity == 1
+          proc.call target
+        else
+          proc.call target, context
+        end
+      end
   end
 end

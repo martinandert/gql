@@ -29,8 +29,8 @@ class FieldWithObject < GQL::Field
   object :hash_with_class_values_as_object_class,  -> { BClass.new('b') }, object_class: { AClass => AClassField, BClass => BClassField }
   object :hash_with_string_values_as_object_class, -> { AClass.new('a') }, object_class: { AClass => 'AClassField', BClass => 'BClassField' }
 
-  object :proc_returning_class_as_object_class,  -> { AClass.new('a') }, object_class: -> target, _ { target.is_a?(AClass) ? AClassField : 'BClassField' }
-  object :proc_returning_string_as_object_class, -> { BClass.new('b') }, object_class: -> target, _ { target.is_a?(AClass) ? AClassField : 'BClassField' }
+  object :proc_returning_class_as_object_class,  -> { AClass.new('a') }, object_class: -> target, context { target.is_a?(AClass) ? AClassField : 'BClassField' }
+  object :proc_returning_string_as_object_class, -> { BClass.new('b') }, object_class: -> target          { target.is_a?(AClass) ? AClassField : 'BClassField' }
 end
 
 class ObjectTest < ActiveSupport::TestCase
