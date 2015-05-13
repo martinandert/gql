@@ -9,3 +9,4 @@ set :repo_tree, "example"
 
 set :buildpack_url, "https://github.com/heroku/heroku-buildpack-ruby.git#v137"
 set :foreman_options, port: 3012, user: "deploy"
+set :default_env, stack: "cedar-14"

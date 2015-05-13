@@ -9,7 +9,6 @@ gem 'sinatra-contrib'
 gem 'sinatra-activerecord'
 gem 'activesupport'
 gem 'gql'
-gem 'dotenv'
 
 group :development do
   gem 'sqlite3'
