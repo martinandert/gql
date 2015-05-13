@@ -22,17 +22,6 @@ file 'lib/gql/parser.rb' => 'support/parser.racc' do |t|
   sh "sed --in-place 's/  end\s*# module/end #/g' #{t.name}"
 end
 
-namespace :heroku do
-  namespace :push do
-    desc 'Push app in example directory to Heroku'
-    task :example do
-      # https://github.com/apenwarr/git-subtree/
-      # sh "git subtree push --prefix example heroku master"
-      sh "git push heroku `git subtree split --prefix example master`:master --force"
-    end
-  end
-end
-
 Rake::TestTask.new :test do |t|
   t.libs << 'test'
   t.test_files = Dir.glob("#{dir}/test/cases/**/*_test.rb")

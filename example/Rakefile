@@ -1,5 +1,8 @@
 $LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
 
+require 'dotenv'
+puts Dotenv.load
+
 require 'sinatra/activerecord/rake'
 
 namespace :db do
@@ -14,10 +17,15 @@ namespace :db do
   end
 
   namespace :data do
-    desc "Reset all data in the db to fixtures state"
+    desc 'Reset all data in the db to fixtures state'
     task :reset => :load_config do
       [Album, Attribution, Band, Membership, MembershipRole, Person, Role, Song].map(&:delete_all)
       Rake::Task['db:fixtures:load'].invoke
     end
   end
+end
+
+desc 'Push app in example directory to Heroku'
+task :publish do
+  sh 'cap production deploy deploy:restart'
 end
